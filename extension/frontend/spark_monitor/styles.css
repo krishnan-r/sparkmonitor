@@ -1,0 +1,96 @@
+.pm {
+  border: 1px solid #EEEEEE;
+  background-color: #E0E0E0;
+  margin: 5px;
+  border-radius: 6px;
+  font-family: sans-serif;
+}
+
+.pm .title {
+  background-color: #F37600;
+  border-radius: 6px 6px 0px 0px;
+  padding:3px;
+}
+
+.pm .content {
+padding: 5px;
+}
+
+.tbitem {
+  padding: 5px 15px;
+}
+
+.tbitem:hover {
+  background-color: #C45917;
+}
+
+.pm th {
+  font-size: 12;
+  background-color: #EEEEEE;
+  border: 0px;
+}
+
+.pm td {
+  background-color: white;
+  border: 0;
+}
+
+.pm table {
+  border-radius: 0px;
+  width: 100%;
+  border: 1px solid #CFCFCF;
+}
+.pm tbody {
+    height:100px;
+    overflow:auto;
+        }
+
+.pm tr {
+  border: 0px;
+}
+.pm td,.pm th {
+  text-align: center;
+  vertical-align: middle;
+}
+.pm td:hover {
+  background-color: #EEEEEE;
+}
+.pm .tr:nth-child(even) td {
+  background-color: #EAEAF2;
+}
+progress{
+  padding:2px;
+}
+.pm .cancel {
+  margin: 0;
+  border: none;
+  background-color: #F22626;
+  border-radius: 5px;
+    float: right;
+}
+.pm .cancel:active {
+    background-color: #F22626;
+    border: none;
+}
+.pm .cancel:hover {
+  background-color: #C91A1A;
+}
+.pm .RUNNING
+{
+background-color:#42A5F5;
+}
+.pm .FAILED
+{
+background-color:#DB3636;
+}
+.pm .SUCCEEDED
+{
+background-color:#20B520;
+}
+.pm .SUCCEEDED,.pm .FAILED,.pm .RUNNING
+{
+font-size:75%;
+padding:4px 8px;
+color: white;
+border-radius: 2px;
+}
