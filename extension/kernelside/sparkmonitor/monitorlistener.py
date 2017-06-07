@@ -13,14 +13,16 @@ class MonitorSparkListener(SparkListener):
         self.applicationEnd = applicationEnd
         self.monitor.send({
             'msgtype': 'sparkApplicationEnd',
-            'data': applicationEnd.toString()
+            'alldata': applicationEnd.toString()
         })
 
     def onJobEnd(self, jobEnd):
         self.jobEnd = jobEnd
         self.monitor.send({
             'msgtype': 'sparkJobEnd',
-            'data': jobEnd.toString()
+            'alldata': jobEnd.toString(),
+            'completionTime': jobEnd.time(),
+            'jobId': jobEnd.jobId()
         })
 
     def onJobStart(self, jobStart):
@@ -28,35 +30,63 @@ class MonitorSparkListener(SparkListener):
         logger.info(jobStart.toString())
         self.monitor.send({
             'msgtype': 'sparkJobStart',
-            'data': jobStart.toString()
+            'alldata': jobStart.toString(),
+            'submissionTime': jobStart.time(),
+            'name': jobStart.properties()[u'callSite.short'],
+            'jobId': jobStart.jobId()
         })
 
     def onStageCompleted(self, stageCompleted):
         self.stageCompleted = stageCompleted
         self.monitor.send({
             'msgtype': 'sparkStageCompleted',
-            'data': stageCompleted.toString()
+            'alldata': stageCompleted.toString(),
+            'name': stageCompleted.stageInfo().name(),
+            'details': stageCompleted.stageInfo().details(),
+            'submissionTime': stageCompleted.stageInfo().submissionTime().get(),
+            'completionTime': stageCompleted.stageInfo().completionTime().get(),
+            'stageId': stageCompleted.stageInfo().stageId()
         })
 
     def onStageSubmitted(self, stageSubmitted):
         self.stageSubmitted = stageSubmitted
         self.monitor.send({
             'msgtype': 'sparkStageSubmitted',
-            'data': stageSubmitted.toString()
+            'alldata': stageSubmitted.toString(),
+            'name': stageSubmitted.stageInfo().name(),
+            'details': stageSubmitted.stageInfo().details(),
+            'submissionTime': stageSubmitted.stageInfo().submissionTime().get(),
+            'stageId': stageSubmitted.stageInfo().stageId()
         })
 
     def onTaskStart(self, taskStart):
         self.taskStart = taskStart
+        logger.info(taskStart.toString())
         self.monitor.send({
             'msgtype': 'sparkTaskStart',
-            'data': taskStart.toString()
+            'alldata': taskStart.toString(),
+            'launchTime': taskStart.taskInfo().launchTime(),
+            'host': taskStart.taskInfo().host(),
+            'executorId': taskStart.taskInfo().executorId(),
+            'taskId': taskStart.taskInfo().taskId(),
+            'stageId': taskStart.stageId(),
+            'stageAttemptId': taskStart.stageAttemptId(),
+            'status': taskStart.taskInfo().status()
         })
 
     def onTaskEnd(self, taskEnd):
         self.taskEnd = taskEnd
         self.monitor.send({
             'msgtype': 'sparkTaskEnd',
-            'data': taskEnd.toString()
+            'alldata': taskEnd.toString(),
+            'finishTime': taskEnd.taskInfo().finishTime(),
+            'host': taskEnd.taskInfo().host(),
+            'executorId': taskEnd.taskInfo().executorId(),
+            'taskId': taskEnd.taskInfo().taskId(),
+            'status': taskEnd.taskInfo().status(),
+            'taskType': taskEnd.taskType(),
+            'stageId': taskEnd.stageId(),
+            'stageAttemptId': taskEnd.stageAttemptId()
         })
 
     def register(self, sc):

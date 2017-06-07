@@ -1,10 +1,9 @@
-<link rel="stylesheet" type="text/css" href="styles.css">
 <div id="CellMonitor" class="pm">
     <div class="title">
         <span class="tbitem"><b>Apache Spark Jobs:</b></span>
         <button class="cancel" title="Stop all jobs in the curret job group.">Interrupt Jobs</button>
     </div>
-    <div class="content">
+    <!-- <div class="content">
         <table class="jobtable">
             <thead>
                 <tr>
@@ -20,21 +19,12 @@
 
             </tbody>
         </table>
-        <div class="test">
+        </div> -->
+    <div id="timeline">
+        <div id="timelinecontainer">
 
         </div>
+
     </div>
 </div>
-
-<!-- Job Table Item Template 
-<script id="jobitemtemplate" type="text/template">
-    <tr class="row_{jobId}">
-        <td>{slno}</td>
-        <td>{jobId}</td>
-        <td>{name}</td>
-        <td><span class="{status}">{status}</span></td>
-        <td>{numActiveStages}/{numCompletedStages}</td>
-        <td><progress value="{numCompletedTasks}" max="{numTasks}"></progress> {numCompletedTasks}/{numTasks}</td>
-    </tr>
-</script> 
--->
+</div>
