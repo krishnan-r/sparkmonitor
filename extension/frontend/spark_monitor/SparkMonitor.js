@@ -4,28 +4,19 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 			this.cellmonitors = {};
 			this.startComm();
 			this.data = new vis.DataSet();
+			this.groups = new vis.DataSet([
+				{ id: 'jobs', content: 'Job' },
+				{ id: 'stages', content: 'Stage' }
+			]);
 
 		}
 
 		SparkMonitor.prototype.getCellMonitor = function (cell) {
 			if (this.cellmonitors[cell.cell_id] == null) {
 
-				var options = {
-					rollingMode: {
-						follow: true,
-						offset: 0.75
-					},
-					stack: true,
-					showTooltips: true,
-					maxHeight: '400px',
-					timeAxis: { scale: 'second', step: 20 },
-				};
-				this.groups = new vis.DataSet([
-					{ id: 'jobs', content: 'Job' },
-					{ id: 'stages', content: 'Stage' }
-				]);
 
-				this.cellmonitors[cell.cell_id] = new CellMonitor(this, cell, this.data, options, this.groups)
+
+				this.cellmonitors[cell.cell_id] = new CellMonitor(this, cell, this.data, this.groups)
 			}
 			return this.cellmonitors[cell.cell_id]
 		}
@@ -56,7 +47,9 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 		SparkMonitor.send = function (msg) {
 			this.comm.send(msg);
 		}
-		//--------Message Handling Functions-------------
+
+
+		//--------Message Handling Functions that update the data-------------
 
 		SparkMonitor.prototype.sparkJobStart = function (msg) {
 			console.log('Job Start Message', msg);
@@ -72,8 +65,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 				{
 					id: 'job' + data.jobId,
 					jobId: data.jobId,
-					submissionTime: data.submissionTime,
-					start: Date(data.submissionTime),
+					start: new Date(data.submissionTime),
 					name: data.name,
 					content: 'job' + data.jobId,
 					title: data.name,
@@ -89,8 +81,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 			this.data.update(
 				{
 					id: 'job' + data.jobId,
-					completionTime: data.completionTime,
-					end: Date(data.completionTime),
+					end: new Date(data.completionTime),
 				}
 			);
 		}
@@ -107,8 +98,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 				{
 					id: 'stage' + data.stageId,
 					stageId: data.stageId,
-					submissionTime: data.submissionTime,
-					start: Date(data.submissionTime),
+					start: new Date(data.submissionTime),
 					content: 's-' + data.stageId,
 					cell_id: cell.cell_id,
 					group: 'stages',
@@ -116,16 +106,17 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 				}
 			);
 		}
+
 		SparkMonitor.prototype.sparkStageCompleted = function (msg) {
 			var data = msg.content.data;
 			this.data.update(
 				{
 					id: 'stage' + data.stageId,
-					completionTime: data.completionTime,
-					end: Date(data.completionTime),
+					end: new Date(data.completionTime),
 				}
 			);
 		}
+
 		SparkMonitor.prototype.sparkTaskStart = function (msg) {
 			var cell = currentcell.getRunningCell()
 			if (cell == null) {
@@ -139,28 +130,29 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 				{
 					id: 'task' + data.taskId,
 					taskId: data.taskId,
-					launchTime: data.launchTime,
-					start: Date(data.launchTime),
+					start:new Date(data.launchTime),
 					content: 't-' + data.taskId,
 					cell_id: cell.cell_id,
 					group: data.executorId + '-' + data.host,
 					stageId: data.stageId,
 					stageAttemptId: data.stageAttemptId,
-					title: 'Task: ' + data.taskId + ' from stage ' + data.stageId
+					title: 'Task: ' + data.taskId + ' from\n<br> stage ' + data.stageId + ' Launched: ' + Date(data.launchTime)
 				}
 			);
 			cellmonitor.resizeTimeline();
 		}
+
 		SparkMonitor.prototype.sparkTaskEnd = function (msg) {
 			var data = msg.content.data;
 			this.data.update(
 				{
 					id: 'task' + data.taskId,
-					finishTime: Date(data.finishTime),
-					end: Date(data.finishTime),
+					end: new Date(data.finishTime),
+					title: 'Task: ' + data.taskId + ' from stage ' + data.stageId + 'Launched' + Date(data.launchTime) + 'Completed: ' + Date(data.finishTime)
 				}
 			);
 		}
+
 		SparkMonitor.prototype.sparkApplicationEnd = function (msg) {
 			//
 		}
@@ -194,5 +186,4 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 			}
 		}
 		return SparkMonitor;
-
 	});

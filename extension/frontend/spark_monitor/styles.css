@@ -1,19 +1,19 @@
 .pm {
   border: 1px solid #EEEEEE;
   background-color: #EEEEEE;
-  margin: 5px;
-  border-radius: 6px;
+  margin: 5px 0px 0px 0px;
+  /*border-radius: 6px;*/
   font-family: sans-serif;
 }
 
 .pm .title {
   background-color: #F37600;
-  border-radius: 6px 6px 0px 0px;
-  padding:3px;
+  /*border-radius: 6px 6px 0px 0px; */
+  padding: 3px;
 }
 
 .pm .content {
-padding: 5px;
+  padding: 5px;
 }
 
 .tbitem {
@@ -40,57 +40,72 @@ padding: 5px;
   width: 100%;
   border: 1px solid #CFCFCF;
 }
+
 .pm tbody {
-    height:100px;
-    overflow:auto;
-        }
+  height: 100px;
+  overflow: auto;
+}
 
 .pm tr {
   border: 0px;
 }
-.pm td,.pm th {
+
+.pm td, .pm th {
   text-align: center;
   vertical-align: middle;
 }
+
 .pm td:hover {
   background-color: #EEEEEE;
 }
+
 .pm .tr:nth-child(even) td {
   background-color: #EAEAF2;
 }
-progress{
-  padding:2px;
+
+progress {
+  padding: 2px;
 }
+
 .pm .cancel {
   margin: 0;
   border: none;
   background-color: #F22626;
   border-radius: 5px;
-    float: right;
+  float: right;
 }
+
 .pm .cancel:active {
-    background-color: #F22626;
-    border: none;
+  background-color: #F22626;
+  border: none;
 }
+
 .pm .cancel:hover {
   background-color: #C91A1A;
 }
-.pm .RUNNING
-{
-background-color:#42A5F5;
+
+.pm .RUNNING {
+  background-color: #42A5F5;
 }
-.pm .FAILED
-{
-background-color:#DB3636;
+
+.pm .FAILED {
+  background-color: #DB3636;
 }
-.pm .SUCCEEDED
-{
-background-color:#20B520;
+
+.pm .SUCCEEDED {
+  background-color: #20B520;
 }
-.pm .SUCCEEDED,.pm .FAILED,.pm .RUNNING
-{
-font-size:75%;
-padding:4px 8px;
-color: white;
-border-radius: 2px;
+
+.pm .SUCCEEDED, .pm .FAILED, .pm .RUNNING {
+  font-size: 75%;
+  padding: 4px 8px;
+  color: white;
+  border-radius: 2px;
+}
+
+
+/*Vis timeline style*/
+
+.vis-item {
+  font-size: smaller
 }
