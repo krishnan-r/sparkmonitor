@@ -2,7 +2,9 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 	function (Jupyter, require, events, $, CellMonitor, currentcell, vis) {
 		function SparkMonitor() {
 			this.cellmonitors = {};
+			this.comm = null;
 			this.startComm();
+			events.on('kernel_connected.Kernel', $.proxy(this.startComm, this));
 			this.data = new vis.DataSet();
 			this.groups = new vis.DataSet([
 				{ id: 'jobs', content: 'Job' },
@@ -22,7 +24,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 		}
 
 		SparkMonitor.prototype.on_comm_msg = function (msg) {
-			//console.log('SparkMonitor: Comm Message:', msg.content.data);
+			console.log('SparkMonitor: Comm Message:', msg.content.data);
 			this.handleMessage(msg)
 		}
 
@@ -31,20 +33,21 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 		}
 
 		SparkMonitor.prototype.startComm = function () {
+			if (this.comm) {
+				this.comm.close()
+			}
+			console.log('Starting COMM NOW')
 			var that = this;
-			Jupyter.notebook.kernel.comm_manager.register_target('SparkMonitor',
-				function (comm, msg) {
-					// comm is the frontend comm instance
-					// msg is the comm_open message, which can carry data
-					console.log('SparkMonitor: Comm OPENED Message', msg);
-					// Register handlers for later messages:
-					comm.on_msg($.proxy(that.on_comm_msg, that));
-					comm.on_close($.proxy(that.on_comm_close, that));
-					comm.send({ 'foo': 'comm opened' });
-				});
+			this.comm = Jupyter.notebook.kernel.comm_manager.new_comm('SparkMonitor',
+				{ 'msgtype': 'openfromfrontend' });
+
+			// Register a handler
+			this.comm.on_msg($.proxy(that.on_comm_msg, that));
+			this.comm.on_close($.proxy(that.on_comm_close, that));
+
 		}
 
-		SparkMonitor.send = function (msg) {
+		SparkMonitor.prototype.send = function (msg) {
 			this.comm.send(msg);
 		}
 
@@ -130,7 +133,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 				{
 					id: 'task' + data.taskId,
 					taskId: data.taskId,
-					start:new Date(data.launchTime),
+					start: new Date(data.launchTime),
 					content: 't-' + data.taskId,
 					cell_id: cell.cell_id,
 					group: data.executorId + '-' + data.host,

@@ -1,3 +1,4 @@
+var sm; //debugging
 define([
 	'base/js/namespace',
 	'require',
@@ -16,7 +17,7 @@ define([
 			console.log('SparkMonitor: Loading Spark Monitor Front-End Extension');
 
 			var monitor = new SparkMonitor();
-			
+			sm=monitor
 			//For debugging.
 			console.log(Jupyter);
 

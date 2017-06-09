@@ -5,6 +5,7 @@ from threading import Thread
 import time
 import logging
 from .monitorlistener import MonitorSparkListener
+import traceback
 
 
 class Monitor():
@@ -32,12 +33,12 @@ class Monitor():
         logger.info('Comm Message: %s',msg)
 
     def register_comm(self):
-        logger.info('Registering comm from kernel')
-        self.comm = Comm(target_name='SparkMonitor', data={'msgtype': 'commopen'})
-        logger.info('Comm registered %s',self.comm)
-        
-        # Add a callback for received messages.
+        self.ipython.kernel.comm_manager.register_target('SparkMonitor', self.target_func)
+
+    def target_func(self,comm,msg):
+        self.comm=comm
         @self.comm.on_msg
         def _recv(msg):
             self.handle_message(msg)
-        
+        comm.send({'msgtype': 'commopen'})
+
