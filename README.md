@@ -24,7 +24,7 @@ cd sparkmonitor/extension
 The frontend extension is symlinked (```--symlink```) into the jupyter configuration directory in the python prefix path using (```--sysprefix```) by `jupyter nbextension` command. The second line configures the frontend extension to load on notebook startup.
 
 ```bash
-jupyter nbextension install frontend/spark_monitor/ --sys-prefix --symlink
+jupyter nbextension install ./frontend/spark_monitor --sys-prefix --symlink
 jupyter nbextension enable spark_monitor/module --sys-prefix
 ```
 
