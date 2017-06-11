@@ -62,7 +62,7 @@ define(['base/js/namespace', 'notebook/js/codecell', 'require','base/js/events',
         //TODO clear queue on execute error
 
         //For Debugging purposes. Highlights the currently running cell in colour.
-        events.on('started.currentcell',function(event,cell){cell.element.css('background-color','yellow')});
+        events.on('started.currentcell',function(event,cell){cell.element.css('background-color','#EEEEEE')});
         events.on('finished.currentcell',function(event,cell){cell.element.css('background-color','white')});
     }
     function unregister()
