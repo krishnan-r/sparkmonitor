@@ -1,6 +1,6 @@
 .pm {
   border: 1px solid #EEEEEE;
-  background-color: #EEEEEE;
+  background-color: #f7f7f7;
   margin: 5px 0px 0px 0px;
   /*border-radius: 6px;*/
   font-family: sans-serif;
@@ -9,7 +9,7 @@
 .pm .title {
   background-color: #F37600;
   /*border-radius: 6px 6px 0px 0px; */
-  padding: 3px;
+  /*padding: 3px;*/
 }
 
 .pm .content {
@@ -18,6 +18,8 @@
 
 .tbitem {
   padding: 5px 15px;
+  vertical-align: middle;
+  display: table-cell;
 }
 
 .tbitem:hover {
@@ -69,19 +71,19 @@ progress {
 
 .pm .cancel {
   margin: 0;
-  border: none;
   background-color: #F22626;
-  border-radius: 5px;
-  float: right;
-}
-
-.pm .cancel:active {
-  background-color: #F22626;
+  /*border-radius: 5px;*/
+  text-align: right;
+  /*transition: background-color 1s;*/
   border: none;
 }
 
 .pm .cancel:hover {
-  background-color: #C91A1A;
+  background-color: #C45917;
+}
+
+.pm .cancel:active {
+  font: larger;
 }
 
 .pm .RUNNING {
@@ -107,5 +109,50 @@ progress {
 /*Vis timeline style*/
 
 .vis-item {
-  font-size: smaller
+  border: 1px;
+  border-radius: 0;
+  background-color: #C9EF9B;
+  border-color: #6c9d34;
+  font-size: smaller;
+}
+
+.vis-item .vis-item-content {
+  padding: 1px 2px;
+}
+
+.vis-time-axis {
+  font-size: smaller;
+}
+
+.vis-tooltip {
+  color: white;
+  background-color: black;
+}
+
+.vis-item.vis-background {
+  background-color: rgba(191, 191, 191, 0.58);
+}
+
+.vis-custom-time {
+  pointer-events: none;
+}
+
+.headericon {
+  /*display: inline-block;*/
+  transition: transform 0.4s;
+  transform: rotate(90deg);
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.headericoncollapsed {
+  transform: rotate(0deg);
+}
+
+.titleright {
+  float: right;
+}
+
+.visjobgroup {
+  /*background-color: pink;*/
 }

@@ -1,6 +1,6 @@
 # Spark Monitor Extension for Jupyter Notebook
 ## Work in Progress
-![Screenshot](screenshot.png)
+![Screenshot](screenshot.gif)
 ## Notes
 * This version uses a python based `SparkListener` attached to the `SparkContext`. (Scala listeners coming soon)
 * The extension requires the user to call `connectContext(sc)` after the context is created, from the notebook to start working (Requirement will be removed in future)

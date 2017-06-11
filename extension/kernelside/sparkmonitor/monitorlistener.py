@@ -37,27 +37,38 @@ class MonitorSparkListener(SparkListener):
         })
 
     def onStageCompleted(self, stageCompleted):
-        self.stageCompleted = stageCompleted
-        self.monitor.send({
-            'msgtype': 'sparkStageCompleted',
-            'alldata': stageCompleted.toString(),
-            'name': stageCompleted.stageInfo().name(),
-            'details': stageCompleted.stageInfo().details(),
-            'submissionTime': stageCompleted.stageInfo().submissionTime().get(),
-            'completionTime': stageCompleted.stageInfo().completionTime().get(),
-            'stageId': stageCompleted.stageInfo().stageId()
-        })
+        try:
+            self.stageCompleted = stageCompleted
+            self.monitor.send({
+                'msgtype': 'sparkStageCompleted',
+                'alldata': stageCompleted.toString(),
+                'name': stageCompleted.stageInfo().name(),
+                'details': stageCompleted.stageInfo().details(),
+                'completionTime': stageCompleted.stageInfo().completionTime().get(),
+                'stageId': stageCompleted.stageInfo().stageId()
+            })
+        except Exception as e:
+            logger.info(e)
 
     def onStageSubmitted(self, stageSubmitted):
-        self.stageSubmitted = stageSubmitted
-        self.monitor.send({
-            'msgtype': 'sparkStageSubmitted',
-            'alldata': stageSubmitted.toString(),
-            'name': stageSubmitted.stageInfo().name(),
-            'details': stageSubmitted.stageInfo().details(),
-            'submissionTime': stageSubmitted.stageInfo().submissionTime().get(),
-            'stageId': stageSubmitted.stageInfo().stageId()
-        })
+        try:
+             
+            self.stageSubmitted = stageSubmitted
+            # if (stageSubmitted.stageInfo().completionTime().isEmpty()):
+            #     status:'skipped'
+            # else:
+            #     st=stageSubmitted.stageInfo().submissionTime().get()
+            #     status:'running'
+            self.monitor.send({
+                'msgtype': 'sparkStageSubmitted',
+                'alldata': stageSubmitted.toString(),
+                'name': stageSubmitted.stageInfo().name(),
+                'details': stageSubmitted.stageInfo().details(),
+                'submissionTime': stageSubmitted.stageInfo().submissionTime().get(),
+                'stageId': stageSubmitted.stageInfo().stageId()
+            })
+        except Exception as e:
+            logger.info('Exception in StageSubmitted: %s ',e)
 
     def onTaskStart(self, taskStart):
         self.taskStart = taskStart
