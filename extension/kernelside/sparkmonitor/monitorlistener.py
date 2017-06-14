@@ -13,14 +13,12 @@ class MonitorSparkListener(SparkListener):
         self.applicationEnd = applicationEnd
         self.monitor.send({
             'msgtype': 'sparkApplicationEnd',
-            'alldata': applicationEnd.toString()
         })
 
     def onJobEnd(self, jobEnd):
         self.jobEnd = jobEnd
         self.monitor.send({
             'msgtype': 'sparkJobEnd',
-            'alldata': jobEnd.toString(),
             'completionTime': jobEnd.time(),
             'jobId': jobEnd.jobId()
         })
@@ -30,7 +28,6 @@ class MonitorSparkListener(SparkListener):
         logger.info(jobStart.toString())
         self.monitor.send({
             'msgtype': 'sparkJobStart',
-            'alldata': jobStart.toString(),
             'submissionTime': jobStart.time(),
             'name': jobStart.properties()[u'callSite.short'],
             'jobId': jobStart.jobId()
@@ -41,41 +38,55 @@ class MonitorSparkListener(SparkListener):
             self.stageCompleted = stageCompleted
             self.monitor.send({
                 'msgtype': 'sparkStageCompleted',
-                'alldata': stageCompleted.toString(),
                 'name': stageCompleted.stageInfo().name(),
                 'details': stageCompleted.stageInfo().details(),
                 'completionTime': stageCompleted.stageInfo().completionTime().get(),
-                'stageId': stageCompleted.stageInfo().stageId()
+                'stageId': stageCompleted.stageInfo().stageId(),
+                'submissionTime': stageCompleted.stageInfo().submissionTime().get(),
+                'name': stageCompleted.stageInfo().name(),
             })
         except Exception as e:
-            logger.info(e)
+            logger.info('Exception in StageCompleted %s', e)
 
     def onStageSubmitted(self, stageSubmitted):
         try:
-             
+
             self.stageSubmitted = stageSubmitted
             # if (stageSubmitted.stageInfo().completionTime().isEmpty()):
             #     status:'skipped'
             # else:
             #     st=stageSubmitted.stageInfo().submissionTime().get()
             #     status:'running'
+            try:
+                logger.info('Stage %s:', stageSubmitted.stageInfo().stageId())
+            except Exception as e:
+                logger.info('Exception in STAGEID: %s ', e)
+            try:
+                logger.info('CompletionTime %s',
+                            stageSubmitted.stageInfo().completionTime().get())
+            except Exception as e:
+                logger.info('Exception in COMPLETIONTIME: %s ', e)
+            try:
+                logger.info(' SubmissionTime: %s',
+                            stageSubmitted.stageInfo().submissionTime().get())
+                logger.info('\n')
+            except Exception as e:
+                logger.info('Exception in SUBMISSIONTIME: %s ', e)
+
             self.monitor.send({
                 'msgtype': 'sparkStageSubmitted',
-                'alldata': stageSubmitted.toString(),
                 'name': stageSubmitted.stageInfo().name(),
-                'details': stageSubmitted.stageInfo().details(),
                 'submissionTime': stageSubmitted.stageInfo().submissionTime().get(),
                 'stageId': stageSubmitted.stageInfo().stageId()
             })
         except Exception as e:
-            logger.info('Exception in StageSubmitted: %s ',e)
+            logger.info('Exception in StageSubmitted: %s ', e)
 
     def onTaskStart(self, taskStart):
         self.taskStart = taskStart
-        logger.info(taskStart.toString())
+       # logger.info(taskStart.toString())
         self.monitor.send({
             'msgtype': 'sparkTaskStart',
-            'alldata': taskStart.toString(),
             'launchTime': taskStart.taskInfo().launchTime(),
             'host': taskStart.taskInfo().host(),
             'executorId': taskStart.taskInfo().executorId(),
@@ -89,7 +100,6 @@ class MonitorSparkListener(SparkListener):
         self.taskEnd = taskEnd
         self.monitor.send({
             'msgtype': 'sparkTaskEnd',
-            'alldata': taskEnd.toString(),
             'finishTime': taskEnd.taskInfo().finishTime(),
             'host': taskEnd.taskInfo().host(),
             'executorId': taskEnd.taskInfo().executorId(),

@@ -22,7 +22,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 filter: function (item) {
                     return (item.cell_id == cell.cell_id);
                 },
-                fields: ['id', 'start', 'end', 'content', 'group', 'title', 'type', 'mode']
+                fields: ['id', 'start', 'end', 'content', 'group', 'title', 'type', 'className']
             });
 
             this.timelineOptions = {
@@ -89,7 +89,8 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 var range = this.timeline.getItemRange()
                 if (!range.min) range.min = new Date;
                 if (!range.max) range.max = -1;
-                this.timeline.setWindow(range.min, range.max, { animation: true });
+                var offset = range.max - range.min;
+                this.timeline.setWindow(range.min - offset, range.max + offset*2, { animation: true });
             }
             catch (err) {
                 console.log("SparkMonitor: Error resizing timeline:", err);

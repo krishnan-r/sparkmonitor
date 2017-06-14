@@ -8,28 +8,39 @@
         <button class="cancel tbitem" title="Stop all running jobs.">Cancel Jobs</button>
         </span>
     </div>
-    <!-- <div class="content">
-        <table class="jobtable">
-            <thead>
-                <tr>
-                    <th>Sl No:</th>
-                    <th>Job ID</th>
-                    <th>Job Name</th>
-                    <th>Status</th>
-                    <th>Stages:Active/Completed</th>
-                    <th>Tasks</th>
-                </tr>
-            </thead>
-            <tbody>
+    <div class="content">
+        <!--<div class="jobtablecontent">
+            <b> JOBS RUNNING: </b>
+            <table class="jobtable">
+                <thead>
+                    <tr>
+                        <th>Job ID</th>
+                        <th>Job Name</th>
+                        <th>Status</th>
+                        <th>Stages:Active/Completed</th>
+                        <th>Tasks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="row_{jobId}">
+                        <td>{jobId}</td>
+                        <td>{name}</td>
+                        <td><span class="{status}">{status}</span></td>
+                        <td>{numActiveStages}/{numCompletedStages}</td>
+                        <td>
+                            <progress class='progress' value="{numCompletedTasks}" max="{numTasks}"></progress> {numCompletedTasks}/{numTasks}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>-->
+        <div class="timeline">
+            <b> EVENT TIMELINE: </b>
+            <div class="timelinecontainer">
 
-            </tbody>
-        </table>
-        </div> -->
-    <div class="timeline content">
-        <div class="timelinecontainer">
+            </div>
 
         </div>
-
     </div>
 </div>
 </div>

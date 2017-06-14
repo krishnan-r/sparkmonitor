@@ -1,28 +1,48 @@
 define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonitor', './currentcell', './vis.min'],
 	function (Jupyter, require, events, $, CellMonitor, currentcell, vis) {
+
 		function SparkMonitor() {
 			var that = this;
 			this.cellmonitors = {};
 			this.comm = null;
 			this.startComm();
 			events.on('kernel_connected.Kernel', $.proxy(this.startComm, this));//Make sure there is a comm always.
-			this.data = new vis.DataSet(options = {
+			this.timelineData = new vis.DataSet(options = {
 				queue: true
 			});
+			this.data = new vis.DataSet();
 			this.groups = new vis.DataSet([
 				{
 					id: 'jobs',
-					content: 'Job',
+					content: 'Jobs:',
 					className: 'visjobgroup',
 				},
-				{ id: 'stages', content: 'Stage', nestedGroups: [], showNested: false, },
+				{ id: 'stages', content: 'Stages:', },
 			]);
-			this.flushInterval = setInterval(function () { that.data.flush() }, 200);
+			var i = 0;
+			//Changes to the dataset are queued and flushed.
+			this.flushInterval = setInterval(function () {
+				i++;
+				if (i == 2) {
+					i = 0;
+					that.data.forEach(function (item) {
+						var date = new Date()
+						if (item.mode == "ongoing") {
+							that.timelineData.update({
+								id: item.id,
+								end: date
+							});
+						}
+					});
+				}
+				that.timelineData.flush()
+			}, 1000);
 		}
+
 		SparkMonitor.prototype.getCellMonitor = function (cell) {
 			if (this.cellmonitors[cell.cell_id] == null) {
 
-				this.cellmonitors[cell.cell_id] = new CellMonitor(this, cell, this.data, this.groups)
+				this.cellmonitors[cell.cell_id] = new CellMonitor(this, cell, this.timelineData, this.groups)
 			}
 			return this.cellmonitors[cell.cell_id]
 		}
@@ -55,7 +75,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 		}
 
 
-		//--------Message Handling Functions that update the data-------------
+		//------------Message Handling Functions that update the data--------------------------------
 
 		SparkMonitor.prototype.sparkJobStart = function (msg) {
 			console.log('Job Start Message', msg);
@@ -67,19 +87,27 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 			var cellmonitor = this.getCellMonitor(cell)
 			var data = msg.content.data;
 			var name = $('<div>').text(data.name).html();//Escaping HTML <, > from string
-			this.data.update(
-				{
-					id: 'job' + data.jobId,
-					jobId: data.jobId,
-					start: new Date(data.submissionTime),
-					name: data.name,
-					content: '' + name,
-					title: data.jobId + ': ' + data.name + ' ',
-					cell_id: cell.cell_id,
-					group: 'jobs',
-					mode: 'ongoing',
-				}
-			);
+
+			this.data.update({
+				id: 'job' + data.jobId,
+				jobId: data.jobId,
+				start: new Date(data.submissionTime),
+				name: name,
+				cell_id: cell.cell_id,
+				mode: 'ongoing',
+			});
+
+			this.timelineData.update({
+				id: 'job' + data.jobId,
+				start: new Date(data.submissionTime),
+				end: new Date(),
+				content: '' + name,
+				title: data.jobId + ': ' + data.name + ' ',
+				group: 'jobs',
+				cell_id: cell.cell_id,
+				className: 'itemrunning job',
+			});
+
 			cellmonitor.createDisplay();
 			cellmonitor.timeline.addCustomTime(new Date(data.submissionTime), 'jobstart' + data.jobId);
 			cellmonitor.resizeTimeline();
@@ -87,6 +115,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 
 		SparkMonitor.prototype.sparkJobEnd = function (msg) {
 			var data = msg.content.data;
+
 			this.data.update(
 				{
 					id: 'job' + data.jobId,
@@ -94,93 +123,149 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 					mode: 'done',
 				}
 			);
-			var cell = currentcell.getRunningCell()
-			if (cell == null) {
-				console.error('SparkMonitor: Job ENDED with no running cell.');
-				return;
+
+			this.timelineData.update(
+				{
+					id: 'job' + data.jobId,
+					end: new Date(data.completionTime),
+					className: 'itemfinished job',
+				}
+			);
+
+			//Add the vertical line indicating job end
+			var cellid = this.data.get('job' + data.jobId)['cell_id'];
+			if (cellid) {
+				var cellmonitor = this.cellmonitors[cellid]
+				cellmonitor.timeline.addCustomTime(new Date(data.completionTime), 'jobend' + data.jobId);
 			}
-			var cellmonitor = this.getCellMonitor(cell)
-			cellmonitor.timeline.addCustomTime(new Date(data.completionTime), 'jobend' + data.jobId);
+			else console.log('SparkMonitor:ERROR no cellID for job');
+
 		}
 
 		SparkMonitor.prototype.sparkStageSubmitted = function (msg) {
+			console.log('SparkMonitor:Stage Submitted', msg);
 			var cell = currentcell.getRunningCell()
 			if (cell == null) {
-				console.error('SparkMonitor: Task started with no running cell.');
+				console.error('SparkMonitor: Stage started with no running cell.');
 				return;
 			}
+
 			var data = msg.content.data;
-			var name = $('<div>').text(data.name).html();//Escaping HTML <, > from string
-			this.data.update(
-				{
-					id: 'stage' + data.stageId,
-					stageId: data.stageId,
-					name: data.name,
-					start: new Date(data.submissionTime),
-					content: "" + name,
-					cell_id: cell.cell_id,
-					group: 'stages',
-					title: 'Stage: ' + data.stageId + ' ' + name,
-					mode: 'ongoing',
-				}
-			);
+			var name = $('<div>').text(data.name).html();//Hack for escaping HTML <, > from string.
+
+			this.data.update({
+				id: 'stage' + data.stageId,
+				stageId: data.stageId,
+				name: name,
+				start: new Date(data.submissionTime),
+				cell_id: cell.cell_id,
+				mode: 'ongoing',
+			});
+
+			this.timelineData.update({
+				id: 'stage' + data.stageId,
+				start: new Date(data.submissionTime),
+				content: "" + name,
+				group: 'stages',
+				title: 'Stage: ' + data.stageId + ' ' + name,
+				cell_id: cell.cell_id,
+				end: new Date(),
+				className: 'itemrunning stage',
+			});
 		}
 
 		SparkMonitor.prototype.sparkStageCompleted = function (msg) {
+			console.log('SparkMonitor:Stage Completed', msg);
+			var cell = currentcell.getRunningCell()
+			if (cell == null) {
+				console.error('SparkMonitor: Stage Completed with no running cell.');
+			}
 			var data = msg.content.data;
-			this.data.update(
-				{
+			var name = $('<div>').text(data.name).html();//Hack for escaping HTML <, > from string.
+
+			if (data['submissionTime'] && data['completionTime']) {
+				this.data.update({
 					id: 'stage' + data.stageId,
 					end: new Date(data.completionTime),
+					start: new Date(data.submissionTime),
 					mode: 'done',
-				}
-			);
+				});
+
+				this.timelineData.update({
+					id: 'stage' + data.stageId,
+					start: new Date(data.submissionTime),
+					group: 'stages',
+					end: new Date(data.completionTime),
+					className: 'itemfinished stage',
+					title: 'Stage: ' + data.stageId + ' ' + name,
+					content: '' + name,
+					cell_id: cell.cell_id
+				});
+			}
+			else console.log('Error no Start and End');
 		}
 
 		SparkMonitor.prototype.sparkTaskStart = function (msg) {
+			var data = msg.content.data;
 			var cell = currentcell.getRunningCell()
 			if (cell == null) {
 				console.error('SparkMonitor: Task started with no running cell.');
 				return;
 			}
-			var cellmonitor = this.getCellMonitor(cell)
-			var data = msg.content.data;
-			this.groups.update({ id: 'stages', nestedGroups: this.groups.get('stages').nestedGroups.concat([data.executorId + '-' + data.host]) });
-			this.groups.update({
-				id: data.executorId + '-' + data.host,
-				content: 'Tasks:<br>' + data.executorId + '<br>' + data.host
+
+
+			//Create a group for the executor if one does not exist.
+			if (!this.groups.get(data.executorId + '-' + data.host)) {
+				this.groups.update({
+					id: data.executorId + '-' + data.host,
+					content: 'Tasks:<br>' + data.executorId + '<br>' + data.host
+				});
+			}
+
+			this.data.update({
+				id: 'task' + data.taskId,
+				taskId: data.taskId,
+				start: new Date(data.launchTime),
+				content: '' + data.taskId,
+				group: data.executorId + '-' + data.host,
+				stageId: data.stageId,
+				cell_id: cell.cell_id,
+				stageAttemptId: data.stageAttemptId,
+				title: 'Task: ' + data.taskId + ' from stage ' + data.stageId + ' Launched: ' + Date(data.launchTime),
+				mode: 'ongoing',
 			});
 
-			this.data.update(
-				{
-					id: 'task' + data.taskId,
-					taskId: data.taskId,
-					start: new Date(data.launchTime),
-					content: '' + data.taskId,
-					cell_id: cell.cell_id,
-					group: data.executorId + '-' + data.host,
-					stageId: data.stageId,
-					stageAttemptId: data.stageAttemptId,
-					title: 'Task: ' + data.taskId + ' from stage ' + data.stageId + ' Launched: ' + Date(data.launchTime),
-					mode: 'ongoing',
-				}
-			);
+			this.timelineData.update({
+				id: 'task' + data.taskId,
+				start: new Date(data.launchTime),
+				end: new Date(),
+				content: '' + data.taskId,
+				group: data.executorId + '-' + data.host,
+				cell_id: cell.cell_id,
+				title: 'Task: ' + data.taskId + ' from stage ' + data.stageId + ' Launched: ' + Date(data.launchTime),
+				className: 'itemrunning task',
+			});
 		}
 
 		SparkMonitor.prototype.sparkTaskEnd = function (msg) {
 			var data = msg.content.data;
-			this.data.update(
-				{
-					id: 'task' + data.taskId,
-					end: new Date(data.finishTime),
-					title: 'Task:' + data.taskId + ' from stage ' + data.stageId + 'Launched' + Date(data.launchTime) + 'Completed: ' + Date(data.finishTime),
-					mode: 'done',
-				}
-			);
+			this.data.update({
+				id: 'task' + data.taskId,
+				end: new Date(data.finishTime),
+				title: 'Task:' + data.taskId + ' from stage ' + data.stageId + 'Launched' + Date(data.launchTime) + 'Completed: ' + Date(data.finishTime),
+				mode: 'done',
+			});
+
+			this.timelineData.update({
+				id: 'task' + data.taskId,
+				end: new Date(data.finishTime),
+				title: 'Task:' + data.taskId + ' from stage ' + data.stageId + 'Launched' + Date(data.launchTime) + 'Completed: ' + Date(data.finishTime),
+				className: 'itemfinished task',
+			});
 		}
 
 		SparkMonitor.prototype.sparkApplicationEnd = function (msg) {
-			//
+			//TODO What to do?
 		}
 
 		SparkMonitor.prototype.handleMessage = function (msg) {
