@@ -29,11 +29,10 @@ jupyter nbextension enable spark_monitor/module --sys-prefix
 ```
 
 #### Kernel Extension
-The ipython kernel extension has to be put in a directory which is importable by python code.
-Here we symlink the folder into the ipython extension directory.
+Install the python package in editable format from the repo
 
 ```bash
-ln -s ./extension/kernelside/sparkmonitor/ ~/.ipython/extensions/sparkmonitor
+pip install -e ./kernelside/
 ```
 
 Create the default profile configuration files (Skip if file already exists)
@@ -42,7 +41,7 @@ ipython profile create
 ```
 Configure the kernel to load the extension on startup. This is added to the configuration files in users home directory
 ```bash
-echo "c.InteractiveShellApp.extensions = ['sparkmonitor.sparkmonitor']" >> ~/.ipython/profile_default/ipython_kernel_config.py 
+echo "c.InteractiveShellApp.extensions = ['sparkmonitor']" >> ~/.ipython/profile_default/ipython_kernel_config.py 
 ```
 
 

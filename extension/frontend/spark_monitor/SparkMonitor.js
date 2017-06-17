@@ -48,7 +48,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 		}
 
 		SparkMonitor.prototype.on_comm_msg = function (msg) {
-			//	console.log('SparkMonitor: Comm Message:', msg.content.data);
+			console.log('SparkMonitor: Comm Message:', msg.content.data);
 			this.handleMessage(msg)
 		}
 

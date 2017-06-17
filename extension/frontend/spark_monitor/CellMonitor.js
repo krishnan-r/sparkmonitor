@@ -18,6 +18,9 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             this.jobs = [];
             this.alldata = data;
 
+            this.starttime=-1;
+            this.endtime=-1;
+
             this.timelineDataView = new vis.DataView(data, {
                 filter: function (item) {
                     return (item.cell_id == cell.cell_id);
@@ -86,11 +89,8 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
         }
         CellMonitor.prototype.resizeTimeline = function () {
             try {
-                var range = this.timeline.getItemRange()
-                if (!range.min) range.min = new Date;
-                if (!range.max) range.max = -1;
-                var offset = range.max - range.min;
-                this.timeline.setWindow(range.min - offset, range.max + offset*2, { animation: true });
+
+                //this.timeline.setWindow(this.startti { animation: true });
             }
             catch (err) {
                 console.log("SparkMonitor: Error resizing timeline:", err);
