@@ -3,3 +3,4 @@
 **/.ipynb_checkpoints/
 extension/scala/jupyterspark/project/
 extension/scala/jupyterspark/target/
+*.egg-info/
