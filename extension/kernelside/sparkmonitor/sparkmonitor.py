@@ -5,7 +5,6 @@ from ipykernel import zmqshell
 import os
 
 
-
 class ScalaMonitor:
     def __init__(self, ipython):
         self.ipython = ipython
@@ -40,8 +39,9 @@ class ScalaMonitor:
 class SocketThread(Thread):
 
     def __init__(self):
-        self.port=0
+        self.port = 0
         Thread.__init__(self)
+
     def startSocket(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind(("localhost", self.port))
@@ -52,24 +52,26 @@ class SocketThread(Thread):
         return self.port
 
     def run(self):
-        (client, addr) = self.sock.accept()
-        logger.info("Client Conntected %s", addr)
-        totalMessage = ""
-        while True:
-            messagePart = client.recv(4096)
-            if not messagePart:
-                logger.info("Scala socket closed - empty data")
-                break
-            totalMessage += messagePart
-            pieces = totalMessage.split(";EOD:")
-            messagePart = pieces[-1]
-            messages = pieces[:-1]
-            for msg in messages:
-                logger.info("Message Recieved: \n%s\n", totalMessage)
-                self.onrecv(msg)
-        logger.info("Socket Exiting Loop, so restarting socket")
-        self.sock.close()
-        self.startSocket()
+        while(True):
+            logger.info("Starting socket thread, going to accept")
+            (client, addr) = self.sock.accept()
+            logger.info("Client Conntected %s", addr)
+            totalMessage = ""
+            while True:
+                messagePart = client.recv(4096)
+                if not messagePart:
+                    logger.info("Scala socket closed - empty data")
+                    break
+                totalMessage += messagePart
+                pieces = totalMessage.split(";EOD:")
+                totalMessage = pieces[-1]
+                messages = pieces[:-1]
+                for msg in messages:
+                    logger.info("Message Recieved: \n%s\n", msg)
+                    self.onrecv(msg)
+            logger.info("Socket Exiting Client Loop")
+            client.shutdown(socket.SHUT_RDWR)
+            client.close()
 
     def start(self):
         Thread.start(self)
@@ -118,27 +120,25 @@ def load_ipython_extension(ipython):
 
 
 def unload_ipython_extension(ipython):
-    # Called when extension is unloaded
+    # Called when extension is unloaded TODO
+    logger.info("Extension UNLOADED")
     pass
 
 
 def configure(conf):
     global monitor
-
-    logger.info("SparkConf Configured Starting Socket")
     port = monitor.getPort()
     print("SparkConf Configured, Starting to listen on port:", str(port))
     logger.info("SparkConf configured with port %s", str(port))
     # Configuring Spark Conf
     conf.set("sparkmonitor.port", port)
-    conf.set('spark.extraListeners',
-             'sparkmonitor.listener.PythonNotifyListener')
+    conf.set('spark.extraListeners','sparkmonitor.listener.PythonNotifyListener')
     # TODO make the jar relative to package path in such a way that pip
     # install does not break path.
-    jarpath=os.path.abspath(os.path.dirname(__file__))+"/listener.jar"
-    logger.info("Adding jar from %s ",jarpath)
-    print("Listener Jar added from "+jarpath)
-    conf.set('spark.driver.extraClassPath',jarpath)
+    jarpath = os.path.abspath(os.path.dirname(__file__)) + "/listener.jar"
+    logger.info("Adding jar from %s ", jarpath)
+    print("JAR PATH:" + jarpath)
+    conf.set('spark.driver.extraClassPath', jarpath)
 
 
 def sendToFrontEnd(msg):

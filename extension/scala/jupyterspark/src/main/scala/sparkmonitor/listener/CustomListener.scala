@@ -38,13 +38,14 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 
 	
 	override def onApplicationStart(appStarted: SparkListenerApplicationStart):Unit = {
-		println("SPARKLISTENER Application Started...Start Time: "+appStarted.time)
+		//println("SPARKLISTENER Application Started...Start Time: "+appStarted.time)
 		send("SPARKLISTENER Application Started...Start Time: "+appStarted.time)
   	}
 
  	override def onApplicationEnd(appEnded: SparkListenerApplicationEnd):Unit =  {
-		println("SPARKLISTENER Application ending...End Time: "+appEnded.time)
+		//println("SPARKLISTENER Application ending...End Time: "+appEnded.time)
 		send("SPARKLISTENER Application ending...End Time: "+appEnded.time)
+		closeConnection()
   	}
 
 	override def onJobStart(jobStart: SparkListenerJobStart): Unit = synchronized {
@@ -66,7 +67,8 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 			("submissionTime" -> Option(jobStart.time).filter(_ >= 0)) ~
 			("stageIds" -> jobStart.stageIds) ~
 			("numTasks" -> numTasks)
-		 println("SPARKLISTENER JobStart: \n"+ pretty(render(json)) + "\n")
+		 //println("SPARKLISTENER JobStart: \n"+ pretty(render(json)) + "\n")
+		 send("SPARKLISTENER JobStart: \n"+ pretty(render(json)) + "\n")
 
 	}
 
@@ -75,7 +77,8 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 		val json=("jobId" -> jobEnd.jobId) ~
     	("completionTime" -> Option(jobEnd.time).filter(_ >= 0))
 
- 		println("SPARKLISTENER Job End: \n"+ pretty(render(json)) + "\n")
+ 		//println("SPARKLISTENER Job End: \n"+ pretty(render(json)) + "\n")
+		send("SPARKLISTENER Job End: \n"+ pretty(render(json)) + "\n")
  
   	}
 
