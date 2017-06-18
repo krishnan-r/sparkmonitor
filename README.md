@@ -1,12 +1,15 @@
 # Spark Monitor Extension for Jupyter Notebook
 ## Work in Progress
+(older screenshot)
 ![Screenshot](screenshot.gif)
 ## Notes
-* This version uses a python based `SparkListener` attached to the `SparkContext`. (Scala listeners coming soon)
-* The extension requires the user to call `connectContext(sc)` after the context is created, from the notebook to start working (Requirement will be removed in future)
- * ```python
-   from sparkmonitor import sparkmonitor
-   sparkmonitor.connectContext(sc) #sc - SparkContext
+* ~~This version uses a python based `SparkListener` attached to the `SparkContext`. (Scala listeners coming soon)~~
+* This version uses a scala `SparkListener` that forwards data to the kernel using sockets. The SparkConf is configured with the ports for the Listener to reach the kernel.
+* ~~The extension requires the user to call `connectContext(sc)` after the context is created, from the notebook to start working (Requirement will be removed in future)~~
+ * 
+   ```python
+    import sparkmonitor
+    sparkmonitor.configure(conf) #conf is the instance of SparkConf
    ```
 
 ## Installation
@@ -76,7 +79,7 @@ $SPARK_HOME/sbin/stop-slave.sh
 # TODO
 
 - Complete scala based listener
-    - Process all data in scala and compute metrics - Python only shall forward JSON strings to frontend
+    - ~~Process all data in scala and compute metrics - Python only shall forward JSON strings to frontend~~
     - Fix cases with inconsistent data - in some cases onStageSubmitted does not have submission time for active non-skipped stages (Why?)
 
 - Fix "currently running cell" detection when multiple cells are queued and there is an error where queue has to emptied.
@@ -94,4 +97,4 @@ $SPARK_HOME/sbin/stop-slave.sh
 
 - Stopping running jobs in a better way
 
-- Multiple notebooks running, not working because py4j callback server occupies the port
+- ~~Multiple notebooks running, not working because py4j callback server occupies the port~~

@@ -48,7 +48,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 		}
 
 		SparkMonitor.prototype.on_comm_msg = function (msg) {
-			console.log('SparkMonitor: Comm Message:', msg.content.data);
+			//console.log('SparkMonitor: Comm Message:', msg.content.data);
 			this.handleMessage(msg)
 		}
 
@@ -60,7 +60,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 			if (this.comm) {
 				this.comm.close()
 			}
-			console.log('Starting COMM NOW')
+			console.log('SparkMonitor: Starting COMM NOW')
 			var that = this;
 			this.comm = Jupyter.notebook.kernel.comm_manager.new_comm('SparkMonitor',
 				{ 'msgtype': 'openfromfrontend' });
@@ -77,15 +77,14 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 
 		//------------Message Handling Functions that update the data--------------------------------
 
-		SparkMonitor.prototype.sparkJobStart = function (msg) {
-			console.log('Job Start Message', msg);
+		SparkMonitor.prototype.sparkJobStart = function (data) {
+			console.log('SparkMonitor: Job Start Message', data);
 			var cell = currentcell.getRunningCell()
 			if (cell == null) {
 				console.error('SparkMonitor: Job started with no running cell.');
 				return;
 			}
 			var cellmonitor = this.getCellMonitor(cell)
-			var data = msg.content.data;
 			var name = $('<div>').text(data.name).html();//Escaping HTML <, > from string
 
 			this.data.update({
@@ -113,8 +112,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 			cellmonitor.resizeTimeline();
 		}
 
-		SparkMonitor.prototype.sparkJobEnd = function (msg) {
-			var data = msg.content.data;
+		SparkMonitor.prototype.sparkJobEnd = function (data) {
 
 			this.data.update(
 				{
@@ -142,15 +140,14 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 
 		}
 
-		SparkMonitor.prototype.sparkStageSubmitted = function (msg) {
-			console.log('SparkMonitor:Stage Submitted', msg);
+		SparkMonitor.prototype.sparkStageSubmitted = function (data) {
+			console.log('SparkMonitor:Stage Submitted', data);
 			var cell = currentcell.getRunningCell()
 			if (cell == null) {
 				console.error('SparkMonitor: Stage started with no running cell.');
 				return;
 			}
 
-			var data = msg.content.data;
 			var name = $('<div>').text(data.name).html();//Hack for escaping HTML <, > from string.
 
 			this.data.update({
@@ -174,13 +171,12 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 			});
 		}
 
-		SparkMonitor.prototype.sparkStageCompleted = function (msg) {
-			console.log('SparkMonitor:Stage Completed', msg);
+		SparkMonitor.prototype.sparkStageCompleted = function (data) {
+			console.log('SparkMonitor:Stage Completed', data);
 			var cell = currentcell.getRunningCell()
 			if (cell == null) {
 				console.error('SparkMonitor: Stage Completed with no running cell.');
 			}
-			var data = msg.content.data;
 			var name = $('<div>').text(data.name).html();//Hack for escaping HTML <, > from string.
 
 			if (data['submissionTime'] && data['completionTime']) {
@@ -202,11 +198,10 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 					cell_id: cell.cell_id
 				});
 			}
-			else console.log('Error no Start and End');
+			else console.log('SparkMonitor: Error no Start and End');
 		}
 
-		SparkMonitor.prototype.sparkTaskStart = function (msg) {
-			var data = msg.content.data;
+		SparkMonitor.prototype.sparkTaskStart = function (data) {
 			var cell = currentcell.getRunningCell()
 			if (cell == null) {
 				console.error('SparkMonitor: Task started with no running cell.');
@@ -247,8 +242,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 			});
 		}
 
-		SparkMonitor.prototype.sparkTaskEnd = function (msg) {
-			var data = msg.content.data;
+		SparkMonitor.prototype.sparkTaskEnd = function (data) {
 			this.data.update({
 				id: 'task' + data.taskId,
 				end: new Date(data.finishTime),
@@ -264,33 +258,43 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 			});
 		}
 
-		SparkMonitor.prototype.sparkApplicationEnd = function (msg) {
+		SparkMonitor.prototype.sparkApplicationEnd = function (data) {
 			//TODO What to do?
 		}
 
 		SparkMonitor.prototype.handleMessage = function (msg) {
-			if (msg.content.data.msgtype != null) {
-				switch (msg.content.data.msgtype) {
+			if (!msg.content.data.msgtype) {
+				console.warn("SparkMonitor: Unknown message");
+			}
+
+			if (msg.content.data.msgtype == "fromscala") {
+
+				var data = JSON.parse(msg.content.data.msg);
+
+				switch (data.msgtype) {
 					case 'sparkJobStart':
-						this.sparkJobStart(msg);
+						this.sparkJobStart(data);
 						break;
 					case 'sparkJobEnd':
-						this.sparkJobEnd(msg);
+						this.sparkJobEnd(data);
 						break;
 					case 'sparkStageSubmitted':
-						this.sparkStageSubmitted(msg);
+						this.sparkStageSubmitted(data);
 						break;
 					case 'sparkStageCompleted':
-						this.sparkStageCompleted(msg);
+						this.sparkStageCompleted(data);
 						break;
 					case 'sparkTaskStart':
-						this.sparkTaskStart(msg);
+						this.sparkTaskStart(data);
 						break;
 					case 'sparkTaskEnd':
-						this.sparkTaskEnd(msg);
+						this.sparkTaskEnd(data);
+						break;
+					case 'sparkApplicationStart':
+						this.sparkApplicationStart(data);
 						break;
 					case 'sparkApplicationEnd':
-						this.sparkApplicationEnd(msg);
+						this.sparkApplicationEnd(data);
 						break;
 				}
 			}

@@ -80,7 +80,10 @@ class SocketThread(Thread):
         return self.socket.send(msg)
 
     def onrecv(self, msg):
-        sendToFrontEnd(msg)
+        sendToFrontEnd({
+            'msgtype':"fromscala",
+            'msg':msg
+        })
         pass
 
 #---------------------------------Module level functions for ipython exten
@@ -132,7 +135,8 @@ def configure(conf):
     logger.info("SparkConf configured with port %s", str(port))
     # Configuring Spark Conf
     conf.set("sparkmonitor.port", port)
-    conf.set('spark.extraListeners','sparkmonitor.listener.PythonNotifyListener')
+    conf.set('spark.extraListeners',
+             'sparkmonitor.listener.PythonNotifyListener')
     # TODO make the jar relative to package path in such a way that pip
     # install does not break path.
     jarpath = os.path.abspath(os.path.dirname(__file__)) + "/listener.jar"
