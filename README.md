@@ -6,7 +6,7 @@
 * ~~This version uses a python based `SparkListener` attached to the `SparkContext`. (Scala listeners coming soon)~~
 * This version uses a scala `SparkListener` that forwards data to the kernel using sockets. The SparkConf is configured with the ports for the Listener to reach the kernel.
 * ~~The extension requires the user to call `connectContext(sc)` after the context is created, from the notebook to start working (Requirement will be removed in future)~~
- * 
+* The user has to configure the SparkConf object with the extension before starting spark. This sets the listener JAR path and the ports for communication
    ```python
     import sparkmonitor
     sparkmonitor.configure(conf) #conf is the instance of SparkConf
