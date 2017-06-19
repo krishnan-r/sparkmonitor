@@ -87,10 +87,12 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
         CellMonitor.prototype.onStopJobs = function () {
 
         }
-        CellMonitor.prototype.resizeTimeline = function () {
+        CellMonitor.prototype.resizeTimeline = function (start,end) {
             try {
-
-                //this.timeline.setWindow(this.startti { animation: true });
+                if(!start)start=new Date();
+                start.setTime(start.getTime()-30000)
+                if(!end)end=new Date(start.getTime()+120000);
+                this.timeline.setWindow(start,end, { animation: true });
             }
             catch (err) {
                 console.log("SparkMonitor: Error resizing timeline:", err);

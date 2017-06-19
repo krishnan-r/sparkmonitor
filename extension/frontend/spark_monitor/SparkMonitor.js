@@ -149,19 +149,22 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 			}
 
 			var name = $('<div>').text(data.name).html();//Hack for escaping HTML <, > from string.
+			var submissionDate
+			if (data.submissionTime == -1) submissionDate = new Date()
+			else submissionDate = new Date(data.submissionTime)
 
 			this.data.update({
 				id: 'stage' + data.stageId,
 				stageId: data.stageId,
 				name: name,
-				start: new Date(data.submissionTime),
+				start: submissionDate,
 				cell_id: cell.cell_id,
 				mode: 'ongoing',
 			});
 
 			this.timelineData.update({
 				id: 'stage' + data.stageId,
-				start: new Date(data.submissionTime),
+				start: submissionDate,
 				content: "" + name,
 				group: 'stages',
 				title: 'Stage: ' + data.stageId + ' ' + name,
@@ -179,7 +182,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 			}
 			var name = $('<div>').text(data.name).html();//Hack for escaping HTML <, > from string.
 
-			if (data['submissionTime'] && data['completionTime']) {
+
 				this.data.update({
 					id: 'stage' + data.stageId,
 					end: new Date(data.completionTime),
@@ -194,12 +197,10 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 					end: new Date(data.completionTime),
 					className: 'itemfinished stage',
 					title: 'Stage: ' + data.stageId + ' ' + name,
-					content: '' + name,
+					//content: '' + name,
 					cell_id: cell.cell_id
 				});
 			}
-			else console.log('SparkMonitor: Error no Start and End');
-		}
 
 		SparkMonitor.prototype.sparkTaskStart = function (data) {
 			var cell = currentcell.getRunningCell()
@@ -259,6 +260,9 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 		}
 
 		SparkMonitor.prototype.sparkApplicationEnd = function (data) {
+			//TODO What to do?
+		}
+		SparkMonitor.prototype.sparkApplicationStart = function (data) {
 			//TODO What to do?
 		}
 

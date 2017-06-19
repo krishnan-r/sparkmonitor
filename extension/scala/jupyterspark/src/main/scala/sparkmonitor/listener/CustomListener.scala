@@ -84,13 +84,6 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 	val retainedTasks = 100000
 
 
-
-
-
-
-
-
-	
 	override def onApplicationStart(appStarted: SparkListenerApplicationStart):Unit = {
 		startTime = appStarted.time
 		appId=appStarted.appId.getOrElse("null")
@@ -124,7 +117,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 	    	props <- Option(jobStart.properties);
 			group <- Option(props.getProperty("spark.jobGroup.id"))
 			) yield group
-		
+
 		val jobData: JobUIData =
       		new JobUIData(
 	        	jobId = jobStart.jobId,
@@ -154,13 +147,15 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 		  stageIdToData.getOrElseUpdate((stageInfo.stageId, stageInfo.attemptId), new StageUIData)
 		}
 
+		val name=jobStart.properties.getProperty("callSite.short","null")
 		val json= ("msgtype" -> "sparkJobStart") ~
 					("jobGroup" -> jobGroup.getOrElse("null")) ~
 					("jobId" -> jobStart.jobId) ~
 					("status" -> "RUNNING") ~
 					("submissionTime" -> Option(jobStart.time).filter(_ >= 0)) ~
 					("stageIds" -> jobStart.stageIds) ~
-					("numTasks" -> jobData.numTasks)
+					("numTasks" -> jobData.numTasks) ~
+					("name" -> name)
 		 //println("SPARKLISTENER JobStart: \n"+ pretty(render(json)) + "\n")
 		 send(pretty(render(json)))
 
@@ -252,10 +247,12 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 		}
 
 		val completionTime:Long=stage.completionTime.getOrElse(-1)
+		val submissionTime:Long=stage.submissionTime.getOrElse(-1)
 		val json=   ("msgtype" -> "sparkStageCompleted") ~
 					("stageId" -> stage.stageId) ~
 					("stageAttemptId" -> stage.attemptId) ~
     				("completionTime" -> completionTime) ~
+					("submissionTime" -> submissionTime) ~
 					("numTasks" -> stage.numTasks)
 
  		//println("SPARKLISTENER Stage Completed: \n"+ pretty(render(json)) + "\n")
