@@ -85,7 +85,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 				return;
 			}
 			var cellmonitor = this.getCellMonitor(cell)
-			var name = $('<div>').text(data.name).html();//Escaping HTML <, > from string
+			var name = $('<div>').text(data.name).html().split(' ')[0];//Escaping HTML <, > from string
 
 			this.data.update({
 				id: 'job' + data.jobId,
@@ -148,7 +148,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 				return;
 			}
 
-			var name = $('<div>').text(data.name).html();//Hack for escaping HTML <, > from string.
+			var name = $('<div>').text(data.name).html().split(' ')[0];//Hack for escaping HTML <, > from string.
 			var submissionDate
 			if (data.submissionTime == -1) submissionDate = new Date()
 			else submissionDate = new Date(data.submissionTime)
@@ -180,7 +180,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 			if (cell == null) {
 				console.error('SparkMonitor: Stage Completed with no running cell.');
 			}
-			var name = $('<div>').text(data.name).html();//Hack for escaping HTML <, > from string.
+			var name = $('<div>').text(data.name).html().split(' ')[0];//Hack for escaping HTML <, > from string.
 
 
 				this.data.update({

@@ -62,7 +62,7 @@ class SocketThread(Thread):
                 if not messagePart:
                     logger.info("Scala socket closed - empty data")
                     break
-                totalMessage += messagePart
+                totalMessage += messagePart.decode()
                 pieces = totalMessage.split(";EOD:")
                 totalMessage = pieces[-1]
                 messages = pieces[:-1]
