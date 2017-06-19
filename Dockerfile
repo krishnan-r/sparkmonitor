@@ -8,8 +8,6 @@ RUN pip2 install --upgrade jupyter
 
 #Installing Spark and Java
 RUN yum update -y && \
-yum install -y wget && \
-yum install -y tar && \
 yum install -y java-1.8.0-openjdk && \
 yum clean all
 
