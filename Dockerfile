@@ -10,10 +10,10 @@ RUN pip2 install --upgrade jupyter
 RUN rpm --rebuilddb && yum install -y java-1.8.0-openjdk
 
 WORKDIR /
-RUN wget https://d3kbcqa49mib13.cloudfront.net/spark-2.1.1-bin-hadoop2.7.tgz
-RUN tar -xvf spark-2.1.1-bin-hadoop2.7.tgz 
-RUN rm spark-2.1.1-bin-hadoop2.7.tgz 
-RUN mv spark-2.1.1-bin-hadoop2.7 spark
+RUN wget https://d3kbcqa49mib13.cloudfront.net/spark-2.1.1-bin-hadoop2.7.tgz && \
+tar -xvf spark-2.1.1-bin-hadoop2.7.tgz && \
+rm spark-2.1.1-bin-hadoop2.7.tgz && \
+mv spark-2.1.1-bin-hadoop2.7 spark 
 
 ENV SPARK_HOME /spark
 ENV PATH $SPARK_HOME/bin:$PATH
