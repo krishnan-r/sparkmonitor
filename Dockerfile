@@ -7,9 +7,7 @@ RUN pip2 install --upgrade pip
 RUN pip2 install --upgrade jupyter
 
 #Installing Spark and Java
-RUN yum update -y && \
-yum install -y java-1.8.0-openjdk && \
-yum clean all
+RUN yum install -y java-1.8.0-openjdk
 
 WORKDIR /
 RUN wget https://d3kbcqa49mib13.cloudfront.net/spark-2.1.1-bin-hadoop2.7.tgz
