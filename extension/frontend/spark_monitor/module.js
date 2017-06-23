@@ -17,12 +17,10 @@ define([
 			console.log('SparkMonitor: Loading Spark Monitor Front-End Extension');
 
 			var monitor = new SparkMonitor();
-			sm=monitor
+			sm = monitor
 			//For debugging.
-			console.log(Jupyter);
-
-			//require(['nbextensions/spark_monitor/logevents'],function(){}); //debug events
-
+			//console.log(Jupyter);
+			//require(['nbextensions/spark_monitor/logevents'],function(){}); //debug eventss
 			currentcell.register();
 		}
 

@@ -1,16 +1,31 @@
+<!--<link rel="stylesheet" href="styles.css">-->
 <div class="CellMonitor pm">
     <div class="title">
         <span>
         <span class="tbitem titlecollapse"><span class="headericon">&#11166;</span></span>
-        <span class="tbitem"><b>Apache Spark Jobs:</b></span>
+        <span class="tbitem">
+            <b>Apache Spark Jobs:</b>
+             </span>
+        <span class="badges">
+            <span class=badgerunning><span class="badgerunningcount">0</span> RUNNING</span>
+        <span class=badgecompleted><span class="badgecompletedcount">0</span> COMPLETED</span>
+        <span class=badgefailed><span class="badgefailedcount">0</span> FAILED</span>
+        </span>
+        <span class="tabbuttons">
+        <span class="tbitem jobtabletabbutton tabbutton tabbuttonactive"> Jobs</span>
+        <span class="tbitem taskviewtabbutton tabbutton "> Tasks</span>
+        <span class="tbitem timelinetabbutton tabbutton"> Timeline</span>
+        </span>
         </span>
         <span class="titleright">
         <button class="cancel tbitem" title="Stop all running jobs.">Cancel Jobs</button>
         </span>
     </div>
     <div class="content">
-        <!--<div class="jobtablecontent">
-            <b> JOBS RUNNING: </b>
+        <div class="jobtablecontent tabcontent tabcontentactive">
+            <!--<div class="toolbar">
+                <b> JOBS RUNNING: </b>
+            </div>-->
             <table class="jobtable">
                 <thead>
                     <tr>
@@ -19,6 +34,7 @@
                         <th>Status</th>
                         <th>Stages:Active/Completed</th>
                         <th>Tasks</th>
+                        <th>Duration</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,12 +50,19 @@
                 </tbody>
             </table>
         </div>
-        <div class="taskview">
 
-        </div>-->
+        <div class="taskviewcontent tabcontent">
+            <!--<div class="toolbar">
+                <b> ACTIVE TASKS: </b>
+            </div>-->
+            <div class="taskcontainer"></div>
 
-        <div class="timeline">
-            <b> EVENT TIMELINE: </b>
+        </div>
+
+        <div class="timelinecontent tabcontent">
+            <!--<div class="toolbar">
+                <b> EVENT TIMELINE: </b>
+            </div>-->
             <div class="timelinecontainer">
 
             </div>

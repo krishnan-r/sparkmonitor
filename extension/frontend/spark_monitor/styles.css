@@ -162,3 +162,62 @@ progress {
   background-color: #C9EF9B;
   border-color: #6c9d34;
 }
+
+.vis-item.itemfinished:active {
+  background-color: #6c9d34;
+}
+
+.tabbutton {
+  font-size: small
+}
+
+.tabbuttons {
+  margin: 0px 2px;
+}
+
+.tabbuttonactive {
+  /*color: white;*/
+  box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.46) inset;
+  background-color: rgba(0, 0, 0, 0.2);
+  font-weight: bold;
+}
+
+.tabcontent {
+  display: none;
+}
+
+.tabcontentactive {
+  display: initial;
+}
+
+.badgerunning {
+  background-color: #42A5F5;
+}
+
+.badgecompleted {
+  background-color: #20B520;
+}
+
+.badgefailed {
+  background-color: #DB3636;
+}
+
+.badgecompleted, .badgefailed, .badgerunning {
+  font-size: 80%;
+  padding: 5px 8px;
+  color: white;
+  border-radius: 2px;
+  box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.36);
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+.pm .badges {
+  vertical-align: middle;
+  display: table-cell;
+}
+
+.pm .toolbar {
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 1px;
+}
