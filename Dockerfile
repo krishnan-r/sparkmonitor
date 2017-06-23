@@ -1,8 +1,5 @@
 FROM cernphsft/notebook:v2.2
 
-ADD ./extension/ /extension/
-ADD ./notebooks/ /notebooks/
-
 RUN pip2 install --upgrade pip
 RUN pip2 install --upgrade jupyter
 
@@ -21,6 +18,9 @@ ENV PYTHONPATH $SPARK_HOME/python/:$PYTHONPATH
 ENV PYTHONPATH $SPARK_HOME/python/lib/py4j-0.10.4-src.zip:$PYTHONPATH
 
 
+ADD ./extension/ /extension/
+ADD ./notebooks/ /notebooks/
+
 WORKDIR /extension/
 
 RUN jupyter nbextension install ./frontend/spark_monitor --sys-prefix --symlink
@@ -34,4 +34,4 @@ WORKDIR /notebooks/
 
 EXPOSE 8888
 
-CMD jupyter notebook --port=8888 --ip=0.0.0.0 --no-browser --allow-root
+CMD jupyter notebook --port=8888 --ip=0.0.0.0 --no-browser --allow-root --NotebookApp.token=''
