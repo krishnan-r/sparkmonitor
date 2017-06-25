@@ -9,5 +9,8 @@ setup(name='sparkmonitor',
       package_data={
           '': ['*.jar'],
       },
-      zip_safe=False
+      zip_safe=False,
+      install_requires=[
+          'bs4'
+      ]
       )
