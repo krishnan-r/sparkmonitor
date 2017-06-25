@@ -1,6 +1,5 @@
-define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', './vis.min'],
-    function (Jupyter, misc, require, events, $, vis) {
-
+define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', './vis.min', './livestamp', './twix.min'],
+    function (Jupyter, misc, require, events, $, vis, livestamp, twix) {
         var widgetHTML;
         //console.log('SparkMonitor: Loading CSS from', require.toUrl('./styles.css'));
         misc.loadCSS(require.toUrl('./vis.min.css'));
@@ -18,6 +17,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             this.monitor = monitor;
             this.cell = cell
             this.view = "jobs";
+            this.lastview = "jobs";
             this.cellStartTime = -1;
             this.cellEndTime = -1;
             this.numActiveJobs = 0;
@@ -97,6 +97,10 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
             };
             this.taskGraph = null;
+
+            //table data
+            this.jobData = new vis.DataSet();
+            this.jobDataSetCallback = null;
         }
 
 
@@ -111,11 +115,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
                 element.slideToggle();
 
-                element.find('.titlecollapse').click(function () {
-                    that.cell.element.find('.content').slideToggle({ queue: false });
-                    that.cell.element.find('.headericon').toggleClass('headericoncollapsed');
-                    that.timeline.redraw();
-                });
+
 
                 element.find('.cancel').click(function () {
                     console.log('Stopping Jobs');
@@ -123,6 +123,43 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                     that.monitor.send({
                         msgtype: 'sparkStopJobs',
                     });
+                });
+
+                element.find('.sparkuibutton').click(function () {
+                    //var spinner = $(' <div> <img class="iframeload" src="' + require.toUrl('./spinner.gif') + '"></div>')
+                    var iframe = $('\
+                    <div style="overflow:hidden">\
+                    <iframe src="/sparkmonitor/" frameborder="0" scrolling="yes" class="sparkuiframe">\
+                    </iframe>\
+                    </div>\
+                    ');
+                    // iframe.find('.sparkuiframe').before(spinner);
+                    iframe.find('.sparkuiframe').css('background-image', 'url("' + require.toUrl('./spinner.gif') + '")');
+                    iframe.find('.sparkuiframe').css('background-repeat', 'no-repeat');
+                    iframe.find('.sparkuiframe').css('background-position', "50% 50%");
+                    iframe.find('.sparkuiframe').width('100%');
+                    iframe.find('.sparkuiframe').height('100%');
+                    iframe.dialog({
+                        title: "Spark UI 127.0.0.1:4040",
+                        width: 1000,
+                        height: 500,
+                    });
+                });
+
+                element.find('.titlecollapse').click(function () {
+                    if (that.view != "hidden") {
+                        that.lastview = that.view;
+                        that.view = "hidden";
+                        //TODO cleanup handlers
+                    }
+                    that.cell.element.find('.content').slideToggle({
+                        queue: false,
+                        duration: 400,
+                        complete: function () {
+                            that.cell.element.find('.headericon').toggleClass('headericoncollapsed');
+                        }
+                    });
+
                 });
 
                 element.find('.taskviewtabbutton').click(function () {
@@ -162,7 +199,9 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                     }
 
                 });
+                this.createJobTable();
             }
+            else console.error("SparkMonitor: Error Display Already Exists");
 
         }
 
@@ -238,18 +277,22 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
         }
 
         CellMonitor.prototype.createTimeline = function () {
-            var container = this.cell.element.find('.timelinecontainer')[0]
-            if (this.timeline) this.timeline.destroy()
-            this.timeline = new vis.Timeline(container, this.timelineData, this.timelineGroups, this.timelineOptions);
-            this.registerTimelineRefresher();
-            this.resizeTimeline();
+            if (this.view == 'timeline') {
+                var container = this.cell.element.find('.timelinecontainer')[0]
+                if (this.timeline) this.timeline.destroy()
+                this.timeline = new vis.Timeline(container, this.timelineData, this.timelineGroups, this.timelineOptions);
+                this.registerTimelineRefresher();
+                this.resizeTimeline();
+            }
         }
 
         //--------Task Graph Functions Functions-----------
         CellMonitor.prototype.createTaskGraph = function () {
-            var container = this.cell.element.find('.taskcontainer')[0]
-            if (this.taskGraph) this.taskGraph.destroy()
-            this.taskGraph = new vis.Graph2d(container, this.taskGraphData, this.taskGraphOptions);
+            if (this.view == 'tasks') {
+                var container = this.cell.element.find('.taskcontainer')[0]
+                if (this.taskGraph) this.taskGraph.destroy()
+                this.taskGraph = new vis.Graph2d(container, this.taskGraphData, this.taskGraphOptions);
+            }
         }
 
 
@@ -285,23 +328,62 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
         //--------Job Table Functions----------------------
 
         CellMonitor.prototype.createJobTable = function () {
-            this.cell.element.find('.jobtable thead').html(
-            
-
-            )
-            //TODO
+            if (this.view == 'jobs') {
+                this.cell.element.find('.jobtable thead')
+                var table = $("<table/>").addClass('jobtable');
+                var head = $("\
+            <thead>\
+            <tr>\
+                <th>Job ID</th>\
+                <th>Job Name</th>\
+                <th>Status</th>\
+                <th>Stages:Active/Completed</th>\
+                <th>Tasks</th>\
+                <th>Submission Time</th>\
+                <th>Duration</th>\
+            </tr>\
+            </thead>\
+                ");
+                table.append(head);
+                var body = $('<tbody></tbody>')
+                this.jobData.forEach(function (item) {
+                    row = $('<tr></tr>').addClass('row' + item.jobId);
+                    row.append($('<td></td>').addClass('tdjobId').text(item.jobId));
+                    row.append($('<td></td>').addClass('tdname').text(item.name));
+                    var status = $('<span></span>').addClass(item.status).text(item.status);
+                    row.append($('<td></td>').addClass('tdstatus').html(status));
+                    row.append($('<td></td>').addClass('tdstages').text(item.jobId));
+                    row.append($('<td></td>').addClass('tdtasks').text(item.jobId));
+                    var start = $('<time></time>').addClass('timeago').attr('data-livestamp', item.start).attr('title', item.start.toString()).text(item.start.toString())
+                    row.append($('<td></td>').addClass('tdstarttime').append(start));
+                    var duration = "-";
+                    if (item.status != "RUNNING") duration = moment.twix(item.start.getTime(), item.end.getTime()).humanizeLength()
+                    row.append($('<td></td>').text(duration))
+                    body.append(row);
+                })
+                table.append(body);
+                this.cell.element.find('.jobtablecontent').empty().append(table);
+                this.bindJobData();
+            }
         }
 
-        CellMonitor.prototype.addJobtoTable = function () {
+        CellMonitor.prototype.bindJobData = function () {
+            var that = this;
+            this.jobDataSetCallback =
+                function (event, properties, senderId) {
+                    console.log("JOBDATASETCHANGED");
+                    if (that.view == 'jobs') {
+                        { that.createJobTable(); }
+                    };
 
-
+                }
+            this.jobData.on('*', this.jobDataSetCallback);
         }
 
-        CellMonitor.prototype.updateJobTable = function () {
-
-
+        CellMonitor.prototype.unbindJobData = function () {
+            //TODO optimise and make changes
+            this.jobData.off('*', this.jobDataSetCallback);
         }
-
 
 
         //----------Data Handling Functions----------------
@@ -312,6 +394,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             this.setBadges();
 
             var name = $('<div>').text(data.name).html().split(' ')[0];//Escaping HTML <, > from string
+
             this.data.update({
                 id: 'job' + data.jobId,
                 jobId: data.jobId,
@@ -319,6 +402,15 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 name: name,
                 mode: 'ongoing',
             });
+
+            this.jobData.update({
+                id: 'job' + data.jobId,
+                jobId: data.jobId,
+                start: new Date(data.submissionTime),
+                name: name,
+                status: data.status,
+            });
+
 
             this.timelineData.update({
                 id: 'job' + data.jobId,
@@ -358,6 +450,12 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                     className: 'itemfinished job',
                 }
             );
+
+            this.jobData.update({
+                id: 'job' + data.jobId,
+                end: new Date(data.completionTime),
+                status: data.status,
+            });
         }
 
         CellMonitor.prototype.sparkStageSubmitted = function (data) {

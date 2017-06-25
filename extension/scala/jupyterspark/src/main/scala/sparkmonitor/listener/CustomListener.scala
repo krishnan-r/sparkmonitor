@@ -83,6 +83,8 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 	val retainedJobs = conf.getInt("spark.ui.retainedJobs", 1000)
 	val retainedTasks = 100000
 
+	@volatile
+	var totalNumActiveTasks =0
 
 	override def onApplicationStart(appStarted: SparkListenerApplicationStart):Unit = {
 		startTime = appStarted.time
@@ -312,6 +314,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
     	){
     		jobData.numActiveTasks += 1
     	}
+
 		val json=   ("msgtype" -> "sparkTaskStart") ~
 					("launchTime" -> taskInfo.launchTime) ~
 					("taskId" -> taskInfo.taskId) ~

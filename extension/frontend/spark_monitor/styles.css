@@ -26,15 +26,19 @@
   background-color: #C45917;
 }
 
+
+/*Table*/
+
 .pm th {
   font-size: 12;
-  background-color: #EEEEEE;
+  /*background-color: #EEEEEE;*/
   border: 0px;
 }
 
 .pm td {
   background-color: white;
   border: 0;
+  font-size: small;
 }
 
 .pm table {
@@ -57,15 +61,20 @@
   vertical-align: middle;
 }
 
-.pm td:hover {
-  background-color: #EEEEEE;
-}
 
-.pm .tr:nth-child(even) td {
-  background-color: #EAEAF2;
+/*.pm tr:hover td {
+  background-color: #EEEEEE;
+}*/
+
+.pm tr:nth-child(even) td {
+  background-color: #f9f9f9;
 }
 
 progress {
+  padding: 2px;
+}
+
+.pm .tdstatus {
   padding: 2px;
 }
 
@@ -76,6 +85,9 @@ progress {
   text-align: right;
   /*transition: background-color 1s;*/
   border: none;
+  cursor: pointer;
+  cursor: hand;
+  font-size: small;
 }
 
 .pm .cancel:hover {
@@ -168,7 +180,9 @@ progress {
 }
 
 .tabbutton {
-  font-size: small
+  font-size: small;
+  cursor: pointer;
+  cursor: hand;
 }
 
 .tabbuttons {
@@ -220,4 +234,30 @@ progress {
 .pm .toolbar {
   background-color: rgba(0, 0, 0, 0.2);
   padding: 1px;
+}
+
+.pm .sparkuibutton {
+  margin: 0;
+  padding: 5px 4px;
+  font-size: smaller;
+}
+
+.pm .sparkuibutton:hover {
+  background-color: #C45917;
+  /*text-decoration: underline;*/
+  cursor: pointer;
+  cursor: hand;
+}
+
+.pm .sparkuibutton:active {
+  background-color: #893a09
+}
+
+.uibuttondisabled {
+  color: #b2b2b2;
+}
+
+.sparkuiframe {
+  width: 100%;
+  height: 100%;
 }
