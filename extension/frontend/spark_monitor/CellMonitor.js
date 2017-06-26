@@ -597,6 +597,11 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             this.resizeTaskGraph();
         }
 
+        CellMonitor.prototype.cellExecutionCompleted = function () {
+            this.cellEndTime = new Date();
+
+        }
+
 
 
         return CellMonitor;

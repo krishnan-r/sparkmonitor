@@ -3,9 +3,7 @@
 (older screenshot)
 ![Screenshot](screenshot.gif)
 ## Notes
-* ~~This version uses a python based `SparkListener` attached to the `SparkContext`. (Scala listeners coming soon)~~
 * This version uses a scala `SparkListener` that forwards data to the kernel using sockets. The SparkConf is configured with the ports for the Listener to reach the kernel.
-* ~~The extension requires the user to call `connectContext(sc)` after the context is created, from the notebook to start working (Requirement will be removed in future)~~
 * The user has to configure the SparkConf object with the extension before starting spark. This sets the listener JAR path and the ports for communication
    ```python
     import sparkmonitor
@@ -78,23 +76,17 @@ $SPARK_HOME/sbin/stop-slave.sh
 
 # TODO
 
-- Complete scala based listener
-    - ~~Process all data in scala and compute metrics - Python only shall forward JSON strings to frontend~~
-    - Fix cases with inconsistent data - in some cases onStageSubmitted does not have submission time for active non-skipped stages (Why?)
-
 - Fix "currently running cell" detection when multiple cells are queued and there is an error where queue has to emptied.
     - TODO how to detect this?
 
-- Fix race conditions when a task/stage is started/ended from a cell but message arrives late.
-
 - Automatic moving of timeline with an optional toggle button.
 
-- Fix errors when updating timeline while tasks group is collapsed.
+- Ability to Collapse Tasks
 
-- Remove old jobs from past runs, beyond a threshold limit 
+- Clear Display when cell is run again
 
-- Add Job Table Display - TODO count number of tasks and track skipped and pending stages
+- Make display scalable
 
-- Stopping running jobs in a better way
+- Complete Job Table Display - TODO count number of tasks and track skipped and pending stages
 
-- ~~Multiple notebooks running, not working because py4j callback server occupies the port~~
+- Stopping running jobs
