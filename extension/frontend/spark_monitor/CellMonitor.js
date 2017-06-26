@@ -16,9 +16,9 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             var that = this;
             this.monitor = monitor;
             this.cell = cell
-            this.view = "jobs";
+            this.view = "hidden";
             this.lastview = "jobs";
-            this.cellStartTime = -1;
+            this.cellStartTime = new Date();
             this.cellEndTime = -1;
             this.numActiveJobs = 0;
             this.numCompletedJobs = 0;
@@ -110,13 +110,10 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
             if (!this.cell.element.find('.CellMonitor').length) {
                 var element = $(this.html).hide();
+                element.find('.content').hide()
                 this.displayElement = element;
                 this.cell.element.find('.inner_cell').append(element);
-
                 element.slideToggle();
-
-
-
                 element.find('.cancel').click(function () {
                     console.log('Stopping Jobs');
                     Jupyter.notebook.kernel.interrupt();
@@ -151,58 +148,63 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                         that.lastview = that.view;
                         that.view = "hidden";
                         //TODO cleanup handlers
+                        that.cell.element.find('.content').slideUp({
+                            queue: false, duration: 400,
+                            complete: function () {
+                                that.cell.element.find('.headericon').addClass('headericoncollapsed');
+                                element.find('.tabcontent').removeClass('tabcontentactive');
+                                element.find('.tabbutton').removeClass('tabbuttonactive');
+                            }
+                        });
+                    } else {
+                        that.showView(that.lastview);
                     }
-                    that.cell.element.find('.content').slideToggle({
-                        queue: false,
-                        duration: 400,
-                        complete: function () {
-                            that.cell.element.find('.headericon').toggleClass('headericoncollapsed');
-                        }
-                    });
-
                 });
-
                 element.find('.taskviewtabbutton').click(function () {
-                    console.log('clicked3');
-                    if (that.view != 'tasks') {
-                        that.view = 'tasks';
-                        element.find('.tabcontent').removeClass('tabcontentactive')
-                        element.find('.tabbutton').removeClass('tabbuttonactive')
-
-                        element.find('.taskviewcontent').addClass('tabcontentactive')
-                        $(this).addClass('tabbuttonactive');
-                        that.createTaskGraph();
-                    }
+                    if (that.view != 'tasks') { that.showView("tasks"); }
                 });
                 element.find('.timelinetabbutton').click(function () {
-                    console.log('clicked');
-                    if (that.view != 'timeline') {
-                        that.view = 'timeline';
-                        element.find('.tabcontent').removeClass('tabcontentactive')
-                        element.find('.tabbutton').removeClass('tabbuttonactive')
-
-                        element.find('.timelinecontent').addClass('tabcontentactive')
-                        $(this).addClass('tabbuttonactive');
-                        that.createTimeline();
-                    }
+                    if (that.view != 'timeline') { that.showView("timeline"); }
                 });
                 element.find('.jobtabletabbutton').click(function () {
-                    console.log('clicked2');
-                    if (that.view != 'jobs') {
-                        that.view = 'jobs';
-                        element.find('.tabcontent').removeClass('tabcontentactive')
-                        element.find('.tabbutton').removeClass('tabbuttonactive')
-
-                        element.find('.jobtablecontent').addClass('tabcontentactive')
-                        $(this).addClass('tabbuttonactive');
-                        that.createJobTable();
-                    }
+                    if (that.view != 'jobs') { that.showView("jobs"); }
 
                 });
-                this.createJobTable();
             }
             else console.error("SparkMonitor: Error Display Already Exists");
+        }
 
+        CellMonitor.prototype.showView = function (view) {
+            var that = this;
+            var element = this.displayElement;
+            element.find('.tabcontent').removeClass('tabcontentactive')
+            element.find('.tabbutton').removeClass('tabbuttonactive')
+            if (this.view == "hidden") {
+                that.cell.element.find('.content').slideDown({
+                    queue: false, duration: 400,
+                    complete: function () { that.cell.element.find('.headericon').removeClass('headericoncollapsed'); }
+                });
+            }
+            switch (view) {
+                case "jobs":
+                    this.view = "jobs";
+                    element.find('.jobtablecontent').addClass('tabcontentactive');
+                    element.find('.jobtabletabbutton').addClass('tabbuttonactive');
+                    this.createJobTable();
+                    break;
+                case "tasks":
+                    this.view = "tasks";
+                    element.find('.taskviewcontent').addClass('tabcontentactive');
+                    element.find('.taskviewtabbutton').addClass('tabbuttonactive');
+                    this.createTaskGraph();
+                    break;
+                case "timeline":
+                    this.view = "timeline";
+                    element.find('.timelinecontent').addClass('tabcontentactive');
+                    element.find('.timelinetabbutton').addClass('tabbuttonactive');
+                    this.createTimeline();
+                    break;
+            }
         }
 
         CellMonitor.prototype.setBadges = function () {
@@ -292,7 +294,9 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 var container = this.cell.element.find('.taskcontainer')[0]
                 if (this.taskGraph) this.taskGraph.destroy()
                 this.taskGraph = new vis.Graph2d(container, this.taskGraphData, this.taskGraphOptions);
+                this.resizeTaskGraph(this.cellStartTime);
             }
+
         }
 
 
@@ -334,32 +338,57 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 var head = $("\
             <thead>\
             <tr>\
-                <th>Job ID</th>\
-                <th>Job Name</th>\
-                <th>Status</th>\
-                <th>Stages:Active/Completed</th>\
-                <th>Tasks</th>\
-                <th>Submission Time</th>\
-                <th>Duration</th>\
-            </tr>\
-            </thead>\
+                <th></th>\
+                    <th> Job ID</th >\
+                    <th>Job Name</th>\
+                    <th>Status</th>\
+                    <th>Stages:Active/Completed</th>\
+                    <th>Tasks</th>\
+                    <th>Submission Time</th>\
+                    <th>Duration</th>\
+            </tr >\
+            </thead >\
                 ");
                 table.append(head);
                 var body = $('<tbody></tbody>')
                 this.jobData.forEach(function (item) {
+
+                    var fakerow = $('<tr><td class="stagetableoffset"></td><td colspan=7 class="stagedata"></td></tr>');
+                    fakerow.hide();
+                    var stagetable = $("<table class='stagetable'>\
+                    <thead>\
+                    <th>Stage Id</th>\
+                    <th>Stage Name</th>\
+                    <th>Status</th>\
+                    <th>Tasks</th>\
+                    <th>Submission Time</th>\
+                    </thead>\
+                    <tbody>\
+                    </tbody>\
+                    </table>");
+                    fakerow.find('.stagedata').append(stagetable);
                     row = $('<tr></tr>').addClass('row' + item.jobId);
+                    var button = $('<td></td>').addClass('tdstagebutton').html('<span class="tdstageicon"> &#9658;</span>');
+                    var icon = button.find('.tdstageicon');
+                    button.click(function () {
+                        console.log('clicked');
+                        icon.toggleClass('tdstageiconcollapsed');
+                        fakerow.slideToggle();
+                    })
+                    row.append(button);
                     row.append($('<td></td>').addClass('tdjobId').text(item.jobId));
                     row.append($('<td></td>').addClass('tdname').text(item.name));
                     var status = $('<span></span>').addClass(item.status).text(item.status);
                     row.append($('<td></td>').addClass('tdstatus').html(status));
-                    row.append($('<td></td>').addClass('tdstages').text(item.jobId));
-                    row.append($('<td></td>').addClass('tdtasks').text(item.jobId));
+                    row.append($('<td></td>').addClass('tdstages').text('-'));
+                    row.append($('<td></td>').addClass('tdtasks').text('-'));
                     var start = $('<time></time>').addClass('timeago').attr('data-livestamp', item.start).attr('title', item.start.toString()).text(item.start.toString())
                     row.append($('<td></td>').addClass('tdstarttime').append(start));
                     var duration = "-";
                     if (item.status != "RUNNING") duration = moment.twix(item.start.getTime(), item.end.getTime()).humanizeLength()
                     row.append($('<td></td>').text(duration))
                     body.append(row);
+                    body.append(fakerow);
                 })
                 table.append(body);
                 this.cell.element.find('.jobtablecontent').empty().append(table);
@@ -369,6 +398,8 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
         CellMonitor.prototype.bindJobData = function () {
             var that = this;
+            if (this.jobDataSetCallback)
+                this.jobData.off('*', this.jobDataSetCallback);
             this.jobDataSetCallback =
                 function (event, properties, senderId) {
                     console.log("JOBDATASETCHANGED");

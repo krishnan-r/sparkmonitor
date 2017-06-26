@@ -29,6 +29,20 @@
 
 /*Table*/
 
+.tdstageicon {
+  display: block;
+  transition: transform 0.4s;
+  transform: rotate(0deg);
+}
+
+.tdstageiconcollapsed {
+  transform: rotate(90deg);
+}
+
+.pm td.stagetableoffset {
+  background-color: #e7e7e7;
+}
+
 .pm th {
   font-size: 12;
   /*background-color: #EEEEEE;*/
@@ -66,9 +80,14 @@
   background-color: #EEEEEE;
 }*/
 
-.pm tr:nth-child(even) td {
-  background-color: #f9f9f9;
+tr .tdstagebutton:hover ~ td, tr .tdstagebutton:hover {
+  background-color: #d0cece;
 }
+
+
+/*.pm tr:nth-child(even) td {
+  background-color: #f9f9f9;
+}*/
 
 progress {
   padding: 2px;
@@ -250,7 +269,7 @@ progress {
 }
 
 .pm .sparkuibutton:active {
-  background-color: #893a09
+  background-color: #F37600
 }
 
 .uibuttondisabled {

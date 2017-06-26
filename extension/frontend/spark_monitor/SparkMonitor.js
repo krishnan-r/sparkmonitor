@@ -18,10 +18,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 		}
 
 		SparkMonitor.prototype.getCellMonitor = function (cell) {
-			if (this.cellmonitors[cell.cell_id] == null) {
-				return this.startCellMonitor(cell)
-			}
-			else return this.cellmonitors[cell.cell_id];
+			return this.cellmonitors[cell.cell_id];
 		}
 
 		SparkMonitor.prototype.startCellMonitor = function (cell) {
@@ -35,6 +32,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 		SparkMonitor.prototype.stopCellMonitor = function (cell) {
 			if (this.cellmonitors[cell.cell_id] != null) {
 				this.cellmonitors[cell.cell_id].cleanUp();
+				this.cellmonitors[cell.cell_id] = null;
 				delete this.cellmonitors[cell.cell_id];
 			}
 		}
@@ -73,18 +71,20 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 		SparkMonitor.prototype.sparkJobStart = function (data) {
 			var cell = currentcell.getRunningCell()
 			if (cell == null) {
-				console.error('SparkMonitor: Job started with no running cell. Possible race condition');
+				console.error('SparkMonitor: Job started with no running cell.');
 				return;
 				//TODO
 			}
 			console.log('SparkMonitor: Job Start at cell: ', cell.cell_id, data);
 			var cellmonitor = this.getCellMonitor(cell)
-
+			if (!cellmonitor) {
+				cellmonitor = this.startCellMonitor(cell);
+				cellmonitor.createDisplay();
+			}
 			this.data.update({
 				id: 'app' + this.app + 'job' + data.jobId,
 				cell_id: cell.cell_id,
 			});
-			cellmonitor.createDisplay();
 			cellmonitor.sparkJobStart(data);
 		}
 
