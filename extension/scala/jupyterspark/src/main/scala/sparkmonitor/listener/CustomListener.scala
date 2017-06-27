@@ -410,17 +410,17 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 		val json=   ("msgtype" -> "sparkExecutorAdded") ~
 					("executorId" ->executorAdded.executorId) ~
 					("time" -> executorAdded.time) ~
-					("host" -> executorAdded.executorHost) ~
-					("totalCores" -> executorAdded.totalCores)
+					("host" -> executorAdded.executorInfo.executorHost) ~
+					("totalCores" -> executorAdded.executorInfo.totalCores)
 
  		println("SPARKLISTENER Executor Added: \n"+ pretty(render(json)) + "\n")
 		send(pretty(render(json)))
 	}
 
-	override def def onExecutorRemoved(executorRemoved: SparkListenerExecutorRemoved): Unit = synchronized {
+	override def onExecutorRemoved(executorRemoved: SparkListenerExecutorRemoved): Unit = synchronized {
 	val json=   ("msgtype" -> "sparkExecutorRemoved") ~
 					("executorId" ->executorRemoved.executorId) ~
-					("time" -> executorRemoved.time) ~
+					("time" -> executorRemoved.time)
 
  		println("SPARKLISTENER Executor Removed: \n"+ pretty(render(json)) + "\n")
 		send(pretty(render(json)))
