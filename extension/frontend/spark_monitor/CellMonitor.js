@@ -16,7 +16,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             var that = this;
             this.monitor = monitor;
             this.cell = cell
-            this.view = "hidden";
+            this.view = "jobs";
             this.lastview = "jobs";
             this.cellStartTime = new Date();
             this.cellEndTime = -1;
@@ -29,6 +29,10 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
             this.data = new vis.DataSet();
 
+            events.off('finished.' + cell.cell_id + '.currentcell');
+            events.one('finished.' + cell.cell_id + '.currentcell', function () {
+                that.cellExecutionCompleted();
+            })
 
             //timeline data
             this.timelineData = new vis.DataSet(options = {
@@ -78,8 +82,9 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 drawPoints: false,
                 interpolation: {
                     enabled: false,
-                    parametrization: "uniform"
+                    parametrization: "centripetal"
                 },
+                sampling: false,
                 shaded: true,
                 dataAxis: {
                     left: {
@@ -110,7 +115,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
             if (!this.cell.element.find('.CellMonitor').length) {
                 var element = $(this.html).hide();
-                element.find('.content').hide()
+                //element.find('.content').hide()
                 this.displayElement = element;
                 this.cell.element.find('.inner_cell').append(element);
                 element.slideToggle();
@@ -168,8 +173,27 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 });
                 element.find('.jobtabletabbutton').click(function () {
                     if (that.view != 'jobs') { that.showView("jobs"); }
-
                 });
+
+                // $("[dt='tooltiptop']").tooltip({
+                //     position: { my: 'center bottom', at: 'center top-10' },
+                //     'tooltipClass': "tptop",
+                // });
+                // $("[dt='tooltipbottom']").tooltip({
+                //     position: { my: 'center top', at: 'center bottom+10' },
+                //     'tooltipClass': "tpbottom",
+                // });
+                // $("[dt='tooltipleft']").tooltip({
+                //     position: { my: 'right center', at: 'left-10 center' },
+                //     'tooltipClass': "tpleft",
+                // });
+                // $("[dt='tooltipright']").tooltip({
+                //     position: { my: 'left center', at: 'right+10 center' },
+                //     'tooltipClass': "tpright",
+                // });
+
+                this.showView("jobs");
+
             }
             else console.error("SparkMonitor: Error Display Already Exists");
         }
@@ -226,23 +250,22 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
         }
 
         CellMonitor.prototype.cleanUp = function () {
-            this.clearTimelineRefresher();
-            this.timeline.destroy();
-            this.taskGraph.destroy();
+            //this.clearTimelineRefresher(); 
             this.cell.element.find('.CellMonitor').remove();
         }
 
         //--------Timeline Functions-----------------------
         CellMonitor.prototype.registerTimelineRefresher = function () {
-            var i = 0;
+
             var that = this;
+            that.i = 0;
             this.flushInterval = setInterval(function () {
-                i++;
-                if (i == 2) {
-                    i = 0;
+                that.i++;
+                if (that.i == 2) {
+                    that.i = 0;
+                    var date = new Date();
                     that.timelineData.forEach(function (item) {
-                        var date = new Date()
-                        if (item.mode == "ongoing") {
+                        if (that.data.get(item.id).mode == "ongoing") {
                             that.timelineData.update({
                                 id: item.id,
                                 end: date
@@ -261,9 +284,12 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
         CellMonitor.prototype.resizeTimeline = function (start, end) {
             if (this.view == 'timeline') {
                 try {
-                    if (!start) start = new Date();
-                    start.setTime(start.getTime() - 30000)
-                    if (!end) end = new Date(start.getTime() + 120000);
+                    if (!start) start = new Date(this.cellStartTime);
+                    // start.setTime(start.getTime() - 30000)
+                    if (!end) {
+                        if (!this.cellEndTime) end = new Date(start.getTime() + 120000);
+                        else end = this.cellEndTime;
+                    }
                     this.timeline.setWindow(start, end, { animation: true });
                 }
                 catch (err) {
@@ -274,38 +300,94 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
         }
 
-        CellMonitor.prototype.addLinetoTimeline = function () {
-
+        CellMonitor.prototype.addLinetoTimeline = function (time, id, title) {
+            if (this.view == "timeline") {
+                this.timeline.addCustomTime(time, id);
+                this.timeline.setCustomTimeTitle(title, id);
+            }
         }
 
         CellMonitor.prototype.createTimeline = function () {
+            var that = this;
             if (this.view == 'timeline') {
-                var container = this.cell.element.find('.timelinecontainer')[0]
+                var container = this.cell.element.find('.timelinecontainer').empty()[0]
                 if (this.timeline) this.timeline.destroy()
+
+                // this.timelineOptions.min = new Date(this.cellStartTime);
+                this.timelineOptions.start = new Date(this.cellStartTime);
+
+
+                if (this.cellEndTime > 0) {
+                    this.timelineOptions.end = this.cellEndTime;
+                    // this.timelineOptions.max = this.cellEndTime;
+                }
+                else {
+                    var date = new Date();
+                    date.setTime(date.getTime() + 30000);
+                    this.timelineOptions.end = date;
+                }
+
+
                 this.timeline = new vis.Timeline(container, this.timelineData, this.timelineGroups, this.timelineOptions);
+
+                //  that.addLinetoTimeline(new Date(that.cellStartTime), 'timebarcellstart', "Cell Start");
+                this.timelineData.forEach(function (item) {
+                    if (item.id.slice(0, 3) == "job") {
+                        that.addLinetoTimeline(item.start, item.id + 'start', "Job Started");
+                        if (that.data.get(item.id).mode == "done") that.addLinetoTimeline(item.end, item.id + 'end', "Job Ended");
+                    }
+                });
+
                 this.registerTimelineRefresher();
-                this.resizeTimeline();
+                this.timeline.on('select', function (properties) {
+                    if (!that.popupdialog) that.popupdialog = $('<div></div>');
+                    that.popupdialog.html('<div>selected items: ' + properties.items + ' TODO show data here</div>').dialog();
+                });
+                // this.resizeTimeline(this.timelineOptions.start, this.timelineOptions.end);
             }
+        }
+
+        CellMonitor.prototype.hideTimeline = function () {
+            if (this.timeline) this.timeline.destroy();
+            this.clearTimelineRefresher();
         }
 
         //--------Task Graph Functions Functions-----------
         CellMonitor.prototype.createTaskGraph = function () {
+            var that = this;
             if (this.view == 'tasks') {
-                var container = this.cell.element.find('.taskcontainer')[0]
+                var container = this.cell.element.find('.taskcontainer').empty()[0]
                 if (this.taskGraph) this.taskGraph.destroy()
                 this.taskGraph = new vis.Graph2d(container, this.taskGraphData, this.taskGraphOptions);
-                this.resizeTaskGraph(this.cellStartTime);
+                this.resizeTaskGraph(new Date(this.cellStartTime));
+
+                this.timelineData.forEach(function (item) {
+                    if (item.id.slice(0, 3) == "job") {
+                        that.addLinetoTasks(item.start, item.id + 'start', "Job Started");
+                        if (that.data.get(item.id).mode == "done") that.addLinetoTasks(item.end, item.id + 'end', "Job Ended");
+                    }
+                });
+
             }
 
         }
 
+        CellMonitor.prototype.addLinetoTasks = function (time, id, title) {
+            if (this.view == "tasks") {
+                this.taskGraph.addCustomTime(time, id);
+                this.taskGraph.setCustomTimeTitle(title, id);
+            }
+        }
 
         CellMonitor.prototype.resizeTaskGraph = function (start, end) {
             if (this.view == 'tasks') {
                 try {
-                    if (!start) start = new Date();
-                    start.setTime(start.getTime() - 30000)
-                    if (!end) end = new Date(start.getTime() + 120000);
+                    if (!start) start = new Date(this.cellStartTime);
+                    // start.setTime(start.getTime() - 30000)
+                    if (!end) {
+                        if (!this.cellEndTime > 0) end = new Date();
+                        else end = this.cellEndTime;
+                    }
                     this.taskGraph.setWindow(start, end, { animation: true });
                     this.taskGraph.setOptions({
 
@@ -328,12 +410,16 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
         }
 
+        CellMonitor.prototype.hideTasks = function () {
+
+        }
+
 
         //--------Job Table Functions----------------------
 
         CellMonitor.prototype.createJobTable = function () {
             if (this.view == 'jobs') {
-                this.cell.element.find('.jobtable thead')
+                this.cell.element.find('.jobtable > thead');
                 var table = $("<table/>").addClass('jobtable');
                 var head = $("\
             <thead>\
@@ -385,8 +471,13 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                     var start = $('<time></time>').addClass('timeago').attr('data-livestamp', item.start).attr('title', item.start.toString()).text(item.start.toString())
                     row.append($('<td></td>').addClass('tdstarttime').append(start));
                     var duration = "-";
-                    if (item.status != "RUNNING") duration = moment.twix(item.start.getTime(), item.end.getTime()).humanizeLength()
-                    row.append($('<td></td>').text(duration))
+                    var durationtext = "-";
+                    if (item.status != "RUNNING") {
+                        var t = moment(item.start.getTime()).twix(item.end.getTime());
+                        duration = t.simpleFormat();
+                        durationtext = t.humanizeLength();
+                    }
+                    row.append($('<td></td>').text(durationtext).attr("title", duration));
                     body.append(row);
                     body.append(fakerow);
                 })
@@ -402,7 +493,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 this.jobData.off('*', this.jobDataSetCallback);
             this.jobDataSetCallback =
                 function (event, properties, senderId) {
-                    console.log("JOBDATASETCHANGED");
+                    console.log("SparkMonitor: JOBDATASETCHANGED");
                     if (that.view == 'jobs') {
                         { that.createJobTable(); }
                     };
@@ -412,8 +503,11 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
         }
 
         CellMonitor.prototype.unbindJobData = function () {
-            //TODO optimise and make changes
             this.jobData.off('*', this.jobDataSetCallback);
+        }
+
+        CellMonitor.prototype.hideJobTable = function () {
+
         }
 
 
@@ -453,6 +547,9 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 className: 'itemrunning job',
             });
 
+            this.addLinetoTimeline(new Date(data.submissionTime), 'job' + data.jobId + 'start', 'Job ' + data.jobId + 'Started');
+            this.addLinetoTasks(new Date(data.submissionTime), 'job' + data.jobId + 'start', 'Job ' + data.jobId + 'Started');
+
         }
 
         CellMonitor.prototype.sparkJobEnd = function (data) {
@@ -487,6 +584,8 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 end: new Date(data.completionTime),
                 status: data.status,
             });
+            this.addLinetoTimeline(new Date(data.completionTime), 'job' + data.jobId + 'end', 'Job ' + data.jobId + 'Ended');
+            this.addLinetoTasks(new Date(data.completionTime), 'job' + data.jobId + 'end', 'Job ' + data.jobId + 'Ended');
         }
 
         CellMonitor.prototype.sparkStageSubmitted = function (data) {
@@ -497,6 +596,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
             this.data.update({
                 id: 'stage' + data.stageId,
+                jobIds: data.jobIds,
                 stageId: data.stageId,
                 name: name,
                 start: submissionDate,
@@ -512,6 +612,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 end: new Date(),
                 className: 'itemrunning stage',
             });
+            this.resizeTaskGraph();
         }
 
         CellMonitor.prototype.sparkStageCompleted = function (data) {
@@ -567,8 +668,16 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 className: 'itemrunning task',
             });
 
+
+            // this.taskGraphData.add({
+            //     x: new Date(data.launchTime),
+            //     y: this.numActiveTasks
+            // })
+
             this.numActiveTasks += 1;
             if (this.maxNumActiveTasks < this.numActiveTasks) this.maxNumActiveTasks = this.numActiveTasks;
+
+
             this.taskGraphData.add({
                 x: new Date(data.launchTime),
                 y: this.numActiveTasks
@@ -589,17 +698,23 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 title: 'Task:' + data.taskId + ' from stage ' + data.stageId + 'Launched' + Date(data.launchTime) + 'Completed: ' + Date(data.finishTime),
                 className: 'itemfinished task',
             });
+
+            // this.taskGraphData.add({
+            //     x: new Date(data.finishTime),
+            //     y: this.numActiveTasks
+            // })
+
             this.numActiveTasks -= 1;
+
             this.taskGraphData.add({
                 x: new Date(data.finishTime),
                 y: this.numActiveTasks
             })
-            this.resizeTaskGraph();
         }
 
         CellMonitor.prototype.cellExecutionCompleted = function () {
+            console.log("SparkMonitor: Cell Execution Completed");
             this.cellEndTime = new Date();
-
         }
 
 

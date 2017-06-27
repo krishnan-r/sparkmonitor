@@ -18,6 +18,7 @@ define(['base/js/namespace', 'notebook/js/codecell', 'require', 'base/js/events'
         if (cell instanceof CodeCell) {
             if (cell_queue.length <= 0) {
                 events.trigger('started.currentcell', cell)
+                events.trigger('started.' + cell.cell_id + '.currentcell', cell)
             }
             cell_queue.push(cell);
             current_cell = cell_queue[0];
@@ -27,15 +28,18 @@ define(['base/js/namespace', 'notebook/js/codecell', 'require', 'base/js/events'
     //Kernel Idle
     function cell_execute_finished() {
         //  console.log('SparkMonitor: Cell execution FINISHED')
-        if (current_cell != null) events.trigger('finished.currentcell', current_cell);
+        if (current_cell != null) {
+            events.trigger('finished.currentcell', current_cell);
+            events.trigger('finished.' + current_cell.cell_id + '.currentcell', current_cell);
+        }
         cell_queue.shift();
         current_cell = cell_queue[0]
         if (current_cell != null) {
             events.trigger('started.currentcell', current_cell)
+            events.trigger('started.' + current_cell.cell_id + '.currentcell', current_cell);
         }
-
     }
-
+    
     function getRunningCell() {
         return current_cell
     }

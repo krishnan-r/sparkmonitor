@@ -20,15 +20,15 @@ import java.io._
 class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 	println("SPARKLISTENER: Started ScalaListener Constructor")
 	val port = conf.get("sparkmonitor.port")
-  	println("SPARKLISTENER: connecting to port"+conf.get("sparkmonitor.port"))
+  	println("SPARKLISTENER: Connecting to port"+conf.get("sparkmonitor.port"))
 	  
 
 	val socket = new Socket("localhost",port.toInt)
 	val out = new OutputStreamWriter(socket.getOutputStream())
 
 	def send(msg:String):Unit={
-		println("\nSPARKLISTENER: --------------Sending Message:------------------\n"+msg+
-		"\nSPARKLISTENER: -------------------------------------------------\n")
+	//	println("\nSPARKLISTENER: --------------Sending Message:------------------\n"+msg+
+	//	"\nSPARKLISTENER: -------------------------------------------------\n")
 		out.write(msg+";EOD:")
 		out.flush()
 	}
@@ -257,7 +257,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 					("submissionTime" -> submissionTime) ~
 					("numTasks" -> stage.numTasks)
 
- 		//println("SPARKLISTENER Stage Completed: \n"+ pretty(render(json)) + "\n")
+ 		println("SPARKLISTENER Stage Completed: \n"+ pretty(render(json)) + "\n")
 		send(pretty(render(json)))
 	}
 
@@ -274,7 +274,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 			p => Option(p.getProperty("spark.job.description"))
 		}
 
-		for(
+			for(
 			activeJobsDependentOnStage <- stageIdToActiveJobIds.get(stage.stageId);
 			jobId <- activeJobsDependentOnStage;
 			jobData <- jobIdToData.get(jobId)
@@ -283,6 +283,11 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 			// If a stage retries again, it should be removed from completedStageIndices set
 			jobData.completedStageIndices.remove(stage.stageId)
 		}
+
+		val activeJobsDependentOnStage = stageIdToActiveJobIds.get(stage.stageId)
+		val jobIds = activeJobsDependentOnStage
+					
+		
 		val submissionTime:Long = stage.submissionTime.getOrElse(-1)
 		val json=   ("msgtype" -> "sparkStageSubmitted") ~
 					("stageId" -> stage.stageId) ~
@@ -291,10 +296,12 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 					("numTasks" -> stage.numTasks) ~
 					("details" -> stage.details) ~
 					("parentIds" -> stage.parentIds) ~
-					("submissionTime" -> submissionTime)
+					("submissionTime" -> submissionTime) ~
+					("jobIds" -> jobIds)
+
 					
 
- 		//println("SPARKLISTENER Stage Submitted: \n"+ pretty(render(json)) + "\n")
+ 		println("SPARKLISTENER Stage Submitted: \n"+ pretty(render(json)) + "\n")
 		send(pretty(render(json)))
 	}
 	
@@ -397,7 +404,27 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 		send(pretty(render(json)))
 	}
 
+	var totalCores=0;
 
+	override def onExecutorAdded(executorAdded: SparkListenerExecutorAdded): Unit = synchronized {
+		val json=   ("msgtype" -> "sparkExecutorAdded") ~
+					("executorId" ->executorAdded.executorId) ~
+					("time" -> executorAdded.time) ~
+					("host" -> executorAdded.executorHost) ~
+					("totalCores" -> executorAdded.totalCores)
+
+ 		println("SPARKLISTENER Executor Added: \n"+ pretty(render(json)) + "\n")
+		send(pretty(render(json)))
+	}
+
+	override def def onExecutorRemoved(executorRemoved: SparkListenerExecutorRemoved): Unit = synchronized {
+	val json=   ("msgtype" -> "sparkExecutorRemoved") ~
+					("executorId" ->executorRemoved.executorId) ~
+					("time" -> executorRemoved.time) ~
+
+ 		println("SPARKLISTENER Executor Removed: \n"+ pretty(render(json)) + "\n")
+		send(pretty(render(json)))
+	}
 
 	/** If stages is too large, remove and garbage collect old stages */
 	private def trimStagesIfNecessary(stages: ListBuffer[StageInfo]) = synchronized {

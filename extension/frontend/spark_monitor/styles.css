@@ -13,7 +13,9 @@
 }
 
 .pm .content {
-  padding: 5px;
+  /*padding: 5px;*/
+  /*resize: vertical;*/
+  /*overflow: hidden;*/
 }
 
 .tbitem {
@@ -164,7 +166,7 @@ progress {
 
 .vis-custom-time {
   pointer-events: none;
-  background: gray;
+  background-color: #42A5F5;
 }
 
 .headericon {
@@ -189,13 +191,18 @@ progress {
 
 .vis-item.itemrunning {}
 
-.vis-item.itemfinished {
+.vis-item.itemfinished:not(.vis-selected) {
   background-color: #C9EF9B;
   border-color: #6c9d34;
 }
 
 .vis-item.itemfinished:active {
   background-color: #6c9d34;
+}
+
+.vis-selected {
+  border-color: #ffc200;
+  background-color: #fff785;
 }
 
 .tabbutton {
@@ -279,4 +286,56 @@ progress {
 .sparkuiframe {
   width: 100%;
   height: 100%;
+}
+
+
+/*-------------Tooltip Popup---------------*/
+
+.ui-tooltip {
+  background: #666;
+  color: white;
+  border: none;
+  padding: 0;
+  opacity: 1;
+}
+
+.ui-tooltip-content {
+  position: relative;
+  padding: 5px;
+}
+
+.ui-tooltip-content::after {
+  content: '';
+  position: absolute;
+  border-style: solid;
+  display: block;
+  width: 0;
+}
+
+.tpright .ui-tooltip-content::after {
+  top: 5px;
+  left: -10px;
+  border-color: transparent #666;
+  border-width: 10px 10px 10px 0;
+}
+
+.tpleft .ui-tooltip-content::after {
+  top: 5px;
+  right: -10px;
+  border-color: transparent #666;
+  border-width: 10px 0 10px 10px;
+}
+
+.tptop .ui-tooltip-content::after {
+  bottom: -10px;
+  left: 72px;
+  border-color: #666 transparent;
+  border-width: 10px 10px 0;
+}
+
+.tpbottom .ui-tooltip-content::after {
+  top: -10px;
+  left: 72px;
+  border-color: #666 transparent;
+  border-width: 0 10px 10px;
 }

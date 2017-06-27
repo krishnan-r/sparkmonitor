@@ -36,8 +36,12 @@ class SparkMonitorHandler(IPythonHandler):
             print('SPARKSERVER: Spark UI not running')
         else:
             content_type = response.headers['Content-Type']
+            #print('SPARKSERVER: CONTENT TYPE: '+ content_type + '\n')
             if 'text/html' in content_type:
                 content = replace(response.body)
+            elif 'javascript' in content_type:
+                content = response.body.replace(
+                    "location.origin", "location.origin +'" + proxy_root + "' ")
             else:
                 # Probably binary response, send it directly.
                 content = response.body
@@ -76,6 +80,7 @@ PROXY_ATTRIBUTES = (
     (('a', 'link'), 'href'),
     (('img', 'script'), 'src'),
 )
+
 
 def replace(content):
     """

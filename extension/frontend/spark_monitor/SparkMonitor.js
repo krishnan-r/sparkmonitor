@@ -12,7 +12,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 			events.on('kernel_connected.Kernel', $.proxy(this.startComm, this));//Make sure there is a comm always.
 
 			this.data = new vis.DataSet();
-			this.appName = "NLL";
+			this.appName = "NULL";
 			this.appId = "NULL";
 			this.app = "NULL";
 		}
@@ -22,11 +22,23 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 		}
 
 		SparkMonitor.prototype.startCellMonitor = function (cell) {
+			var that = this;
 			if (this.cellmonitors[cell.cell_id] != null) {
 				this.cellmonitors[cell.cell_id].cleanUp();
 			}
+
+			events.one('started.' + cell.cell_id + '.currentcell', function () {
+				that.cellExecutedAgain(cell);
+			})
+
 			this.cellmonitors[cell.cell_id] = new CellMonitor(this, cell);
+
+
 			return this.cellmonitors[cell.cell_id];
+		}
+
+		SparkMonitor.prototype.cellExecutedAgain = function (cell) {
+			this.stopCellMonitor(cell);
 		}
 
 		SparkMonitor.prototype.stopCellMonitor = function (cell) {
