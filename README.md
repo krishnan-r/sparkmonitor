@@ -29,7 +29,7 @@ jupyter nbextension install ./frontend/spark_monitor --sys-prefix --symlink
 jupyter nbextension enable spark_monitor/module --sys-prefix
 ```
 
-#### Kernel Extension
+#### Kernel & Server Extension
 Install the python package in editable format from the repo
 
 ```bash
@@ -43,6 +43,11 @@ ipython profile create
 Configure the kernel to load the extension on startup. This is added to the configuration files in users home directory
 ```bash
 echo "c.InteractiveShellApp.extensions = ['sparkmonitor']" >> ~/.ipython/profile_default/ipython_kernel_config.py 
+```
+
+To start the notebook server extension start jupyter with the following command 
+```bash
+jupyter notebook --NotebookApp.token='' --NotebookApp.nbserver_extensions="'sparkmonitorserver.extension':True}"
 ```
 
 
@@ -79,11 +84,11 @@ $SPARK_HOME/sbin/stop-slave.sh
 - Fix "currently running cell" detection when multiple cells are queued and there is an error where queue has to emptied.
     - TODO how to detect this?
 
+- User running cell before extension has loaded in the frontend does not show display
+
 - Automatic moving of timeline with an optional toggle button.
 
-- Ability to Collapse Tasks
-
-- Clear Display when cell is run again
+- Ability to Collapse Tasks in timeline
 
 - Make display scalable
 

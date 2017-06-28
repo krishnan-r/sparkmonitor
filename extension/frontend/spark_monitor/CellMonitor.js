@@ -341,7 +341,9 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 this.registerTimelineRefresher();
                 this.timeline.on('select', function (properties) {
                     if (!that.popupdialog) that.popupdialog = $('<div></div>');
-                    that.popupdialog.html('<div>selected items: ' + properties.items + ' TODO show data here</div>').dialog();
+                    that.popupdialog.html('<div>Selected Items: ' + properties.items + '<br> TODO: Show Data Here</div><br>' + JSON.stringify(that.data.get(properties.items[0]))).dialog({
+                        title: "Details"
+                    });
                 });
                 // this.resizeTimeline(this.timelineOptions.start, this.timelineOptions.end);
             }
@@ -418,6 +420,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
         //--------Job Table Functions----------------------
 
         CellMonitor.prototype.createJobTable = function () {
+            var that = this;
             if (this.view == 'jobs') {
                 this.cell.element.find('.jobtable > thead');
                 var table = $("<table/>").addClass('jobtable');
@@ -452,6 +455,37 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                     <tbody>\
                     </tbody>\
                     </table>");
+                    var stagetablebody = stagetable.find('tbody');
+
+                    item.stageIds.forEach(function (stageId, index) {
+                        var srow = $('<tr></tr>')
+                        var data;
+                        try {
+                            data = that.data.get('stage' + stageId);
+                        }
+                        catch (err) {
+                            data = null;
+                        }
+                        var tdstageid = $('<td></td>').text(stageId);
+                        var tdstagename = $('<td></td>').text('stage');
+                        var tdstatus = $('<td></td>').text('pending');
+                        var tdtasks = $('<td></td>').text('-');
+                        var tdstarttime = $('<td></td>').text('-');
+                        if (data) {
+                            tdstagename.text(data.name);
+                            tdstatus.text(data.status);
+                            var start = $('<time></time>').addClass('timeago').attr('data-livestamp', data.start).attr('title', data.start.toString()).text(data.start.toString())
+                            tdstarttime.empty().append(start);
+                        }
+                        srow.append(tdstageid);
+                        srow.append(tdstagename);
+                        srow.append(tdstatus);
+                        srow.append(tdtasks);
+                        srow.append(tdstarttime);
+                        stagetablebody.append(srow);
+                    });
+
+
                     fakerow.find('.stagedata').append(stagetable);
                     row = $('<tr></tr>').addClass('row' + item.jobId);
                     var button = $('<td></td>').addClass('tdstagebutton').html('<span class="tdstageicon"> &#9658;</span>');
@@ -534,6 +568,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 start: new Date(data.submissionTime),
                 name: name,
                 status: data.status,
+                stageIds: data.stageIds,
             });
 
 
