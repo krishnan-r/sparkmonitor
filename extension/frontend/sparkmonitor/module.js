@@ -4,14 +4,11 @@ define([
 	'require',
 	'base/js/events',
 	'jquery',
-	'./CellMonitor',
 	'./SparkMonitor',
 	'./currentcell'],
-	function (Jupyter, require, events, $, CellMonitor, SparkMonitor, currentcell) {
+	function (Jupyter, require, events, $, SparkMonitor, currentcell) {
 
-
-
-		//Called when the extension is loaded
+		//Entrypoint: Called when the extension is loaded
 		function load_ipython_extension() {
 
 			console.log('SparkMonitor: Loading Spark Monitor Front-End Extension');
@@ -20,10 +17,9 @@ define([
 			sm = monitor
 			//For debugging.
 			//console.log(Jupyter);
-			//require(['nbextensions/spark_monitor/logevents'],function(){}); //debug eventss
+			//require(['nbextensions/sparkmonitor/logevents'],function(){}); //debug eventss
 			currentcell.register();
 		}
-
 
 		return {
 			load_ipython_extension: load_ipython_extension

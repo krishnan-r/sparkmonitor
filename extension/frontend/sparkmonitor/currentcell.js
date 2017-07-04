@@ -3,7 +3,7 @@ define(['base/js/namespace', 'notebook/js/codecell', 'require', 'base/js/events'
     //The notebook sends execution requests, and they queue up on the message channel.
     //There is no straight forward way to detect the currently running cell.
     //Here we use a queue to store execution requests and dequeue elements as the kernel becomes idle after the requests
-    //TODO take care of cases like when the kernel is interrupted or restarted and a cell is deleted.
+    //TODO take care of corner cases.
 
 
     var CodeCell = codecell.CodeCell;
@@ -18,7 +18,7 @@ define(['base/js/namespace', 'notebook/js/codecell', 'require', 'base/js/events'
         if (cell instanceof CodeCell) {
             if (cell_queue.length <= 0) {
                 events.trigger('started.currentcell', cell)
-                events.trigger('started.' + cell.cell_id + '.currentcell', cell)
+                events.trigger('started' + cell.cell_id + 'currentcell', cell)
             }
             cell_queue.push(cell);
             current_cell = cell_queue[0];
@@ -30,16 +30,16 @@ define(['base/js/namespace', 'notebook/js/codecell', 'require', 'base/js/events'
         //  console.log('SparkMonitor: Cell execution FINISHED')
         if (current_cell != null) {
             events.trigger('finished.currentcell', current_cell);
-            events.trigger('finished.' + current_cell.cell_id + '.currentcell', current_cell);
+            events.trigger('finished' + current_cell.cell_id + 'currentcell', current_cell);
         }
         cell_queue.shift();
         current_cell = cell_queue[0]
         if (current_cell != null) {
             events.trigger('started.currentcell', current_cell)
-            events.trigger('started.' + current_cell.cell_id + '.currentcell', current_cell);
+            events.trigger('started' + current_cell.cell_id + 'currentcell', current_cell);
         }
     }
-    
+
     function getRunningCell() {
         return current_cell
     }

@@ -1,4 +1,5 @@
-# Spark Monitor Extension for Jupyter Notebook
+# Spark Monitor - An extension for Jupyter Notebook
+
 ## Work in Progress
 (older screenshot)
 ![Screenshot](screenshot.gif)
@@ -25,15 +26,15 @@ cd sparkmonitor/extension
 The frontend extension is symlinked (```--symlink```) into the jupyter configuration directory in the python prefix path using (```--sysprefix```) by `jupyter nbextension` command. The second line configures the frontend extension to load on notebook startup.
 
 ```bash
-jupyter nbextension install ./frontend/spark_monitor --sys-prefix --symlink
-jupyter nbextension enable spark_monitor/module --sys-prefix
+jupyter nbextension install ./frontend/sparkmonitor --sys-prefix --symlink
+jupyter nbextension enable sparkmonitor/module --sys-prefix
 ```
 
 #### Kernel & Server Extension
 Install the python package in editable format from the repo
 
 ```bash
-pip install -e ./kernelside/
+pip install -e ./backend/
 ```
 
 Create the default profile configuration files (Skip if file already exists)
@@ -50,7 +51,12 @@ To start the notebook server extension start jupyter with the following command
 jupyter notebook --NotebookApp.token='' --NotebookApp.nbserver_extensions="'sparkmonitorserver.extension':True}"
 ```
 
-
+# Testing with Docker
+To do a quick test of the extension run the following docker container and connect to port 80 of localhost.
+```bash
+docker pull krishnanr/sparkmonitor
+docker run -it -p 80:8888 krishnanr/sparkmonitor
+```
 # Testing with multiple executors
 
 #### To start spark with multiple executors in a single machne:
@@ -84,11 +90,9 @@ $SPARK_HOME/sbin/stop-slave.sh
 - Fix "currently running cell" detection when multiple cells are queued and there is an error where queue has to emptied.
     - TODO how to detect this?
 
-- User running cell before extension has loaded in the frontend does not show display
+- User running cell before extension has loaded in the frontend, it does not show display
 
-- Automatic moving of timeline with an optional toggle button.
-
-- Ability to Collapse Tasks in timeline
+- Ability to collapse Tasks in timeline
 
 - Make display scalable
 

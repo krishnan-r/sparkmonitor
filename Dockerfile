@@ -23,10 +23,10 @@ ADD ./notebooks/ /notebooks/
 
 WORKDIR /extension/
 
-RUN jupyter nbextension install ./frontend/spark_monitor --sys-prefix --symlink
-RUN jupyter nbextension enable spark_monitor/module --sys-prefix
+RUN jupyter nbextension install ./frontend/sparkmonitor --sys-prefix --symlink
+RUN jupyter nbextension enable sparkmonitor/module --sys-prefix
 
-RUN pip install -e ./kernelside/
+RUN pip install -e ./backend/
 RUN ipython profile create
 RUN echo "c.InteractiveShellApp.extensions = ['sparkmonitor']" >> ~/.ipython/profile_default/ipython_kernel_config.py
 

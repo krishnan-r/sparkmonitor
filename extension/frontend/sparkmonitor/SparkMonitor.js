@@ -1,4 +1,4 @@
-define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonitor', './currentcell', './vis.min'],
+define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonitor', './currentcell', './lib/vis.min'],
 	function (Jupyter, require, events, $, CellMonitor, currentcell, vis) {
 
 		function SparkMonitor() {
@@ -27,8 +27,10 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 				this.cellmonitors[cell.cell_id].cleanUp();
 			}
 
-			events.one('started.' + cell.cell_id + '.currentcell', function () {
-				that.cellExecutedAgain(cell);
+			events.one('started' + cell.cell_id + 'currentcell', function () {
+				console.log('started' + cell.cell_id + 'currentcell');
+				var c = cell;
+				that.cellExecutedAgain(c);
 			})
 
 			this.cellmonitors[cell.cell_id] = new CellMonitor(this, cell);
@@ -38,6 +40,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 		}
 
 		SparkMonitor.prototype.cellExecutedAgain = function (cell) {
+			console.log('stopping cell' + cell.cell_id);
 			this.stopCellMonitor(cell);
 		}
 
@@ -78,7 +81,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 		}
 
 
-		//------------Message Handling Functions that update the data--------------------------------
+		//------------Message Handling Functions that update the data and delegate to corresponding cell monitors--------------------------------
 
 		SparkMonitor.prototype.sparkJobStart = function (data) {
 			var cell = currentcell.getRunningCell()
