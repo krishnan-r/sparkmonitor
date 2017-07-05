@@ -42,7 +42,6 @@ cd sparkmonitor/extension
 pip install -e .
 ```
 
-#### Front End Extension
 3. The frontend extension is symlinked (```--symlink```) into the jupyter configuration directory by `jupyter nbextension` command. The second line configures the frontend extension to load on notebook startup.
 
 ```bash
