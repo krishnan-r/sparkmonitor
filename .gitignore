@@ -1,6 +1,8 @@
 *.pyc
 *.log
 **/.ipynb_checkpoints/
-extension/scala/jupyterspark/project/
-extension/scala/jupyterspark/target/
+extension/scalalistener/jupyterspark/project/
+extension/scalalistener/jupyterspark/target/
 *.egg-info/
+extension/dist/
+extension/build/

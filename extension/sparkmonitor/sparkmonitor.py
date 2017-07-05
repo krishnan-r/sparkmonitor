@@ -137,8 +137,7 @@ def configure(conf):
     conf.set("sparkmonitor.port", port)
     conf.set('spark.extraListeners',
              'sparkmonitor.listener.PythonNotifyListener')
-    # TODO make the jar relative to package path in such a way that pip
-    # install does not break path.
+   
     jarpath = os.path.abspath(os.path.dirname(__file__)) + "/listener.jar"
     logger.info("Adding jar from %s ", jarpath)
     print("JAR PATH:" + jarpath)
