@@ -94,7 +94,6 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 			var cellmonitor = this.getCellMonitor(cell)
 			if (!cellmonitor) {
 				cellmonitor = this.startCellMonitor(cell);
-				cellmonitor.createDisplay();
 			}
 			this.data.update({
 				id: 'app' + this.app + 'job' + data.jobId,
@@ -173,6 +172,14 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 			this.app = this.appId + '_' + this.appAttemptId;
 		}
 
+		SparkMonitor.prototype.sparkExecutorAdded = function (data) {
+
+		}
+
+		SparkMonitor.prototype.sparkExecutorRemoved = function (data) {
+
+		}
+
 		SparkMonitor.prototype.handleMessage = function (msg) {
 			if (!msg.content.data.msgtype) {
 				console.warn("SparkMonitor: Unknown message");
@@ -206,6 +213,12 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 						break;
 					case 'sparkApplicationEnd':
 						this.sparkApplicationEnd(data);
+						break;
+					case 'sparkExecutorAdded':
+						this.sparkExecutorAdded(data);
+						break;
+					case 'sparkExecutorRemoved':
+						this.sparkExecutorRemoved(data);
 						break;
 				}
 			}

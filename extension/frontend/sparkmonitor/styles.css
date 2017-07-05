@@ -91,6 +91,38 @@ tr .tdstagebutton:hover ~ td, tr .tdstagebutton:hover {
   background-color: rgba(184, 223, 255, 0.37);
 }
 
+.pm th.thbutton {
+  width: 4%;
+}
+
+.pm th.thjobid {
+  width: 6%;
+}
+
+.pm th.thjobname {
+  width: 10%;
+}
+
+.pm th.thjobstatus {
+  width: 15%;
+}
+
+.pm th.thjobtages {
+  width: 5%;
+}
+
+.pm th.thjobtasks {
+  width: 30%;
+}
+
+.pm th.thjobstart {
+  width: 20%;
+}
+
+.pm th.thjobtime {
+  width: 10%;
+}
+
 
 /*.pm tr:nth-child(even) td {
   background-color: #f9f9f9;
@@ -196,10 +228,12 @@ progress {
 
 .titleright {
   float: right;
+  position: relative;
+  height: 100%;
 }
 
 .visjobgroup {
-  /*background-color: pink;*/
+  /*background-color: ;*/
 }
 
 .vis-item.itemrunning {}
@@ -219,13 +253,21 @@ progress {
 }
 
 .tabbutton {
+  display: inline-block;
+  position: relative;
+  height: 100%;
   font-size: small;
   cursor: pointer;
   cursor: hand;
+  padding: 5px 15px;
 }
 
 .tabbuttons {
-  margin: 0px 2px;
+  margin: 0px 0px;
+}
+
+.pm .tabbutton:hover {
+  background-color: #C45917;
 }
 
 .tabbuttonactive {
@@ -280,6 +322,7 @@ progress {
   margin: 0;
   padding: 5px 4px;
   font-size: smaller;
+  display: inline-block;
 }
 
 .pm .sparkuibutton:hover {
@@ -300,6 +343,7 @@ progress {
 .sparkuiframe {
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
 }
 
 
@@ -424,5 +468,25 @@ div.ui-widget-content {
   overflow: hidden;
   margin: 0;
   padding: 0;
-  transition: width 0.5s;
+  transition: width 1s;
+}
+
+.pm th.thstageid {
+  width: 8%;
+}
+
+.pm th.thstagename {
+  width: 10%;
+}
+
+.pm th.thstagestatus {
+  width: 17%;
+}
+
+.pm th.thstagetasks {
+  width: 40%;
+}
+
+.pm th.thstagestart {
+  width: 25%;
 }

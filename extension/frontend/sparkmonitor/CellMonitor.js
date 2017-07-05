@@ -2,7 +2,7 @@ var ts;
 var cm;//DEBUG
 define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', './lib/vis.min', './lib/livestamp', './lib/twix.min', './lib/chart.bundle.min'],
     function (Jupyter, misc, require, events, $, vis, livestamp, twix, chart) {
-
+        require(['./lib/chartjs-plugin-annotation.min'], function (annotation) { console.log(annotation); })
         var widgetHTML;
         //console.log('SparkMonitor: Loading CSS from', require.toUrl('./styles.css'));
         misc.loadCSS(require.toUrl('./lib/vis.min.css'));
@@ -23,6 +23,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             this.view = "jobs";     //The current display tab
             this.lastview = "jobs";
             this.badgesmodified = false;
+            this.displayCreated = false;
 
             setInterval($.proxy(this.setBadges, this), 1000);
 
@@ -88,6 +89,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
             this.taskChart = null;
             this.taskChartData = [];
+            that.taskChartDataBuffer = [];
 
 
             //Job Table Data----------------------------------
@@ -133,14 +135,15 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                         title: "Spark UI 127.0.0.1:4040",
                         width: 1000,
                         height: 500,
+                        autoResize: false,
                     });
                 });
 
                 element.find('.titlecollapse').click(function () {
                     if (that.view != "hidden") {
                         that.lastview = that.view;
+                        that.hideView(that.view);
                         that.view = "hidden";
-                        //TODO cleanup handlers
                         that.cell.element.find('.content').slideUp({
                             queue: false, duration: 400,
                             complete: function () {
@@ -199,22 +202,39 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             }
             switch (view) {
                 case "jobs":
+                    this.hideView(this.view);
                     this.view = "jobs";
                     element.find('.jobtablecontent').addClass('tabcontentactive');
                     element.find('.jobtabletabbutton').addClass('tabbuttonactive');
                     this.createJobTable();
                     break;
                 case "tasks":
+                    this.hideView(this.view);
                     this.view = "tasks";
                     element.find('.taskviewcontent').addClass('tabcontentactive');
                     element.find('.taskviewtabbutton').addClass('tabbuttonactive');
                     this.createTaskGraph();
                     break;
                 case "timeline":
+                    this.hideView(this.view);
                     this.view = "timeline";
                     element.find('.timelinecontent').addClass('tabcontentactive');
                     element.find('.timelinetabbutton').addClass('tabbuttonactive');
                     this.createTimeline();
+                    break;
+            }
+        }
+
+        CellMonitor.prototype.hideView = function (view) {
+            switch (view) {
+                case "jobs":
+                    this.hideJobTable();
+                    break;
+                case "tasks":
+                    this.hideTasksGraph();
+                    break;
+                case "timeline":
+                    this.hideTimeline();
                     break;
             }
         }
@@ -250,6 +270,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
             var that = this;
             that.i = 0;
+            this.clearTimelineRefresher();
             this.flushInterval = setInterval(function () {
                 // that.i++;
                 // if (that.i == 2) {
@@ -269,7 +290,10 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
         }
 
         CellMonitor.prototype.clearTimelineRefresher = function () {
-            clearInterval(this.flushInterval);
+            if (this.flushInterval) {
+                clearInterval(this.flushInterval);
+                this.flushInterval = null;
+            }
         }
 
         CellMonitor.prototype.resizeTimeline = function (start, end) {
@@ -304,11 +328,13 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             if (this.view == 'timeline') {
 
                 var container = this.displayElement.find('.timelinecontainer').empty()[0]
-                if (this.timeline) this.timeline.destroy()
+                try {
+                    if (this.timeline) this.timeline.destroy()
+                }
+                catch (err) { console.log(err) }
 
                 // this.timelineOptions.min = new Date(this.cellStartTime);
                 this.timelineOptions.start = new Date(this.cellStartTime);
-
 
                 if (this.cellEndTime > 0) {
                     this.timelineOptions.end = this.cellEndTime;
@@ -322,28 +348,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
                 this.timelinefirstshow = false;
                 this.timeline = new vis.Timeline(container, this.timelineData, this.timelineGroups, this.timelineOptions);
-                // console.log('yolo here CALLED');
-                //  that.addLinetoTimeline(new Date(that.cellStartTime), 'timebarcellstart', "Cell Start");
-                this.timeline.on('changed', function (properties) {
-                    if (!that.timelinefirstshow) {
-                        // console.log('FirstTime');
-                        that.timelineData.forEach(function (item) {
-                            // console.log('getting real');
 
-                            if (item.id.slice(0, 3) == "job") {
-                                // console.log('going to add');
-
-                                that.addLinetoTimeline(item.start, item.id + 'start', "Job Started");
-                                if (that.data.get(item.id).mode == "done") that.addLinetoTimeline(item.end, item.id + 'end', "Job Ended");
-                                // console.log('afteradding');
-                            }
-                        });
-
-                    }
-                    that.timelinefirstshow = true;
-                    //console.log('setting timeout');
-                });
-                // console.log('after setting timeout')
 
                 this.registerTimelineRefresher();
                 this.timeline.on('select', function (properties) {
@@ -352,16 +357,23 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                         title: "Details"
                     });
                 });
-                // this.resizeTimeline(this.timelineOptions.start, this.timelineOptions.end);
             }
         }
 
         CellMonitor.prototype.hideTimeline = function () {
-            if (this.timeline) this.timeline.destroy();
+            try {
+                if (this.timeline) this.timeline.destroy()
+            }
+            catch (err) { console.log(err) }
             this.clearTimelineRefresher();
         }
 
+        CellMonitor.prototype.timelineCellCompleted = function () {
+
+        }
+
         //--------Task Graph Functions Functions-----------
+
         CellMonitor.prototype.createTaskGraph = function () {
             if (this.view != 'tasks') {
                 throw "SparkMonitor: Drawing tasks graph when view is not tasks";
@@ -372,9 +384,11 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             var canvas = $('<canvas></canvas>');
             canvas.width = container.width();
             canvas.height = container.height();
-            container.append(canvas);
+            var toolbar = $('<div><input type="checkbox" class="checklabels" name="showlabels" value="Show Labels">Show Labels</div>');
+            container.append(toolbar, canvas);
 
             var ctx = canvas[0].getContext('2d');
+            this.taskChartDataBuffer = [];
             this.taskChart = new Chart(ctx, {
                 // The type of chart we want to create
                 type: 'line',
@@ -386,10 +400,15 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                         backgroundColor: '#00aedb',
                         //borderColor:,
                         pointRadius: 0,
-                        data: that.taskChartData,
+                        data: that.taskChartData.slice(),
                         //fill: false,
                         lineTension: 0,
-                    },
+                    }
+                        // {
+                        //     label: "jobs",
+                        //     backgroundColor: '#00bcdb',
+                        //     data: [new Date()]
+                        // }
                     ]
                 },
                 // Configuration options go here
@@ -411,23 +430,69 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                             }
                         }]
 
-                    }
+                    },
+                    // annotation: {
+                    //     // Defines when the annotations are drawn.
+                    //     // This allows positioning of the annotation relative to the other
+                    //     // elements of the graph.
+                    //     //
+                    //     // Should be one of: afterDraw, afterDatasetsDraw, beforeDatasetsDraw
+                    //     // See http://www.chartjs.org/docs/#advanced-usage-creating-plugins
+                    //     drawTime: 'afterDatasetsDraw', // (default)
+
+                    //     // Mouse events to enable on each annotation.
+                    //     // Should be an array of one or more browser-supported mouse events
+                    //     // See https://developer.mozilla.org/en-US/docs/Web/Events
+                    //     events: ['click'],
+
+                    //     // Double-click speed in ms used to distinguish single-clicks from 
+                    //     // double-clicks whenever you need to capture both. When listening for
+                    //     // both click and dblclick, click events will be delayed by this
+                    //     // amount.
+                    //     dblClickSpeed: 350, // ms (default)
+
+                    //     // Array of annotation configuration objects
+                    //     // See below for detailed descriptions of the annotation options
+                    //     annotations: [{
+                    //         drawTime: 'afterDraw', // overrides annotation.drawTime if set
+                    //         id: 'a-line-1', // optional
+                    //         type: 'line',
+                    //         mode: 'vertical',
+                    //         scaleID: 'x-axis-0',
+                    //         value: new Date(),
+                    //         borderColor: 'red',
+                    //         borderWidth: 2,
+                    //         label: {
+                    //             enabled: true,
+                    //             content: 'Test label'
+                    //         },
+
+                    //         // Fires when the user clicks this annotation on the chart
+                    //         // (be sure to enable the event in the events array below).
+                    //         onClick: function (e) {
+                    //             // `this` is bound to the annotation element
+                    //         }
+                    //     }]
+                    // }
                 }
             });
+            this.registerTasksGraphRefresher();
             ts = this.taskChart;
 
         }
+
         CellMonitor.prototype.addToTaskDataGraph = function (x, y) {
             this.taskChartData.push({
                 x: new Date(x),
                 y: y,
             });
+            this.taskcountchanged = true;
             if (this.view == "tasks") {
-                this.taskChart.data.datasets[0].data.push({
+                this.taskChartDataBuffer.push({
                     x: new Date(x),
                     y: y
                 })
-                this.taskChart.update();
+                //this.taskChart.update();
             }
 
         }
@@ -468,25 +533,50 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             // }
         }
 
-        CellMonitor.prototype.hideTasks = function () {
+        CellMonitor.prototype.hideTasksGraph = function () {
+            this.clearTasksGraphRefresher();
+            try {
+                if (this.taskChart) this.taskChart.destroy();
+            }
+            catch (err) { console.log(err) }
+        }
 
+        CellMonitor.prototype.registerTasksGraphRefresher = function () {
+            var that = this;
+            this.clearTasksGraphRefresher();
+            this.taskinterval = setInterval(function () {
+                if (that.taskcountchanged && that.view == "tasks" && that.taskChart) {
+                    that.taskChart.data.datasets[0].data.push.apply(that.taskChart.data.datasets[0].data, that.taskChartDataBuffer);
+                    that.taskChart.update();
+                    that.taskChartDataBuffer = [];
+                    that.taskcountchanged = false;
+                }
+            }, 1000);
+        }
+
+        CellMonitor.prototype.clearTasksGraphRefresher = function () {
+            if (this.taskinterval) {
+                clearInterval(this.taskinterval);
+                this.taskinterval = null;
+            }
         }
 
         //--------Job Table Functions----------------------
+
         CellMonitor.prototype.createJobTable = function () {
             if (this.view != 'jobs') {
                 throw "SparkMonitor: Drawing job table when view is not jobs";
             }
             var that = this;
             var thead = $("<thead><tr>\
-                            <th></th>\
-                            <th>Job ID</th >\
-                            <th>Job Name</th>\
-                            <th>Status</th>\
-                            <th>Stages</th>\
-                            <th>Tasks</th>\
-                            <th>Submission Time</th>\
-                            <th>Duration</th>\
+                            <th class='thbutton'></th>\
+                            <th class='thjobid'>Job ID</th >\
+                            <th class='thjobname'>Job Name</th>\
+                            <th class='thjobstatus'>Status</th>\
+                            <th class='thjobstages'>Stages</th>\
+                            <th class='thjobtasks'>Tasks</th>\
+                            <th class='thjobstart'>Submission Time</th>\
+                            <th class='thjobtime'>Duration</th>\
                         </tr ></thead >");
             var tbody = $('<tbody></tbody>').addClass('jobtablebody');
 
@@ -547,11 +637,11 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             var fakerow = $('<tr><td class="stagetableoffset"></td><td colspan=7 class="stagedata"></td></tr>').addClass('jobstagedatarow').hide();
             var stagetable = $("<table class='stagetable'>\
                     <thead>\
-                    <th>Stage Id</th>\
-                    <th>Stage Name</th>\
-                    <th>Status</th>\
-                    <th>Tasks</th>\
-                    <th>Submission Time</th>\
+                    <th class='thstageid'>Stage Id</th>\
+                    <th class='thstagename'>Stage Name</th>\
+                    <th class='thstagestatus'>Status</th>\
+                    <th class='thstagetasks'>Tasks</th>\
+                    <th class='thstagestart'>Submission Time</th>\
                     </thead>\
                     <tbody></tbody></table>").addClass('stagetable');
             var stagetablebody = stagetable.find('tbody');
@@ -654,11 +744,14 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             clearInterval(this.jobtableinterval);
         }
 
+        CellMonitor.prototype.hideJobTable = function () {
+            this.clearJobTableRefresher();
+        }
+
         //----------Data Handling Functions----------------
 
         CellMonitor.prototype.sparkJobStart = function (data) {
             var that = this;
-
             this.numActiveJobs += 1;
             //this.setBadges();
             this.badgesmodified = true;
@@ -705,7 +798,10 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
             });
             //-----------------
-
+            if (!this.displayCreated) {
+                this.createDisplay();
+                this.displayCreated = true;
+            }
 
             this.timelineData.update({
                 id: 'job' + data.jobId,
@@ -717,15 +813,20 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 className: 'itemrunning job',
             });
 
-            this.addLinetoTimeline(new Date(data.submissionTime), 'job' + data.jobId + 'start', 'Job ' + data.jobId + 'Started');
-            this.addLinetoTasks(new Date(data.submissionTime), 'job' + data.jobId + 'start', 'Job ' + data.jobId + 'Started');
+            // this.addLinetoTimeline(new Date(data.submissionTime), 'job' + data.jobId + 'start', 'Job ' + data.jobId + 'Started');
+            //  this.addLinetoTasks(new Date(data.submissionTime), 'job' + data.jobId + 'start', 'Job ' + data.jobId + 'Started');
 
         }
 
         CellMonitor.prototype.sparkJobEnd = function (data) {
-
+            var that = this;
             this.jobData[data.jobId]['status'] = data.status;
-
+            this.jobData[data.jobId]['stageIds'].forEach(function (stageid) {
+                if (that.stageData[stageid]['status'] == 'PENDING') {
+                    that.stageData[stageid]['status'] = "SKIPPED";
+                    that.stageData[stageid]['modified'] = true;
+                }
+            })
             if (data.status == "SUCCEEDED") {
                 this.numActiveJobs -= 1;
                 this.numCompletedJobs += 1;
@@ -900,6 +1001,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
         CellMonitor.prototype.cellExecutionCompleted = function () {
             console.log("SparkMonitor: Cell Execution Completed");
             this.cellEndTime = new Date();
+            this.timelineCellCompleted();
         }
         return CellMonitor;
     });

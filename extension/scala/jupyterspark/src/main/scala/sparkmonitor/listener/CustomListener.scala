@@ -77,7 +77,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 	var numCompletedJobs = 0
 	var numFailedJobs = 0
 
-
+	val executorData = new HashMap[ExecutorId, ]
 
 	val retainedStages = conf.getInt("spark.ui.retainedStages", 1000)
 	val retainedJobs = conf.getInt("spark.ui.retainedJobs", 1000)
