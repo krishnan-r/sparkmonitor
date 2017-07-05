@@ -89,7 +89,16 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
             this.taskChart = null;
             this.taskChartData = [];
+            this.executorData = [{
+                x: new Date(),
+                y: 0
+            },
+            {
+                x: new Date(),
+                y: 4
+            }];
             that.taskChartDataBuffer = [];
+            that.executorDataBuffer = [];
 
 
             //Job Table Data----------------------------------
@@ -272,19 +281,20 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             that.i = 0;
             this.clearTimelineRefresher();
             this.flushInterval = setInterval(function () {
-                // that.i++;
-                // if (that.i == 2) {
-                //     that.i = 0;
-                //     var date = new Date();
-                //     that.timelineData.forEach(function (item) {
-                //         if (that.data.get(item.id).mode == "ongoing") {
-                //             that.timelineData.update({
-                //                 id: item.id,
-                //                 end: date
-                //             });
-                //         }
-                //     });
-                // }
+                that.i++;
+                if (that.i == 2) {
+                    that.i = 0;
+                    var date = new Date();
+                    that.timelineData.flush();
+                    that.timelineData.forEach(function (item) {
+                        if (that.timelineData.get(item.id).mode == "ongoing") {
+                            that.timelineData.update({
+                                id: item.id,
+                                end: date
+                            });
+                        }
+                    });
+                }
                 that.timelineData.flush()
             }, 1000);
         }
@@ -349,7 +359,12 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 this.timelinefirstshow = false;
                 this.timeline = new vis.Timeline(container, this.timelineData, this.timelineGroups, this.timelineOptions);
 
-
+                this.timelineData.forEach(function (item) {
+                    if (item.id.slice(0, 3) == "job") {
+                        that.addLinetoTimeline(item.start, item.id + 'start', "Job Started");
+                        if (that.timelineData.get(item.id).mode == "done") that.addLinetoTimeline(item.end, item.id + 'end', "Job Ended");
+                    }
+                });
                 this.registerTimelineRefresher();
                 this.timeline.on('select', function (properties) {
                     if (!that.popupdialog) that.popupdialog = $('<div></div>');
@@ -369,6 +384,18 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
         }
 
         CellMonitor.prototype.timelineCellCompleted = function () {
+            if (this.view == "timeline") {
+                if (this.timeline) {
+                    this.timeline.setOptions({
+                        showCurrentTime: false,
+                        max: new Date(this.cellEndTime),
+                        min: new Date(this.cellStartTime),
+                    });
+                }
+            }
+            this.timelineOptions['showCurrentTime'] = false;
+            this.timelineOptions['max'] = new Date(this.cellEndTime);
+            this.timelineOptions['min'] = new Date(this.cellStartTime);
 
         }
 
@@ -389,6 +416,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
             var ctx = canvas[0].getContext('2d');
             this.taskChartDataBuffer = [];
+            this.executorDataBuffer = [];
             this.taskChart = new Chart(ctx, {
                 // The type of chart we want to create
                 type: 'line',
@@ -403,12 +431,14 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                         data: that.taskChartData.slice(),
                         //fill: false,
                         lineTension: 0,
+                    },
+                    {
+                        label: "Total Executor Cores",
+                        backgroundColor: '#F5C936',
+                        data: that.executorData.slice(),
+                        pointRadius: 0,
+                        lineTension: 0,
                     }
-                        // {
-                        //     label: "jobs",
-                        //     backgroundColor: '#00bcdb',
-                        //     data: [new Date()]
-                        // }
                     ]
                 },
                 // Configuration options go here
@@ -482,9 +512,14 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
         }
 
         CellMonitor.prototype.addToTaskDataGraph = function (x, y) {
+
             this.taskChartData.push({
                 x: new Date(x),
                 y: y,
+            });
+            this.executorData.push({
+                x: new Date(x),
+                y: 4,
             });
             this.taskcountchanged = true;
             if (this.view == "tasks") {
@@ -492,8 +527,17 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                     x: new Date(x),
                     y: y
                 })
+                this.executorDataBuffer.push({
+                    x: new Date(x),
+                    y: 4
+                })
                 //this.taskChart.update();
             }
+
+        }
+
+        CellMonitor.prototype.addExecutorToTaskGraph = function () {
+
 
         }
 
@@ -547,8 +591,10 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             this.taskinterval = setInterval(function () {
                 if (that.taskcountchanged && that.view == "tasks" && that.taskChart) {
                     that.taskChart.data.datasets[0].data.push.apply(that.taskChart.data.datasets[0].data, that.taskChartDataBuffer);
+                    that.taskChart.data.datasets[1].data.push.apply(that.taskChart.data.datasets[1].data, that.executorDataBuffer);
                     that.taskChart.update();
                     that.taskChartDataBuffer = [];
+                    that.executorDataBuffer = [];
                     that.taskcountchanged = false;
                 }
             }, 1000);
@@ -811,6 +857,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 title: data.jobId + ': ' + data.name + ' ',
                 group: 'jobs',
                 className: 'itemrunning job',
+                mode: "ongoing",
             });
 
             // this.addLinetoTimeline(new Date(data.submissionTime), 'job' + data.jobId + 'start', 'Job ' + data.jobId + 'Started');
@@ -844,6 +891,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 id: 'job' + data.jobId,
                 end: new Date(data.completionTime),
                 className: 'itemfinished job',
+                mode: "done",
             });
 
             //--------------
@@ -871,6 +919,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 title: 'Stage: ' + data.stageId + ' ' + name,
                 end: new Date(),
                 className: 'itemrunning stage',
+                mode: "ongoing",
             });
 
             //--------------
@@ -899,6 +948,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 className: 'itemfinished stage',
                 title: 'Stage: ' + data.stageId + ' ' + name,
                 //content: '' + name,
+                mode: "done",
             });
 
             //--------------
@@ -939,6 +989,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 group: data.executorId + '-' + data.host,
                 title: 'Task: ' + data.taskId + ' from stage ' + data.stageId + ' Launched: ' + Date(data.launchTime),
                 className: 'itemrunning task',
+                mode: "ongoing",
             });
 
             //---------------
@@ -965,6 +1016,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 end: new Date(data.finishTime),
                 title: 'Task:' + data.taskId + ' from stage ' + data.stageId + 'Launched' + Date(data.launchTime) + 'Completed: ' + Date(data.finishTime),
                 className: 'itemfinished task',
+                mode: "done",
             });
 
 
@@ -1002,6 +1054,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             console.log("SparkMonitor: Cell Execution Completed");
             this.cellEndTime = new Date();
             this.timelineCellCompleted();
+            this.displayElement.find('.cancel').hide(500);
         }
         return CellMonitor;
     });

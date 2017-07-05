@@ -424,7 +424,7 @@ div.ui-widget-content {
 }
 
 .pm .stagetable tr th {
-  background: #d6d6d6;
+  background: rgb(235, 235, 235);
 }
 
 .cssprogress {
