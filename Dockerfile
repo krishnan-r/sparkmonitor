@@ -21,17 +21,17 @@ ENV PYTHONPATH $SPARK_HOME/python/lib/py4j-0.10.4-src.zip:$PYTHONPATH
 ADD ./extension/ /extension/
 ADD ./notebooks/ /notebooks/
 
-WORKDIR /extension/
-
-RUN jupyter nbextension install ./frontend/sparkmonitor --sys-prefix --symlink
-RUN jupyter nbextension enable sparkmonitor/module --sys-prefix
-
-RUN pip install -e ./backend/
-RUN ipython profile create
-RUN echo "c.InteractiveShellApp.extensions = ['sparkmonitor']" >> ~/.ipython/profile_default/ipython_kernel_config.py
+RUN git clone https://github.com/krishnan-r/sparkmonitor/ && \
+cd sparkmonitor/extension && \
+pip install -e . && \
+jupyter nbextension install sparkmonitor --py --user --symlink && \
+jupyter nbextension enable sparkmonitor/module --py --user && \
+jupyter serverextension enable --py --user sparkmonitor && \
+ipython profile create && \
+echo "c.InteractiveShellApp.extensions.append('sparkmonitor')" >>  $(ipython profile locate default)/ipython_kernel_config.py
 
 WORKDIR /notebooks/
 
 EXPOSE 8888
 
-CMD jupyter notebook --port=8888 --ip=0.0.0.0 --no-browser --allow-root --NotebookApp.token='' --NotebookApp.nbserver_extensions="{'sparkmonitorserver.extension':True}"
+CMD jupyter notebook --port=8888 --ip=0.0.0.0 --no-browser --allow-root --NotebookApp.token=''
