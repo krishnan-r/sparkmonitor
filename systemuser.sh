@@ -77,7 +77,13 @@ sed -i "s/IRkernel::main()/options(bitmapType='cairo');IRkernel::main()/g" $KERN
 
 chown -R $USER:$USER $JPY_DIR $JPY_LOCAL_DIR
 export SWAN_ENV_FILE=/tmp/swan.sh
-sudo -E -u $USER sh -c '   source $LCG_VIEW/setup.sh \
+sudo -E -u $USER sh -c ' /usr/local/bin/jupyter nbextension install sparkmonitor --py --user \
+                        && /usr/local/bin/jupyter nbextension enable sparkmonitor --py --user \
+                        && /usr/local/bin/jupyter serverextension enable --py sparkmonitor --user \   
+                        && pip2 install --user /extension/ \
+                        && ipython profile create \
+                        && echo "c.InteractiveShellApp.extensions.append('\''sparkmonitor'\'')" >>  $(ipython profile locate default)/ipython_kernel_config.py \
+                        && source $LCG_VIEW/setup.sh \
                         && if [[ $SPARK_CLUSTER_NAME ]]; \
                            then \
                              echo "Configuring environment for Spark cluster: $SPARK_CLUSTER_NAME"; \
@@ -106,13 +112,7 @@ sudo -E -u $USER sh -c '   source $LCG_VIEW/setup.sh \
                            print kfile_contents_mod; \
                            map(lambda d: open(d[0],\"w\").write(json.dumps(d[1])), zip(kfile_names,kfile_contents_mod)); \
                            termEnvFile = open(\"$SWAN_ENV_FILE\", \"w\"); \
-                           [termEnvFile.write(\"export %s=\\\"%s\\\"\\n\" % (key, val)) if key != \"SUDO_COMMAND\" else None for key, val in dict(os.environ).iteritems()];"\
-                        && /usr/local/bin/jupyter nbextension install sparkmonitor --py --user \
-                        && /usr/local/bin/jupyter nbextension enable sparkmonitor --py --user \
-                        && /usr/local/bin/jupyter serverextension enable --py sparkmonitor --user \   
-                        && pip2 install --user /extension/ \
-                        && ipython profile create \
-                        && echo "c.InteractiveShellApp.extensions.append('\''sparkmonitor'\'')" >>  $(ipython profile locate default)/ipython_kernel_config.py'
+                           [termEnvFile.write(\"export %s=\\\"%s\\\"\\n\" % (key, val)) if key != \"SUDO_COMMAND\" else None for key, val in dict(os.environ).iteritems()];"'
 
 # Spark configuration
 if [[ $SPARK_CLUSTER_NAME ]]
