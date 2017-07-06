@@ -120,7 +120,8 @@ def load_ipython_extension(ipython):
             logger.warn(
                 "SparkMonitor: Ipython not running through notebook. So exiting.")
             return
-    else return
+    else:
+        return
 
     ip = ipython
     logger.info('Starting Kernel Extension')
