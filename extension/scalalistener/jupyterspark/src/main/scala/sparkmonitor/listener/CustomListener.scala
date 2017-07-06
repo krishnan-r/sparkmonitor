@@ -19,8 +19,8 @@ import java.io._
 
 class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 	println("SPARKLISTENER: Started ScalaListener Constructor")
-	val port = conf.get("sparkmonitor.port")
-  	println("SPARKLISTENER: Connecting to port"+conf.get("sparkmonitor.port"))
+	val port = conf.get("spark.monitor.port")
+  	println("SPARKLISTENER: Connecting to port"+conf.get("spark.monitor.port"))
 	  
 
 	val socket = new Socket("localhost",port.toInt)
@@ -77,7 +77,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 	var numCompletedJobs = 0
 	var numFailedJobs = 0
 
-	val executorData = new HashMap[ExecutorId, ]
+	//val executorData = new HashMap[ExecutorId, ]
 
 	val retainedStages = conf.getInt("spark.ui.retainedStages", 1000)
 	val retainedJobs = conf.getInt("spark.ui.retainedJobs", 1000)

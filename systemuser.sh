@@ -83,6 +83,7 @@ sudo -E -u $USER sh -c ' /usr/local/bin/jupyter nbextension install sparkmonitor
                         && pip2 install --user /extension/ \
                         && ipython profile create \
                         && echo "c.InteractiveShellApp.extensions.append('\''sparkmonitor'\'')" >>  $(ipython profile locate default)/ipython_kernel_config.py \
+                        && cp -r /notebook/ $SWAN_HOME \
                         && source $LCG_VIEW/setup.sh \
                         && if [[ $SPARK_CLUSTER_NAME ]]; \
                            then \
