@@ -107,8 +107,12 @@ sudo -E -u $USER sh -c '   source $LCG_VIEW/setup.sh \
                            map(lambda d: open(d[0],\"w\").write(json.dumps(d[1])), zip(kfile_names,kfile_contents_mod)); \
                            termEnvFile = open(\"$SWAN_ENV_FILE\", \"w\"); \
                            [termEnvFile.write(\"export %s=\\\"%s\\\"\\n\" % (key, val)) if key != \"SUDO_COMMAND\" else None for key, val in dict(os.environ).iteritems()];"\
-                        && pip2 install -e --user /extension/ \
-                        && ipython profile create
+                        && RUN pip3 install /extension/ \
+                        && jupyter nbextension install sparkmonitor --py --user \
+                        && jupyter nbextension enable sparkmonitor --py --user \
+                        && jupyter serverextension enable --py sparkmonitor --user \   
+                        && pip2 install --user /extension/ \
+                        && ipython profile create \
                         && echo "c.InteractiveShellApp.extensions.append('\''sparkmonitor'\'')" >>  $(ipython profile locate default)/ipython_kernel_config.py'
 
 # Spark configuration
