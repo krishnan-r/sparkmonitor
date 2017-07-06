@@ -1,4 +1,4 @@
-from notebook.utils import url_path_join
+
 from notebook.base.handlers import IPythonHandler
 
 import tornado.web
@@ -7,7 +7,6 @@ import json
 
 import re
 
-from notebook.utils import url_path_join
 from traitlets.config import LoggingConfigurable
 from traitlets.traitlets import Unicode
 
@@ -99,3 +98,22 @@ def replace(content):
                 value = match.groups()[0]
             tag[attribute] = url_path_join(proxy_root, value)
     return str(soup)
+
+
+def url_path_join(*pieces):
+    """Join components of url into a relative url
+
+    Use to prevent double slash when joining subpath. This will leave the
+    initial and final / in place
+    """
+    initial = pieces[0].startswith('/')
+    final = pieces[-1].endswith('/')
+    stripped = [s.strip('/') for s in pieces]
+    result = '/'.join(s for s in stripped if s)
+    if initial:
+        result = '/' + result
+    if final:
+        result = result + '/'
+    if result == '//':
+        result = '/'
+    return result
