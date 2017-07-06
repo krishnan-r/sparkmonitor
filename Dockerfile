@@ -21,9 +21,7 @@ ENV PYTHONPATH $SPARK_HOME/python/lib/py4j-0.10.4-src.zip:$PYTHONPATH
 ADD ./extension/ /extension/
 ADD ./notebooks/ /notebooks/
 
-RUN git clone https://github.com/krishnan-r/sparkmonitor/ && \
-cd sparkmonitor/extension && \
-pip install -e . && \
+RUN pip install -e ./extension/ && \
 jupyter nbextension install sparkmonitor --py --user --symlink && \
 jupyter nbextension enable sparkmonitor/module --py --user && \
 jupyter serverextension enable --py --user sparkmonitor && \
