@@ -7,7 +7,9 @@ ADD ./notebooks/ /notebooks/
 RUN sudo pip3 install jupyter_nbextensions_configurator 
 
 RUN sudo pip3 install /extension/
-
+#RUN /usr/local/bin/jupyter serverextension enable sparkmonitor --user --py
+RUN sudo /usr/local/bin/jupyter serverextension enable sparkmonitor --py
+#RUN /usr/local/bin/jupyter serverextension enable sparkmonitor --sys-prefix --py
 
 WORKDIR /root
 
