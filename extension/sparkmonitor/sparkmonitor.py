@@ -1,7 +1,12 @@
 import socket
 from threading import Thread
 import logging
-from ipykernel import zmqshell
+ipykernel_imported = True
+try:
+    from ipykernel import zmqshell
+except ImportError:
+    ipykernel_imported = False
+
 import os
 
 
@@ -81,8 +86,8 @@ class SocketThread(Thread):
 
     def onrecv(self, msg):
         sendToFrontEnd({
-            'msgtype':"fromscala",
-            'msg':msg
+            'msgtype': "fromscala",
+            'msg': msg
         })
         pass
 
@@ -110,10 +115,12 @@ def load_ipython_extension(ipython):
 
     #-------------------------------------------------------------------------
 
-    if not isinstance(ipython, zmqshell.ZMQInteractiveShell):
-        logger.warn(
-            "SparkMonitor: Ipython not running through notebook. So exiting.")
-        return
+    if ipykernel_imported:
+        if not isinstance(ipython, zmqshell.ZMQInteractiveShell):
+            logger.warn(
+                "SparkMonitor: Ipython not running through notebook. So exiting.")
+            return
+    else return
 
     ip = ipython
     logger.info('Starting Kernel Extension')
@@ -137,7 +144,7 @@ def configure(conf):
     conf.set("sparkmonitor.port", port)
     conf.set('spark.extraListeners',
              'sparkmonitor.listener.PythonNotifyListener')
-   
+
     jarpath = os.path.abspath(os.path.dirname(__file__)) + "/listener.jar"
     logger.info("Adding jar from %s ", jarpath)
     print("JAR PATH:" + jarpath)
