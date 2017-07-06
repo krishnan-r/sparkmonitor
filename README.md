@@ -20,7 +20,7 @@ cd sparkmonitor/extension
 pip install -e .
 #Frontend
 jupyter nbextension install sparkmonitor --py --user --symlink
-jupyter nbextension enable sparkmonitor/module --py --user
+jupyter nbextension enable sparkmonitor --py --user
 #NotebookServer
 jupyter serverextension enable --py --user sparkmonitor
 #Kernel
@@ -46,7 +46,7 @@ pip install -e .
 
 ```bash
 jupyter nbextension install --py sparkmonitor --user --symlink
-jupyter nbextension enable sparkmonitor/module --user --py
+jupyter nbextension enable sparkmonitor --user --py
 ```
 4. Configure the serverextension to load when the notebook server starts
 
