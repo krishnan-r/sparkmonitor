@@ -77,16 +77,19 @@ sed -i "s/IRkernel::main()/options(bitmapType='cairo');IRkernel::main()/g" $KERN
 
 chown -R $USER:$USER $JPY_DIR $JPY_LOCAL_DIR
 export SWAN_ENV_FILE=/tmp/swan.sh
+#-----------------------------------------------------Spark Monitor---------------------------------------------
 #sudo -E -u $USER sh -c '/usr/local/bin/jupyter serverextension enable sparkmonitor --user --py'
 sudo -E -u $USER sh -c '/usr/local/bin/jupyter serverextension enable sparkmonitor --py'
 sudo -E -u $USER sh -c '/usr/local/bin/jupyter serverextension enable sparkmonitor --sys-prefix --py'
 sudo -E -u $USER sh -c '/usr/local/bin/jupyter nbextension install sparkmonitor --py --user \
                         && /usr/local/bin/jupyter nbextension enable sparkmonitor --py --user ;\
+                           pip2 install --upgrade ipykernel ;\
+                           python2 -m ipykernel install --user;\
                            pip2 install --user -e /extension/ \
                         && ipython profile create \
                         && echo "c.InteractiveShellApp.extensions.append('\''sparkmonitor'\'')" >>  $(ipython profile locate default)/ipython_kernel_config.py ;\
                            cp -r /notebooks/ $SWAN_HOME'
-
+#---------------------------------------------------------------------------------------------------------------
 sudo -E -u $USER sh -c  'source $LCG_VIEW/setup.sh \
                         && if [[ $SPARK_CLUSTER_NAME ]]; \
                            then \
