@@ -4,8 +4,10 @@ FROM cernphsft/systemuser:v2.9
 
 #Possible fix
 RUN sudo pip3 install jupyter_nbextensions_configurator 
-RUN sudo pip install --upgrade pip
-RUN sudo pip3 install --upgrade 'notebook==5.0.0'
+RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
+    python3 get-pip.py && \
+    rm get-pip.py
+#RUN sudo pip3 install --upgrade 'notebook==5.0.0'
 
 ADD ./extension/ /extension/
 ADD ./notebooks/ /notebooks/
