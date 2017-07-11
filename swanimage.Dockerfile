@@ -7,6 +7,7 @@ RUN sudo pip3 install jupyter_nbextensions_configurator
 RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
     python3 get-pip.py && \
     rm get-pip.py &&\
+    pip3 uninstall notebook &&\
     sudo pip3 install --upgrade 'notebook==5.0.0'
 
 ADD ./extension/ /extension/
