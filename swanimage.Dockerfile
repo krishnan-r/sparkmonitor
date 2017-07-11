@@ -6,8 +6,8 @@ FROM cernphsft/systemuser:v2.9
 RUN sudo pip3 install jupyter_nbextensions_configurator 
 RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
     python3 get-pip.py && \
-    rm get-pip.py
-RUN sudo pip3 install --upgrade 'notebook==5.0.0'
+    rm get-pip.py &&\
+    sudo pip3 install --upgrade 'notebook==5.0.0'
 
 ADD ./extension/ /extension/
 ADD ./notebooks/ /notebooks/
