@@ -79,12 +79,10 @@ chown -R $USER:$USER $JPY_DIR $JPY_LOCAL_DIR
 export SWAN_ENV_FILE=/tmp/swan.sh
 #-----------------------------------------------------Spark Monitor---------------------------------------------
 #sudo -E -u $USER sh -c '/usr/local/bin/jupyter serverextension enable sparkmonitor --user --py'
-sudo -E -u $USER sh -c '/usr/local/bin/jupyter serverextension enable sparkmonitor --py'
-sudo -E -u $USER sh -c '/usr/local/bin/jupyter serverextension enable sparkmonitor --sys-prefix --py'
+sudo sh -c '/usr/local/bin/jupyter serverextension enable sparkmonitor --py'
+sudo sh -c '/usr/local/bin/jupyter serverextension enable sparkmonitor --sys-prefix --py'
 sudo -E -u $USER sh -c '/usr/local/bin/jupyter nbextension install sparkmonitor --py --user \
                         && /usr/local/bin/jupyter nbextension enable sparkmonitor --py --user ;\
-                           pip2 install --upgrade ipykernel ;\
-                           python2 -m ipykernel install --user;\
                            pip2 install --user -e /extension/ \
                         && ipython profile create \
                         && echo "c.InteractiveShellApp.extensions.append('\''sparkmonitor'\'')" >>  $(ipython profile locate default)/ipython_kernel_config.py ;\
