@@ -6,6 +6,7 @@ ADD ./notebooks/ /notebooks/
 #Possible fix
 RUN sudo pip3 install jupyter_nbextensions_configurator 
 
+RUN sudo pip install --upgrade pip
 RUN sudo pip3 --no-cache-dir install --upgrade 'notebook==5.0.0'
 
 RUN sudo pip3 --no-cache-dir install -e /extension/
