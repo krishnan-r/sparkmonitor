@@ -1,47 +1,41 @@
-<!--<link rel="stylesheet" href="styles.css">-->
 <div class="CellMonitor pm">
-    <div class="title">
-        <span>
-        <span class="tbitem titlecollapse "><span class="headericon">&#11166;</span></span>
-        <span class="tbitem">
-            <b>Apache Spark Jobs:</b>
-             </span>
-        <span class="badges">
-            <span class=badgerunning><span class="badgerunningcount">0</span> RUNNING</span>
-        <span class=badgecompleted><span class="badgecompletedcount">0</span> COMPLETED</span>
-        <span class=badgefailed><span class="badgefailedcount">0</span> FAILED</span>
-        </span>
+	<div class="title"><span class="titleleft">
+		<span class="tbitem titlecollapse "><span class="headericon">&#11166;</span></span>
+		<span class="tbitem badgecontainer">
+		<b>Apache Spark Jobs:</b>
+		<span class="badges"><span class=badgerunning><span class="badgerunningcount">0</span> RUNNING</span>
+		<span class=badgecompleted><span class="badgecompletedcount">0</span> COMPLETED</span><span class=badgefailed><span class="badgefailedcount">0</span>FAILED</span>
+		</span>
+		</span>
+		</span>
+		<span class="titleright">
+		<span class="tabbuttons">
+		<span class=" jobtabletabbutton tabbutton" dt="tooltiptop" title="Jobs"><span class="jobtabbuttonicon tabbuttonicon"></span></span>
+		<span class=" taskviewtabbutton tabbutton" dt="tooltiptop" title="Tasks"><span class="taskviewtabbuttonicon tabbuttonicon"></span></span>
+		<span class=" timelinetabbutton tabbutton" dt="tooltiptop" title="Event Timeline"><span class="timelinetabbuttonicon tabbuttonicon"></span></span>
+		<span class="sparkuitabbutton tabbutton" dt="tooltiptop" title="Open the Spark UI"><span class="sparkuitabbuttonicon tabbuttonicon"></span></span>
+		</span>
+		<button class="cancel tbitem" dt="tooltipright" title="Stop all running jobs.">Cancel Jobs</button>
+		</span>
+	</div>
+	<div class="content">
+		<div class="jobtablecontent tabcontent ">
 
-        </span>
-        <span class="titleright">
+		</div>
 
-        <span class="tabbuttons">
-        <span class=" jobtabletabbutton tabbutton "> Jobs</span>
-        <span class=" taskviewtabbutton tabbutton "> Tasks</span>
-        <span class=" timelinetabbutton tabbutton"> Timeline</span>
-        </span>
-        <span class='sparkuibutton' dt="tooltiptop" title="Open the Spark UI">Spark UI</span>
-        <button class="cancel tbitem" dt="tooltipright" title="Stop all running jobs.">Cancel Jobs</button>
-        </span>
-    </div>
-    <div class="content">
-        <div class="jobtablecontent tabcontent ">
+		<div class="taskviewcontent tabcontent">
 
-        </div>
+			<div class="taskcontainer"></div>
 
-        <div class="taskviewcontent tabcontent">
+		</div>
 
-            <div class="taskcontainer"></div>
+		<div class="timelinecontent tabcontent">
 
-        </div>
+			<div class="timelinecontainer">
 
-        <div class="timelinecontent tabcontent">
+			</div>
 
-            <div class="timelinecontainer">
-
-            </div>
-
-        </div>
-    </div>
+		</div>
+	</div>
 </div>
 </div>

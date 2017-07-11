@@ -19,8 +19,10 @@ import java.io._
 
 class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 	println("SPARKLISTENER: Started ScalaListener Constructor")
-	val port = conf.get("spark.monitor.port")
-  	println("SPARKLISTENER: Connecting to port"+conf.get("spark.monitor.port"))
+	//val port = conf.get("spark.monitor.port")
+	val port = scala.util.Properties.envOrElse("spark.monitor.port", "ERRORNOTFOUND")
+	println("SPARKLISTENER: Port obtained from environment: "+port)
+  	//println("SPARKLISTENER: Connecting to port"+conf.get("spark.monitor.port"))
 	  
 
 	val socket = new Socket("localhost",port.toInt)

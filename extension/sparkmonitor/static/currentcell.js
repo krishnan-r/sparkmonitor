@@ -8,13 +8,14 @@ define(['base/js/namespace', 'notebook/js/codecell', 'require', 'base/js/events'
 
     var CodeCell = codecell.CodeCell;
     var current_cell;
+    var last_cell;
     var cell_queue = [];
     var registered = false;
 
     function cell_execute_called(event, data) {
 
         var cell = data.cell
-        //  console.log('SparkMonitor: Cell Execution CALLED: ', data)
+        console.log('SparkMonitor: Cell Execution CALLED: ', data)
         if (cell instanceof CodeCell) {
             if (cell_queue.length <= 0) {
                 events.trigger('started.currentcell', cell)
@@ -42,6 +43,9 @@ define(['base/js/namespace', 'notebook/js/codecell', 'require', 'base/js/events'
 
     function getRunningCell() {
         return current_cell
+    }
+    function getLastCell() {
+        return last_cell
     }
 
     function cell_deleted(event, data) {
@@ -72,7 +76,8 @@ define(['base/js/namespace', 'notebook/js/codecell', 'require', 'base/js/events'
     return {
         'register': register,
         'unregister': unregister,
-        'getRunningCell': getRunningCell
+        'getRunningCell': getRunningCell,
+        'getLastCell': getLastCell,
     }
 
 });

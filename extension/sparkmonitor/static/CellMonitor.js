@@ -126,15 +126,14 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                     });
                 });
 
-                element.find('.sparkuibutton').click(function () {
-                    //var spinner = $(' <div> <img class="iframeload" src="' + require.toUrl('./spinner.gif') + '"></div>')
+                element.find('.sparkuitabbutton').click(function () {
                     var iframe = $('\
                     <div style="overflow:hidden">\
                     <iframe src="/sparkmonitor/" frameborder="0" scrolling="yes" class="sparkuiframe">\
                     </iframe>\
                     </div>\
                     ');
-                    // iframe.find('.sparkuiframe').before(spinner);
+
                     iframe.find('.sparkuiframe').css('background-image', 'url("' + require.toUrl('./images/spinner.gif') + '")');
                     iframe.find('.sparkuiframe').css('background-repeat', 'no-repeat');
                     iframe.find('.sparkuiframe').css('background-position', "50% 50%");
