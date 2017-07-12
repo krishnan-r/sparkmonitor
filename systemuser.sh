@@ -83,7 +83,7 @@ sudo sh -c '/usr/local/bin/jupyter serverextension enable sparkmonitor --py'
 sudo sh -c '/usr/local/bin/jupyter serverextension enable sparkmonitor --sys-prefix --py'
 sudo -E -u $USER sh -c '/usr/local/bin/jupyter nbextension install sparkmonitor --py --user \
                         && /usr/local/bin/jupyter nbextension enable sparkmonitor --py --user ;\
-                           pip2 install --upgrade --user ipython==5.4.1 ipykernel==4.6.1; \
+                           pip2 install --upgrade --user ipython==5.4.1 ipykernel==4.6.1 ;\
                            pip2 install --user /extension/ \
                         && ipython profile create \
                         && echo "c.InteractiveShellApp.extensions.append('\''sparkmonitor'\'')" >>  $(ipython profile locate default)/ipython_kernel_config.py ;\
