@@ -10,7 +10,7 @@ RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
     pip3 uninstall -y notebook &&\
     sudo pip3 install -I 'notebook==5.0.0'
 RUN pip3 install --upgrade jupyterhub    
-RUN pip2 install --upgrade ipython==5.4.1
+RUN pip2 install --upgrade ipython==5.4.1 ipykernel==4.6.1
 RUN wget -q https://raw.githubusercontent.com/jupyterhub/jupyterhub/master/scripts/jupyterhub-singleuser -O /usr/local/bin/jupyterhub-singleuser
 RUN chmod 755 /usr/local/bin/jupyterhub-singleuser
 
