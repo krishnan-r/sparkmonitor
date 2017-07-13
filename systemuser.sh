@@ -129,6 +129,7 @@ sudo -E -u $USER sh -c '    echo "INFO--------------------" ;\
                             pip2 show ipykernel ;\
                             which ipython ;\
                             pip2 install --upgrade --user pip ;\
+                            pip2 install --user --upgrade ipython==5.4.1 ;\
                             pip2 install --user --upgrade ipykernel==4.6.1'
 
 # Spark configuration
