@@ -122,13 +122,13 @@ sudo -E -u $USER sh -c  'source $LCG_VIEW/setup.sh \
                            print kfile_contents_mod; \
                            map(lambda d: open(d[0],\"w\").write(json.dumps(d[1])), zip(kfile_names,kfile_contents_mod)); \
                            termEnvFile = open(\"$SWAN_ENV_FILE\", \"w\"); \
-                           [termEnvFile.write(\"export %s=\\\"%s\\\"\\n\" % (key, val)) if key != \"SUDO_COMMAND\" else None for key, val in dict(os.environ).iteritems()];"
-                            echo "INFO--------------------" ;\
+                           [termEnvFile.write(\"export %s=\\\"%s\\\"\\n\" % (key, val)) if key != \"SUDO_COMMAND\" else None for key, val in dict(os.environ).iteritems()];"'
+sudo -E -u $USER sh -c '    echo "INFO--------------------" ;\
                             which pip2 ;\
                             which python2 ;\
                             pip2 show ipykernel ;\
                             which ipython ;\
-                            pip2 install --upgrade --user pip;
+                            pip2 install --upgrade --user pip ;\
                             pip2 install --user --upgrade ipykernel==4.6.1'
 
 # Spark configuration
