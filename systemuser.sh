@@ -87,10 +87,10 @@ sudo -E -u $USER sh -c '/usr/local/bin/jupyter nbextension install sparkmonitor 
                         && ipython profile create \
                         && echo "c.InteractiveShellApp.extensions.append('\''sparkmonitor'\'')" >>  $(ipython profile locate default)/ipython_kernel_config.py ;\
                             echo "INFO--------------------" ;\
-                            echo which pip2 ;\
-                            echo which python2 ;\
-                            echo pip2 show ipykernel ;\
-                            echo which ipython ;\
+                            which pip2 ;\
+                            which python2 ;\
+                            pip2 show ipykernel ;\
+                            which ipython ;\
                            cp -r /notebooks/ $SWAN_HOME'
 #---------------------------------------------------------------------------------------------------------------
 sudo -E -u $USER sh -c  'source $LCG_VIEW/setup.sh \
@@ -124,10 +124,10 @@ sudo -E -u $USER sh -c  'source $LCG_VIEW/setup.sh \
                            termEnvFile = open(\"$SWAN_ENV_FILE\", \"w\"); \
                            [termEnvFile.write(\"export %s=\\\"%s\\\"\\n\" % (key, val)) if key != \"SUDO_COMMAND\" else None for key, val in dict(os.environ).iteritems()];"
                             echo "INFO--------------------" ;\
-                            echo which pip2 ;\
-                            echo which python2 ;\
+                            which pip2 ;\
+                            which python2 ;\
                             pip2 show ipykernel ;\
-                            echo which ipython ;\'
+                            which ipython ;\'
 
 # Spark configuration
 if [[ $SPARK_CLUSTER_NAME ]]
