@@ -2,10 +2,16 @@ import socket
 from threading import Thread
 import logging
 ipykernel_imported = True
+spark_imported = True
 try:
     from ipykernel import zmqshell
 except ImportError:
     ipykernel_imported = False
+
+try:
+    from pyspark import SparkConf
+except ImportError:
+    spark_imported = False
 
 import os
 
@@ -16,7 +22,7 @@ class ScalaMonitor:
 
     def start(self):
         self.scalaSocket = SocketThread()
-        self.scalaSocket.startSocket()
+        return self.scalaSocket.startSocket()
 
     def getPort(self):
         return self.scalaSocket.port
@@ -126,8 +132,15 @@ def load_ipython_extension(ipython):
     ip = ipython
     logger.info('Starting Kernel Extension')
     monitor = ScalaMonitor(ip)
-    monitor.register_comm()
+    monitor.register_comm()    # Communication to browser
     monitor.start()
+
+    # Injecting conf into users namespace
+    conf = SparkConf()
+    configure(conf)
+    ipython.push({
+        "conf": conf
+    })
 
 
 def unload_ipython_extension(ipython):
@@ -141,9 +154,10 @@ def configure(conf):
     port = monitor.getPort()
     print("SparkConf Configured, Starting to listen on port:", str(port))
     #logger.info("SparkConf configured with port %s", str(port))
-    #Configuring Spark Conf
-    #conf.set("spark.monitor.port", port) #spark discards configs without spark[dot]*
-    
+    # Configuring Spark Conf
+    # conf.set("spark.monitor.port", port) #spark discards configs without
+    # spark[dot]*
+
     os.environ["spark.monitor.port"] = str(port)
 
     logger.info(os.environ["spark.monitor.port"])
