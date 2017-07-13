@@ -1,6 +1,5 @@
 language: scala
 dist: trusty
-sudo: enabled
 scala:
       -2.11.8
 
@@ -9,3 +8,5 @@ script: sbt package
 
 deploy:
   skip_cleanup: true
+  provider: script
+  script: echo "Done"
