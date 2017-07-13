@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/krishnan-r/sparkmonitor.svg?branch=master)](https://travis-ci.org/krishnan-r/sparkmonitor)
 # Spark Monitor - An extension for Jupyter Notebook
 
 ## Work in Progress
