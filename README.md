@@ -96,18 +96,3 @@ The Master's UI is accessible at `hostname:8080` application UI at `hostname:404
 $SPARK_HOME/sbin/stop-master.sh
 $SPARK_HOME/sbin/stop-slave.sh 
 ```
-
-# TODO
-
-- Fix "currently running cell" detection when multiple cells are queued and there is an error where queue has to emptied.
-    - TODO how to detect this?
-
-- User running cell before extension has loaded in the frontend, it does not show display
-
-- Ability to collapse Tasks in timeline
-
-- Make display scalable
-
-- Complete Job Table Display - TODO count number of tasks and track skipped and pending stages
-
-- Stopping running jobs
