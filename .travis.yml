@@ -6,6 +6,7 @@ scala:
 cache:
   directories:
               - $HOME/.sbt
+              - $HOME/.ivy2/cache
 before_install: cd extension/scalalistener/jupyterspark/
 script: sbt package
 
