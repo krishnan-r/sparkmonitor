@@ -882,7 +882,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 this.numFailedJobs += 1;
                 this.jobData[data.jobId]['status'] = "FAILED"
             }
-            //this.setBadges();
+            
             this.badgesmodified = true;
 
 

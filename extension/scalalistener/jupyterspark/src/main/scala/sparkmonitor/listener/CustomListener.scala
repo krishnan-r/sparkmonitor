@@ -93,20 +93,14 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 		appId=appStarted.appId.getOrElse("null")
 		println("SPARKLISTENER Application Started: "+appId+" ...Start Time: "+appStarted.time)
 
-		//ERROR val sc = SparkContext.getOrCreate()
-		//val uiWebUrl = sc.uiWebUrl
-		
 		val json= ("msgtype" -> "sparkApplicationStart") ~
 			("startTime" -> startTime) ~
 			("appId" ->appId ) ~
 			("appAttemptId" -> appStarted.appAttemptId.getOrElse("null")) ~
 			("appName" -> appStarted.appName) ~
 			("sparkUser" -> appStarted.sparkUser)
-			//("uiweburl"-> uiWebUrl )
 		
 		send(pretty(render(json)))
-		//println("SPARKLISTENER: Driver Logs: \n"+appStarted.driverLogs.toString()+"\n")
-		//What is driverLogs??
   	}
 
  	override def onApplicationEnd(appEnded: SparkListenerApplicationEnd):Unit =  {
