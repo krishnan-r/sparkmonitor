@@ -1,0 +1,11 @@
+language: scala
+dist: trusty
+sudo: enabled
+scala:
+      -2.11.8
+
+before_install: cd extension/scalalistener/jupyterspark/
+script: sbt package
+
+deploy:
+  skip_cleanup: true
