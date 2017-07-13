@@ -2,7 +2,10 @@ language: scala
 dist: trusty
 scala:
       -2.11.8
-
+  
+cache:
+  directories:
+              - $HOME/.sbt
 before_install: cd extension/scalalistener/jupyterspark/
 script: sbt package
 
