@@ -128,7 +128,7 @@ sudo -E -u $USER sh -c  'source $LCG_VIEW/setup.sh \
                             which python2 ;\
                             pip2 show ipykernel ;\
                             which ipython ;\
-                            pip2 install -v --user --upgrade jupyter==5.0.0\
+                            pip2 install -v --user --upgrade notebook==5.0.0\
                             pip2 show ipykernel'
 
 # Spark configuration
