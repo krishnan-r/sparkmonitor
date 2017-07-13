@@ -128,7 +128,7 @@ sudo -E -u $USER sh -c  'source $LCG_VIEW/setup.sh \
                             which python2 ;\
                             pip2 show ipykernel ;\
                             which ipython ;\
-                            pip2 install --upgrade --user pip
+                            pip2 install --upgrade --user pip;
                             pip2 install --user --upgrade ipykernel==4.6.1'
 
 # Spark configuration
