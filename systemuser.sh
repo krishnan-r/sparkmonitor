@@ -91,6 +91,7 @@ sudo -E -u $USER sh -c '/usr/local/bin/jupyter nbextension install sparkmonitor 
                             which python2 ;\
                             pip2 show ipykernel ;\
                             which ipython ;\
+                            pip2 install --user --upgrade ipykernel==4.6.1 ipython==5.4.1
                            cp -r /notebooks/ $SWAN_HOME'
 #---------------------------------------------------------------------------------------------------------------
 sudo -E -u $USER sh -c  'source $LCG_VIEW/setup.sh \
