@@ -91,8 +91,9 @@ sudo -E -u $USER sh -c '   source $LCG_VIEW/setup.sh \
                              mkdir -p /scratch/$USER/lib; \
                              cp -r /usr/local/lib/python2.7/site-packages/ipykernel /scratch/$USER/lib; \
                              cp -r /usr/local/lib/python2.7/site-packages/IPython /scratch/$USER/lib; \
-                             
+
                              cp -r /usr/local/lib/python2.7/site-packages/sparkmonitor /scratch/$USER/lib; \
+                             cp -r /usr/local/lib/python2.7/site-packages/bs4 /scratch/$USER/lib; \
                              jupyter nbextension install --symlink --user --py sparkmonitor; \
                              jupyter nbextension enable --user --py sparkmonitor; \
                              ipython profile create; \
