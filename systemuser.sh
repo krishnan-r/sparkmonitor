@@ -11,6 +11,7 @@ echo "Creating user $USER ($USER_ID) with home $HOME"
 export SWAN_HOME=$HOME
 if [[ $SWAN_HOME == /eos/user/* ]]; then export CERNBOX_HOME=$SWAN_HOME; fi
 useradd -u $USER_ID -s $SHELL -d $SWAN_HOME $USER
+#mkdir -p $SWAN_HOME/SWAN_projects/
 SCRATCH_HOME=/scratch/$USER
 mkdir -p $SCRATCH_HOME
 echo "This directory is temporary and will be deleted when your SWAN session ends!" > $SCRATCH_HOME/IMPORTANT.txt
@@ -39,6 +40,8 @@ JPY_CONFIG=$JUPYTER_CONFIG_DIR/jupyter_notebook_config.py
 echo "c.FileCheckpoints.checkpoint_dir = '$SCRATCH_HOME/.ipynb_checkpoints'"         >> $JPY_CONFIG
 echo "c.NotebookNotary.db_file = '$JPY_LOCAL_DIR/share/jupyter/nbsignatures.db'"     >> $JPY_CONFIG
 echo "c.NotebookNotary.secret_file = '$JPY_LOCAL_DIR/share/jupyter/notebook_secret'" >> $JPY_CONFIG
+#echo "c.NotebookApp.extra_template_paths = ['/srv/singleuser/swan-templates']" >> $JPY_CONFIG
+#echo "c.NotebookApp.contents_manager_class = 'swancontents.swanfilemanager.SwanFileManager'" >> $JPY_CONFIG
 cp -L -r $LCG_VIEW/etc/jupyter/* $JUPYTER_CONFIG_DIR
 
 # Configure %%cpp cell highlighting
@@ -77,29 +80,23 @@ sed -i "s/IRkernel::main()/options(bitmapType='cairo');IRkernel::main()/g" $KERN
 
 chown -R $USER:$USER $JPY_DIR $JPY_LOCAL_DIR
 export SWAN_ENV_FILE=/tmp/swan.sh
-#-----------------------------------------------------Spark Monitor---------------------------------------------
-#sudo -E -u $USER sh -c '/usr/local/bin/jupyter serverextension enable sparkmonitor --user --py'
-sudo sh -c '/usr/local/bin/jupyter serverextension enable sparkmonitor --py'
-sudo sh -c '/usr/local/bin/jupyter serverextension enable sparkmonitor --sys-prefix --py'
-sudo -E -u $USER sh -c '/usr/local/bin/jupyter nbextension install sparkmonitor --py --user \
-                        && /usr/local/bin/jupyter nbextension enable sparkmonitor --py --user ;\
-                           pip2 install --user /extension/ \
-                        && ipython profile create \
-                        && echo "c.InteractiveShellApp.extensions.append('\''sparkmonitor'\'')" >>  $(ipython profile locate default)/ipython_kernel_config.py ;\
-                            echo "INFO--------------------" ;\
-                            which pip2 ;\
-                            which python2 ;\
-                            pip2 show ipykernel ;\
-                            which ipython ;\
-                           cp -r /notebooks/ $SWAN_HOME'
-#---------------------------------------------------------------------------------------------------------------
-sudo -E -u $USER sh -c  'source $LCG_VIEW/setup.sh \
+sudo -E -u $USER sh -c '   source $LCG_VIEW/setup.sh \
                         && if [[ $SPARK_CLUSTER_NAME ]]; \
                            then \
                              echo "Configuring environment for Spark cluster: $SPARK_CLUSTER_NAME"; \
                              source $SPARK_CONFIG_SCRIPT $SPARK_CLUSTER_NAME; \
                              export SPARK_LOCAL_IP=`hostname -i`; \
                              wget -P $SWAN_HOME https://raw.githubusercontent.com/etejedor/Spark-Notebooks/master/SWAN-Spark_NXCALS_Example.ipynb; \
+                             export PYTHONPATH=/scratch/$USER/lib:$PYTHONPATH; \
+                             mkdir -p /scratch/$USER/lib; \
+                             cp -r /usr/local/lib/python2.7/site-packages/ipykernel /scratch/$USER/lib; \
+                             cp -r /usr/local/lib/python2.7/site-packages/IPython /scratch/$USER/lib; \
+                             
+                             cp -r /usr/local/lib/python2.7/site-packages/sparkmonitor /scratch/$USER/lib; \
+                             jupyter nbextension install --symlink --user --py sparkmonitor; \
+                             jupyter nbextension enable --user --py sparkmonitor; \
+                             ipython profile create; \
+                             echo "c.InteractiveShellApp.extensions.append('sparkmonitor')" >>  $(ipython profile locate default)/ipython_kernel_config.py; \
                            fi \
                         && export JUPYTER_DATA_DIR=$LCG_VIEW/share/jupyter \
                         && export TMP_SCRIPT=`mktemp` \
@@ -122,14 +119,8 @@ sudo -E -u $USER sh -c  'source $LCG_VIEW/setup.sh \
                            print kfile_contents_mod; \
                            map(lambda d: open(d[0],\"w\").write(json.dumps(d[1])), zip(kfile_names,kfile_contents_mod)); \
                            termEnvFile = open(\"$SWAN_ENV_FILE\", \"w\"); \
-                           [termEnvFile.write(\"export %s=\\\"%s\\\"\\n\" % (key, val)) if key != \"SUDO_COMMAND\" else None for key, val in dict(os.environ).iteritems()];"\
-                            echo "INFO--------------------" ;\
-                            which pip2 ;\
-                            which python2 ;\
-                            pip2 show ipykernel ;\
-                            which ipython ;\
-                            pip2 install -v --user --upgrade notebook==5.0.0\
-                            pip2 show ipykernel'
+                           [termEnvFile.write(\"export %s=\\\"%s\\\"\\n\" % (key, val)) if key != \"SUDO_COMMAND\" else None for key, val in dict(os.environ).iteritems()];"'
+
 
 # Spark configuration
 if [[ $SPARK_CLUSTER_NAME ]]
@@ -159,6 +150,13 @@ export SWAN_BASH=/bin/swan_bash
 printf "#! /bin/env python\nfrom subprocess import call\nimport sys\ncall([\"bash\", \"--rcfile\", \"$SWAN_ENV_FILE\"]+sys.argv[1:])\n" >> $SWAN_BASH
 chmod +x $SWAN_BASH
 
+#echo "--------------------------------"
+#jupyter nbextension install /srv/singleuser/jupyter-share/ --sys-prefix
+#jupyter nbextension enable jupyter-share/notebook --sys-prefix
+#cd /srv/singleuser/swan-contents
+#python3 setup.py install
+#echo "--------------------------------"
+
 # Run notebook server
 echo "Running the notebook server"
 sudo -E -u $USER sh -c '   cd $SWAN_HOME \
@@ -169,5 +167,4 @@ sudo -E -u $USER sh -c '   cd $SWAN_HOME \
                            --cookie-name=$JPY_COOKIE_NAME \
                            --base-url=$JPY_BASE_URL \
                            --hub-prefix=$JPY_HUB_PREFIX \
-                           --hub-api-url=$JPY_HUB_API_URL \
-                           --NotebookApp.nbserver_extensions="{'\''sparkmonitor'\'':True}"'
+                           --hub-api-url=$JPY_HUB_API_URL'
