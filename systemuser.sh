@@ -94,10 +94,11 @@ sudo -E -u $USER sh -c '   source $LCG_VIEW/setup.sh \
 
                              cp -r /usr/local/lib/python2.7/site-packages/sparkmonitor /scratch/$USER/lib; \
                              cp -r /usr/local/lib/python2.7/site-packages/bs4 /scratch/$USER/lib; \
+                             cp -r /notebooks/ $SWAN_HOME; \
                              jupyter nbextension install --symlink --user --py sparkmonitor; \
                              jupyter nbextension enable --user --py sparkmonitor; \
                              ipython profile create; \
-                             echo "c.InteractiveShellApp.extensions.append('sparkmonitor')" >>  $(ipython profile locate default)/ipython_kernel_config.py; \
+                             echo "c.InteractiveShellApp.extensions.append('\''sparkmonitor'\'')" >>  $(ipython profile locate default)/ipython_kernel_config.py; \
                            fi \
                         && export JUPYTER_DATA_DIR=$LCG_VIEW/share/jupyter \
                         && export TMP_SCRIPT=`mktemp` \
