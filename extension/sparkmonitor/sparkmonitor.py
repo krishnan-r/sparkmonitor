@@ -136,11 +136,24 @@ def load_ipython_extension(ipython):
     monitor.start()
 
     # Injecting conf into users namespace
-    conf = SparkConf()
-    configure(conf)
-    ipython.push({
-        "conf": conf
-    })
+    if(spark_imported):
+        conf = ipython.user_ns.get('conf')
+        if(conf):
+            if(isinstance(conf, SparkConf)):
+                configure(conf)
+            else:
+                # If conf already exists and is not SparkConf then do nothing.
+                pass
+        else:
+            #
+            conf = SparkConf()
+            configure(conf)
+            ipython.push({
+                "conf": conf
+            })
+    else:
+        # There is no pySpark module. do nothing
+        pass
 
 
 def unload_ipython_extension(ipython):

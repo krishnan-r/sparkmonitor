@@ -6,6 +6,7 @@ from tornado import httpclient
 import json
 
 import re
+import os
 
 from traitlets.config import LoggingConfigurable
 from traitlets.traitlets import Unicode
@@ -21,7 +22,10 @@ class SparkMonitorHandler(IPythonHandler):
     def get(self):
         print("SPARKSERVER: Handler GET")
         http = httpclient.AsyncHTTPClient()
-        url = "http://127.0.0.1:4040"
+        baseurl="http://127.0.0.1"
+        port=os.environ.get('SPARK_PORT_4',"4040")
+        url=baseurl+":"+port
+
         print("SPARKSERVER: Request URI" + self.request.uri)
         # TODO add baseURL
         request_path = self.request.uri[len(proxy_root):]

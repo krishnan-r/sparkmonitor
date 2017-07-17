@@ -129,7 +129,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 element.find('.sparkuitabbutton').click(function () {
                     var iframe = $('\
                     <div style="overflow:hidden">\
-                    <iframe src="/sparkmonitor/" frameborder="0" scrolling="yes" class="sparkuiframe">\
+                    <iframe src="'+Jupyter.notebook.base_url+'sparkmonitor/" frameborder="0" scrolling="yes" class="sparkuiframe">\
                     </iframe>\
                     </div>\
                     ');
