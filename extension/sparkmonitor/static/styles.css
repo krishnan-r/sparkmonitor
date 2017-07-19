@@ -76,6 +76,7 @@
   white-space: nowrap;
   font-weight: bold;
   display: none;
+  margin: 0 2px;
 }
 
 .uibuttondisabled {
@@ -354,6 +355,12 @@ progress {
 .pm .vis-item.itemfinished:not(.vis-selected) {
   background-color: #C9EF9B;
   border-color: #6c9d34;
+}
+
+.pm .vis-item.itemfailed:not(.vis-selected) {
+  background-color: #F44336;
+  border-color: rgb(183, 13, 0);
+  color: white;
 }
 
 .pm .vis-item.itemfinished:active {

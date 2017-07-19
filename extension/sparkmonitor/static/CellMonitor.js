@@ -383,18 +383,21 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
         }
 
         CellMonitor.prototype.timelineCellCompleted = function () {
+            var b = this.cellEndTime.getTime();
+            var a = this.cellStartTime.getTime();
+            var min = new Date(a - ((b - a) / 10));
+            var max = new Date(b + ((b - a) / 10));
             if (this.view == "timeline") {
                 if (this.timeline) {
                     this.timeline.setOptions({
-                        showCurrentTime: false,
-                        max: new Date(this.cellEndTime),
-                        min: new Date(this.cellStartTime),
+                        max: max,
+                        min: min,
                     });
                 }
             }
             this.timelineOptions['showCurrentTime'] = false;
-            this.timelineOptions['max'] = new Date(this.cellEndTime);
-            this.timelineOptions['min'] = new Date(this.cellStartTime);
+            this.timelineOptions['max'] = max;
+            this.timelineOptions['min'] = min;
 
         }
 
@@ -658,8 +661,8 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 element.find('.tdstagestatus').html(status);
                 element.find('.tdstageid').text(data.id);
                 var val1 = 0, val2 = 0;
-                var text='' + data.numCompletedTasks + '' + (data.numActiveTasks>0 ? ' + ' + data.numActiveTasks +' ' : '') + ' / ' + data.numTasks;
-        
+                var text = '' + data.numCompletedTasks + '' + (data.numActiveTasks > 0 ? ' + ' + data.numActiveTasks + ' ' : '') + ' / ' + data.numTasks;
+
                 if (data.numTasks > 0) {
                     val1 = (data.numCompletedTasks / data.numTasks) * 100;
                     val2 = (data.numActiveTasks / data.numTasks) * 100;
@@ -738,7 +741,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 if (data.numTasks > 0) {
                     val1 = (data.numCompletedTasks / data.numTasks) * 100;
                     val2 = (data.numActiveTasks / data.numTasks) * 100;
-                    var text='' + data.numCompletedTasks + '' + (data.numActiveTasks>0 ? ' + ' + data.numActiveTasks +' ' : '') + ' / ' + data.numTasks;
+                    var text = '' + data.numCompletedTasks + '' + (data.numActiveTasks > 0 ? ' + ' + data.numActiveTasks + ' ' : '') + ' / ' + data.numTasks;
                     element.find('.tdjobitemprogress').find('.data').text(text);
                     element.find('.tdjobitemprogress .val1').width(val1 + '%');
                     element.find('.tdjobitemprogress .val2').width(val2 + '%');
@@ -748,8 +751,8 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
                 var status = $('<span></span>').addClass(data.status).text(data.status).addClass('tditemjobstatus');
                 element.find('.tdjobstatus').html(status);
-                
-                element.find('.tdjobstages').text('' + data.numCompletedStages + '/' + data.numStages +''+ (data.numSkippedStages>0 ? ' (' + data.numSkippedStages +' skipped)' : '        ') + (data.numActiveStages>0? '(' + data.numActiveStages + ' active) ' : ''))
+
+                element.find('.tdjobstages').text('' + data.numCompletedStages + '/' + data.numStages + '' + (data.numSkippedStages > 0 ? ' (' + data.numSkippedStages + ' skipped)' : '        ') + (data.numActiveStages > 0 ? '(' + data.numActiveStages + ' active) ' : ''))
 
                 var start = $('<time></time>').addClass('timeago').attr('data-livestamp', data.start).attr('title', data.start.toString()).addClass('tdjobstart').livestamp(data.start);
                 element.find('.tdjobstarttime').html(start);
@@ -901,7 +904,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             this.timelineData.update({
                 id: 'job' + data.jobId,
                 end: new Date(data.completionTime),
-                className: 'itemfinished job',
+                className: (data.status == "SUCCEEDED" ? 'itemfinished job' : 'itemfailed job'),
                 mode: "done",
             });
 
@@ -956,7 +959,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 start: new Date(data.submissionTime),
                 group: 'stages',
                 end: new Date(data.completionTime),
-                className: 'itemfinished stage',
+                className:  (data.status == "COMPLETED" ? 'itemfinished stage' : 'itemfailed stage'),
                 // title: 'Stage: ' + data.stageId + ' ' + name,
                 //content: '' + name,
                 mode: "done",
@@ -1026,7 +1029,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 id: 'task' + data.taskId,
                 end: new Date(data.finishTime),
                 // title: 'Task:' + data.taskId + ' from stage ' + data.stageId + 'Launched' + Date(data.launchTime) + 'Completed: ' + Date(data.finishTime),
-                className: 'itemfinished task',
+                className: (data.status == "SUCCESS" ? 'itemfinished task' : 'itemfailed task'),
                 mode: "done",
             });
 
@@ -1050,6 +1053,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 }
                 else {
                     that.jobData[jobId]['numFailedTasks'] += 1;
+                    console.error("Task Failed");
                 }
             });
             //--------------
