@@ -169,8 +169,8 @@
 
 .jobtablecontent {
   display: block;
-  max-height: 300px;
-  overflow: auto;
+  /* max-height: 300px; */
+  /* overflow: auto; */
 }
 
 .pm .tabcontentactive {
@@ -204,8 +204,8 @@
 }
 
 .pm th {
-  font-size: 12;
-  /*background-color: #EEEEEE;*/
+  font-size: small;
+  background-color: #EEEEEE;
   border: 0px;
 }
 
@@ -220,7 +220,7 @@
   border-radius: 0px;
   width: 100%;
   border: 1px solid #CFCFCF;
-  height: 10px;
+  /* height: 10px; */
 }
 
 .pm tbody {
@@ -256,15 +256,15 @@
 }
 
 .pm th.thjobstatus {
-  width: 15%;
+  width: 12%;
 }
 
 .pm th.thjobtages {
-  width: 5%;
+  width: 10%;
 }
 
 .pm th.thjobtasks {
-  width: 30%;
+  width: 28%;
 }
 
 .pm th.thjobstart {

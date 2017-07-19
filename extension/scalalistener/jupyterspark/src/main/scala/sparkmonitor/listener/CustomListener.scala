@@ -25,14 +25,26 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
   	//println("SPARKLISTENER: Connecting to port"+conf.get("spark.monitor.port"))
 	  
 
-	val socket = new Socket("localhost",port.toInt)
-	val out = new OutputStreamWriter(socket.getOutputStream())
+	var socket:Socket = null
+	var out:OutputStreamWriter = null
+	try {
+		socket =new Socket("localhost",port.toInt)
+		out =new OutputStreamWriter(socket.getOutputStream())
+	}
+	catch {
+	 	case exception:Throwable => println("\nSPARKLISTENER: Exception creating socket:" + exception + "\n")
+	}
 
 	def send(msg:String):Unit={
-		println("\nSPARKLISTENER: --------------Sending Message:------------------\n"+msg+
-		"\nSPARKLISTENER: -------------------------------------------------\n")
-		out.write(msg+";EOD:")
-		out.flush()
+		try{
+		//	println("\nSPARKLISTENER: --------------Sending Message:------------------\n"+msg+
+		//	"\nSPARKLISTENER: -------------------------------------------------\n")
+			out.write(msg+";EOD:")
+			out.flush()
+			}
+		catch {
+		 	case exception:Throwable => println("\nSPARKLISTENER: Exception sending socket message:" + exception + "\n")
+		}
 	}
 
 	def closeConnection():Unit={
@@ -49,7 +61,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 	type JobGroupId = String
 	type StageId = Int
 	type StageAttemptId = Int
-	type ExecutorId = String
+	
 
 	//Application
 	@volatile var startTime = -1L
@@ -79,7 +91,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 	var numCompletedJobs = 0
 	var numFailedJobs = 0
 
-	//val executorData = new HashMap[ExecutorId, ]
+	
 
 	val retainedStages = conf.getInt("spark.ui.retainedStages", 1000)
 	val retainedJobs = conf.getInt("spark.ui.retainedJobs", 1000)
@@ -113,6 +125,18 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 		closeConnection()
   	}
 
+	def stageInfoToJSON(stageInfo:StageInfo): JObject = {
+		val completionTime:Long=stageInfo.completionTime.getOrElse(-1)
+		val submissionTime:Long=stageInfo.submissionTime.getOrElse(-1)
+
+		(stageInfo.stageId.toString ->
+		("attemptId" -> stageInfo.attemptId) ~
+		("name" -> stageInfo.name) ~
+		("numTasks" -> stageInfo.numTasks) ~
+		("completionTime" -> completionTime) ~
+		("submissionTime" -> submissionTime))
+	}
+
 	override def onJobStart(jobStart: SparkListenerJobStart): Unit = synchronized {
 
 		val jobGroup = for (
@@ -130,6 +154,13 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 
 		jobGroupToJobIds.getOrElseUpdate(jobGroup.orNull, new HashSet[JobId]).add(jobStart.jobId)
     	jobStart.stageInfos.foreach(x => pendingStages(x.stageId) = x)
+
+		
+		var stageinfojson:JObject = Nil 
+		for (x <- jobStart.stageInfos)
+		{
+		stageinfojson = stageinfojson ~ stageInfoToJSON(x)
+		}
 
  		jobData.numTasks= {
 			val allStages = jobStart.stageInfos
@@ -157,9 +188,11 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 					("status" -> "RUNNING") ~
 					("submissionTime" -> Option(jobStart.time).filter(_ >= 0)) ~
 					("stageIds" -> jobStart.stageIds) ~
+					("stageInfos" -> stageinfojson) ~
 					("numTasks" -> jobData.numTasks) ~
+					("totalCores" -> totalCores) ~
 					("name" -> name)
-		 //println("SPARKLISTENER JobStart: \n"+ pretty(render(json)) + "\n")
+		 println("SPARKLISTENER JobStart: \n"+ pretty(render(json)) + "\n")
 		 send(pretty(render(json)))
 	}
 
@@ -262,7 +295,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 					("numTasks" -> stage.numTasks) ~
 					("status" -> status)
 
- 		//println("SPARKLISTENER Stage Completed: \n"+ pretty(render(json)) + "\n")
+ 		println("SPARKLISTENER Stage Completed: \n"+ pretty(render(json)) + "\n")
 		send(pretty(render(json)))
 	}
 
@@ -306,7 +339,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 
 					
 
- 		//println("SPARKLISTENER Stage Submitted: \n"+ pretty(render(json)) + "\n")
+ 		println("SPARKLISTENER Stage Submitted: \n"+ pretty(render(json)) + "\n")
 		send(pretty(render(json)))
 	}
 	
@@ -424,29 +457,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 		send(pretty(render(json)))
 	}
 
-	var totalCores=0;
 
-	override def onExecutorAdded(executorAdded: SparkListenerExecutorAdded): Unit = synchronized {
-		val json=   ("msgtype" -> "sparkExecutorAdded") ~
-					("executorId" ->executorAdded.executorId) ~
-					("time" -> executorAdded.time) ~
-					("host" -> executorAdded.executorInfo.executorHost) ~
-					("totalCores" -> executorAdded.executorInfo.totalCores) ~
-					("allTotalCores" -> totalCores)
-
- 		println("SPARKLISTENER Executor Added: \n"+ pretty(render(json)) + "\n")
-		send(pretty(render(json)))
-	}
-
-	override def onExecutorRemoved(executorRemoved: SparkListenerExecutorRemoved): Unit = synchronized {
-		val json=  	("msgtype" -> "sparkExecutorRemoved") ~
-					("executorId" ->executorRemoved.executorId) ~
-					("time" -> executorRemoved.time) ~
-					("allTotalCores" -> totalCores)
-
- 		println("SPARKLISTENER Executor Removed: \n"+ pretty(render(json)) + "\n")
-		send(pretty(render(json)))
-	}
 
 	/** If stages is too large, remove and garbage collect old stages */
 	private def trimStagesIfNecessary(stages: ListBuffer[StageInfo]) = synchronized {
@@ -485,6 +496,36 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 	
 	private def calculateNumberToRemove(dataSize: Int, retainedSize: Int): Int = {
 		math.max(retainedSize / 10, dataSize - retainedSize)
+	}
+
+	val executorCores = new HashMap[String,Int]
+	@volatile var totalCores:Int =0
+
+
+	override def onExecutorAdded(executorAdded: SparkListenerExecutorAdded): Unit = synchronized {
+		executorCores(executorAdded.executorId)=executorAdded.executorInfo.totalCores
+		totalCores+=executorAdded.executorInfo.totalCores
+
+		val json=   ("msgtype" -> "sparkExecutorAdded") ~
+					("executorId" ->executorAdded.executorId) ~
+					("time" -> executorAdded.time) ~
+					("host" -> executorAdded.executorInfo.executorHost) ~
+					("numCores" -> executorAdded.executorInfo.totalCores) ~
+					("totalCores" -> totalCores)
+
+ 		println("SPARKLISTENER Executor Added: \n"+ pretty(render(json)) + "\n")
+		send(pretty(render(json)))
+	}
+
+	override def onExecutorRemoved(executorRemoved: SparkListenerExecutorRemoved): Unit = synchronized {
+		totalCores-=executorCores.getOrElse(executorRemoved.executorId,0)
+		val json=  	("msgtype" -> "sparkExecutorRemoved") ~
+					("executorId" ->executorRemoved.executorId) ~
+					("time" -> executorRemoved.time) ~
+					("totalCores" -> totalCores)
+
+ 		println("SPARKLISTENER Executor Removed: \n"+ pretty(render(json)) + "\n")
+		send(pretty(render(json)))
 	}
 
 }
@@ -558,4 +599,11 @@ object UIData {
     def hasBytesSpilled: Boolean = memoryBytesSpilled > 0 && diskBytesSpilled > 0
   }
 
+  class ExecutorData {
+  var numCores: Int = _
+  var executorId: String = _
+  var timeAdded: Long = _
+  var timeRemoved: Long = _
+  var executorHost: String = _
+  }
 }

@@ -129,7 +129,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 element.find('.sparkuitabbutton').click(function () {
                     var iframe = $('\
                     <div style="overflow:hidden">\
-                    <iframe src="'+Jupyter.notebook.base_url+'sparkmonitor/" frameborder="0" scrolling="yes" class="sparkuiframe">\
+                    <iframe src="'+ Jupyter.notebook.base_url + 'sparkmonitor/" frameborder="0" scrolling="yes" class="sparkuiframe">\
                     </iframe>\
                     </div>\
                     ');
@@ -510,34 +510,34 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
         }
 
-        CellMonitor.prototype.addToTaskDataGraph = function (x, y) {
-
+        CellMonitor.prototype.addToTaskDataGraph = function (time, numTasks) {
             this.taskChartData.push({
-                x: new Date(x),
-                y: y,
-            });
-            this.executorData.push({
-                x: new Date(x),
-                y: 4,
+                x: new Date(time),
+                y: numTasks,
             });
             this.taskcountchanged = true;
             if (this.view == "tasks") {
                 this.taskChartDataBuffer.push({
-                    x: new Date(x),
-                    y: y
-                })
-                this.executorDataBuffer.push({
-                    x: new Date(x),
-                    y: 4
-                })
-                //this.taskChart.update();
+                    x: new Date(time),
+                    y: numTasks
+                });
             }
+            this.addExecutorToTaskGraph(time, this.monitor.totalCores);
 
         }
 
-        CellMonitor.prototype.addExecutorToTaskGraph = function () {
-
-
+        CellMonitor.prototype.addExecutorToTaskGraph = function (time, numCores) {
+            this.executorData.push({
+                x: new Date(time),
+                y: numCores,
+            });
+            this.taskcountchanged = true;
+            if (this.view == "tasks") {
+                this.executorDataBuffer.push({
+                    x: new Date(time),
+                    y: numCores
+                });
+            }
         }
 
         CellMonitor.prototype.addLinetoTasks = function (time, id, title) {
@@ -658,10 +658,12 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 element.find('.tdstagestatus').html(status);
                 element.find('.tdstageid').text(data.id);
                 var val1 = 0, val2 = 0;
+                var text='' + data.numCompletedTasks + '' + (data.numActiveTasks>0 ? ' + ' + data.numActiveTasks +' ' : '') + ' / ' + data.numTasks;
+        
                 if (data.numTasks > 0) {
                     val1 = (data.numCompletedTasks / data.numTasks) * 100;
                     val2 = (data.numActiveTasks / data.numTasks) * 100;
-                    element.find('.tdstageitemprogress .data').text('' + data.numCompletedTasks + ' + ' + data.numActiveTasks + ' / ' + data.numTasks);
+                    element.find('.tdstageitemprogress .data').text(text);
                 }
 
                 element.find('.tdstagestatus')
@@ -689,7 +691,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                     <th class='thstagestart'>Submission Time</th>\
                     </thead>\
                     <tbody></tbody></table>").addClass('stagetable');
-            var stagetablebody = stagetable.find('tbody');
+            //var stagetablebody = stagetable.find('tbody');
             fakerow.find('.stagedata').append(stagetable);
             var tdbutton = $('<td></td>').addClass('tdstagebutton').html('<span class="tdstageicon"> &#9658;</span>');
             var icon = tdbutton.find('.tdstageicon');
@@ -736,7 +738,8 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 if (data.numTasks > 0) {
                     val1 = (data.numCompletedTasks / data.numTasks) * 100;
                     val2 = (data.numActiveTasks / data.numTasks) * 100;
-                    element.find('.tdjobitemprogress').find('.data').text('' + data.numCompletedTasks + ' + ' + data.numActiveTasks + ' / ' + data.numTasks);
+                    var text='' + data.numCompletedTasks + '' + (data.numActiveTasks>0 ? ' + ' + data.numActiveTasks +' ' : '') + ' / ' + data.numTasks;
+                    element.find('.tdjobitemprogress').find('.data').text(text);
                     element.find('.tdjobitemprogress .val1').width(val1 + '%');
                     element.find('.tdjobitemprogress .val2').width(val2 + '%');
                 }
@@ -745,7 +748,8 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
 
                 var status = $('<span></span>').addClass(data.status).text(data.status).addClass('tditemjobstatus');
                 element.find('.tdjobstatus').html(status);
-                element.find('.tdjobstages').text('' + data.numCompletedStages + '/' + data.numStages)
+                
+                element.find('.tdjobstages').text('' + data.numCompletedStages + '/' + data.numStages +''+ (data.numSkippedStages>0 ? ' (' + data.numSkippedStages +' skipped)' : '        ') + (data.numActiveStages>0? '(' + data.numActiveStages + ' active) ' : ''))
 
                 var start = $('<time></time>').addClass('timeago').attr('data-livestamp', data.start).attr('title', data.start.toString()).addClass('tdjobstart').livestamp(data.start);
                 element.find('.tdjobstarttime').html(start);
@@ -829,12 +833,13 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             data.stageIds.forEach(function (stageid) {
                 if (!that.stageIdtoJobId[stageid]) that.stageIdtoJobId[stageid] = [];
                 that.stageIdtoJobId[stageid].push(data.jobId);
-
+                var name = $('<div>').text(data['stageInfos'][stageid]['name']).html().split(' ')[0];//Hack for escaping HTML <, > from string.
                 that.stageData[stageid] = {
                     id: stageid,
                     status: 'PENDING',
                     job: data.jobId,
-                    numTasks: 0,
+                    name: name,
+                    numTasks: data['stageInfos'][stageid]['numTasks'],
                     numActiveTasks: 0,
                     numCompletedTasks: 0,
                     numFailedTasks: 0,
@@ -842,6 +847,10 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 };
 
             });
+            if (name == "null") {
+                var laststageid = Math.max.apply(null, data.stageIds);
+                that.jobData[data.jobId]['name'] = that.stageData[laststageid]['name'];
+            }
             //-----------------
             if (!this.displayCreated) {
                 this.createDisplay();
@@ -853,7 +862,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 start: new Date(data.submissionTime),
                 end: new Date(),
                 content: '' + name,
-                title: data.jobId + ': ' + data.name + ' ',
+                // title: data.jobId + ': ' + data.name + ' ',
                 group: 'jobs',
                 className: 'itemrunning job',
                 mode: "ongoing",
@@ -870,7 +879,10 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             this.jobData[data.jobId]['stageIds'].forEach(function (stageid) {
                 if (that.stageData[stageid]['status'] == 'PENDING') {
                     that.stageData[stageid]['status'] = "SKIPPED";
+                    that.jobData[data.jobId]['numSkippedStages'] += 1;
+                    that.jobData[data.jobId]['numStages'] -= 1;
                     that.stageData[stageid]['modified'] = true;
+                    that.jobData[data.jobId]['numTasks'] -= that.stageData[stageid]['numTasks'];
                 }
             })
             if (data.status == "SUCCEEDED") {
@@ -882,7 +894,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 this.numFailedJobs += 1;
                 this.jobData[data.jobId]['status'] = "FAILED"
             }
-            
+
             this.badgesmodified = true;
 
 
@@ -915,7 +927,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 start: submissionDate,
                 content: "" + name,
                 group: 'stages',
-                title: 'Stage: ' + data.stageId + ' ' + name,
+                // title: 'Stage: ' + data.stageId + ' ' + name,
                 end: new Date(),
                 className: 'itemrunning stage',
                 mode: "ongoing",
@@ -945,7 +957,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 group: 'stages',
                 end: new Date(data.completionTime),
                 className: 'itemfinished stage',
-                title: 'Stage: ' + data.stageId + ' ' + name,
+                // title: 'Stage: ' + data.stageId + ' ' + name,
                 //content: '' + name,
                 mode: "done",
             });
@@ -986,7 +998,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
                 end: new Date(),
                 content: '' + data.taskId,
                 group: data.executorId + '-' + data.host,
-                title: 'Task: ' + data.taskId + ' from stage ' + data.stageId + ' Launched: ' + Date(data.launchTime),
+                // title: 'Task: ' + data.taskId + ' from stage ' + data.stageId + ' Launched: ' + Date(data.launchTime),
                 className: 'itemrunning task',
                 mode: "ongoing",
             });
@@ -1013,7 +1025,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             this.timelineData.update({
                 id: 'task' + data.taskId,
                 end: new Date(data.finishTime),
-                title: 'Task:' + data.taskId + ' from stage ' + data.stageId + 'Launched' + Date(data.launchTime) + 'Completed: ' + Date(data.finishTime),
+                // title: 'Task:' + data.taskId + ' from stage ' + data.stageId + 'Launched' + Date(data.launchTime) + 'Completed: ' + Date(data.finishTime),
                 className: 'itemfinished task',
                 mode: "done",
             });

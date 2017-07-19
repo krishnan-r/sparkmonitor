@@ -29,6 +29,7 @@ ipython profile create && \
 echo "c.InteractiveShellApp.extensions.append('sparkmonitor')" >>  $(ipython profile locate default)/ipython_kernel_config.py
 
 WORKDIR /notebooks/
+RUN git clone https://github.com/prasanthkothuri/sparkTraining
 
 EXPOSE 8888
 

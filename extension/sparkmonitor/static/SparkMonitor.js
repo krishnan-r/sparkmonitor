@@ -15,6 +15,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 			this.appName = "NULL";
 			this.appId = "NULL";
 			this.app = "NULL";
+			this.totalCores = 0;
 		}
 
 		SparkMonitor.prototype.getCellMonitor = function (cell) {
@@ -84,6 +85,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 		//------------Message Handling Functions that update the data and delegate to corresponding cell monitors--------------------------------
 
 		SparkMonitor.prototype.sparkJobStart = function (data) {
+
 			var cell = currentcell.getRunningCell()
 			if (cell == null) {
 				console.error('SparkMonitor: Job started with no running cell.');
@@ -99,6 +101,7 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 				id: 'app' + this.app + 'job' + data.jobId,
 				cell_id: cell.cell_id,
 			});
+			this.totalCores = data.totalCores;
 			cellmonitor.sparkJobStart(data);
 		}
 
@@ -173,11 +176,11 @@ define(['base/js/namespace', 'require', 'base/js/events', 'jquery', './CellMonit
 		}
 
 		SparkMonitor.prototype.sparkExecutorAdded = function (data) {
-
+			this.totalCores += data.totalCores;
 		}
 
 		SparkMonitor.prototype.sparkExecutorRemoved = function (data) {
-
+			this.totalCores += data.totalCores;
 		}
 
 		SparkMonitor.prototype.handleMessage = function (msg) {
