@@ -95,7 +95,7 @@ define(['base/js/namespace', './misc', 'require', 'base/js/events', 'jquery', '.
             },
             {
                 x: new Date(),
-                y: 4
+                y: 0
             }];
             that.taskChartDataBuffer = [];
             that.executorDataBuffer = [];
