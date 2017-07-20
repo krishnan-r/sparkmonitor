@@ -31,7 +31,7 @@ after_success:
     - cd $TRAVIS_BUILD_DIR/notebooks/
     - git clone "https://github.com/prasanthkothuri/sparkTraining"
     - cd $TRAVIS_BUILD_DIR/
-    - "docker login -u='$DOCKER_USER' -p='$DOCKER_PASS' &&
+    - "docker login -u=$DOCKER_USER -p=$DOCKER_PASS &&
        docker build -f Dockerfile -t krishnanr/sparkmonitor . &&
        docker push krishnanr/sparkmonitor "
 
