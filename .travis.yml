@@ -22,7 +22,7 @@ install:
 before_script: ''
 script:
 - cd $TRAVIS_BUILD_DIR/extension/
-- npm run webpack
+- yarn run webpack
 - cd $TRAVIS_BUILD_DIR/extension/scalalistener/jupyterspark/
 - sbt package
 - cd $TRAVIS_BUILD_DIR/extension/
