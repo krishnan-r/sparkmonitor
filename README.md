@@ -10,7 +10,7 @@
 ## Installation
 ### Quick Install 
 ```bash 
-pip install https://github.com/krishnan-r/sparkmonitor/releases/latest/sparkmonitor.tar.gz #Use sparkmonitor.zip for Windows
+pip install https://github.com/krishnan-r/sparkmonitor/releases/download/v0.0.1/sparkmonitor.tar.gz #Use latest version as in github releases
 #Frontend
 jupyter nbextension install sparkmonitor --py --user --symlink
 jupyter nbextension enable sparkmonitor --py --user
