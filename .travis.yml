@@ -1,16 +1,43 @@
 language: scala
 dist: trusty
-scala:
-      -2.11.8
-  
+sudo: required
+env:
+    global:
+            secure: "Qw9zE4MOOkcPiUYF4jzt6tFhJogvA3d0u2pA/jMAybECjeQDMaio5AN67NbtXDU5/7VF2bab4ScWb4HMVhd30j6Mo8FmTAeuxYwVSldze82wM7/Aw2E6GARmWugC/Q5RNJKd+oIpRgHgWuepNWWpdXMuDx2mtHmL8KPShmjYRFQ9rEeiyrnUPqaO+JRT6BD13KZTb1004cFa3kK4piwOlQ7hrQ5t21YJAqkfgWMX9yybgCPIgMbPoQZFLsK2xdc0tYsBJDFkblXLleQjUyn1y7PbwgbscvLr+I75g2sN8mqR58x4ly3rpb1+8SQ3aRgCJHZUwCl1Ci2dO9RLVSgse4JPyfJ9/50epEU7TD9oNz+rXImOOlSCoVFdNEW3BOGDle9hci6AiA2ON3jESVWID7FY9dv7Fe1fEiwFoSg2cVIlPLRAF/Lt81v6OGurd7xFUUscUgELLYXTgZRnltUR7P5Na/1C/Atk/YjoenMlnhOy7DgTm54OpuZ4TZLLJOeWHS5RpeMXyl9d4SQ8ZExJCjWK0+DHb0CIze/uO6lSIIWsf2MIQKIbnUARIF34sW6/Ms3gvXQdC8qJNxkYZYbD3fcUNnsPsLAZMGC9nco4TxwO3M7oeTOpTlGJshnTg8l8XB+ppMqRFQhZyo6GQEUZQ8QVbSRGDrm+gSZnsnqFN+s="
+services:
+        - docker
+scala: "-2.11.8"
 cache:
-  directories:
-              - $HOME/.sbt
-              - $HOME/.ivy2/cache
-before_install: cd extension/scalalistener/jupyterspark/
-script: sbt package
+    yarn: true
+    directories:
+    - "$TRAVIS_BUILD_DIR/extension/node_modules"
+    - "$HOME/.sbt"
+    - "$HOME/.ivy2/cache"
+before_install:
+        - nvm install 6.11.1
+        - nvm use 6.11.1
+install: 
+        - cd $TRAVIS_BUILD_DIR/extension/
+        - yarn install
+before_script: ""
+script:
+    - cd $TRAVIS_BUILD_DIR/extension/
+    - npm run webpack
+    - cd $TRAVIS_BUILD_DIR/extension/scalalistener/jupyterspark/
+    - sbt package
+
+    
+after_success:
+    - cd $TRAVIS_BUILD_DIR/notebooks/
+    - git clone "https://github.com/prasanthkothuri/sparkTraining"
+    - cd $TRAVIS_BUILD_DIR/
+    - "docker build -f Dockerfile -t krishnanr/sparkmonitor . &&
+      docker login -u='$DOCKER_USER' -p='$DOCKER_PASS' &&
+      docker push krishnanr/sparkmonitor "
 
 deploy:
   skip_cleanup: true
   provider: script
-  script: echo "Done"
+  script: echo "TODO Deployments"
+  
+

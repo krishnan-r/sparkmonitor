@@ -1,0 +1,42 @@
+{
+  "name": "sparkmonitor-js",
+  "version": "0.0.1",
+  "description": "Jupyter Notebook extension to monitor Apache Spark Jobs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krishnan-r/sparkmonitor.git"
+  },
+  "keywords": [
+    "Jupyter",
+    "Spark",
+    "Extension",
+    "Notebook"
+  ],
+  "author": "Krishnan R",
+  "license": "LGPL-2.1",
+  "bugs": {
+    "url": "https://github.com/krishnan-r/sparkmonitor/issues"
+  },
+  "homepage": "https://github.com/krishnan-r/sparkmonitor#readme",
+  "devDependencies": {
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.1",
+    "babel-preset-env": "^1.6.0",
+    "css-loader": "^0.28.4",
+    "file-loader": "^0.11.2",
+    "html-loader": "^0.4.5",
+    "style-loader": "^0.18.2",
+    "url-loader": "^0.5.9",
+    "webpack": "^3.3.0"
+  },
+  "scripts": {
+    "webpack": "webpack --config webpack.config.js",
+    "watch": "webpack --watch --config webpack.config.js"
+  },
+  "dependencies": {
+    "chart.js": "^2.6.0",
+    "kuende-livestamp": "^1.1.2",
+    "twix": "^1.2.0",
+    "vis": "^4.20.1"
+  }
+}

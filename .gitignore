@@ -6,3 +6,5 @@ extension/scalalistener/jupyterspark/target/
 *.egg-info/
 extension/dist/
 extension/build/
+extension/node_modules/
+extension/sparkmonitor/static/
