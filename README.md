@@ -2,18 +2,12 @@
 # Spark Monitor - An extension for Jupyter Notebook
 
 ## Work in Progress
-(older screenshot)
-![Screenshot](screenshot.gif)
+
 ## Notes
-* This version uses a scala `SparkListener` that forwards data to the kernel using sockets. The SparkConf is configured with the ports for the Listener to reach the kernel.
-* The user has to configure the SparkConf object with the extension before starting spark. This sets the listener JAR path and the ports for communication
-   ```python
-    import sparkmonitor
-    sparkmonitor.configure(conf) #conf is the instance of SparkConf
-   ```
+* This version uses a scala `SparkListener` that forwards data to the kernel using sockets. The SparkConf is configured to start the listener which is bundled and included as a jar in the python package.
+* The ipython extension automatically adds a SparkConf to the users namespace.
 
 ## Installation
-
 ### Quick Install 
 ```bash 
 git clone https://github.com/krishnan-r/sparkmonitor/
