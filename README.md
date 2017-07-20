@@ -10,9 +10,7 @@
 ## Installation
 ### Quick Install 
 ```bash 
-git clone https://github.com/krishnan-r/sparkmonitor/
-cd sparkmonitor/extension
-pip install -e .
+pip install https://github.com/krishnan-r/sparkmonitor/releases/latest/sparkmonitor.tar.gz #Use sparkmonitor.zip for Windows
 #Frontend
 jupyter nbextension install sparkmonitor --py --user --symlink
 jupyter nbextension enable sparkmonitor --py --user
@@ -23,39 +21,46 @@ ipython profile create
 echo "c.InteractiveShellApp.extensions.append('sparkmonitor')" >>  $(ipython profile locate default)/ipython_kernel_config.py
 ```
 ### Details
-For development purposes the extension folders are symlinked to the appropriate directories. This way making changes is easier.
 
-1. First clone the repository and switch to it.
-
-```bash
-git clone https://github.com/krishnan-r/sparkmonitor/
-cd sparkmonitor/extension
-```
-2. Install the python package
+1. Install the python package in the latest tagged github release. The python package contains the javascript resources and the listener jar file.
 
 ```bash
-pip install -e .
+pip install https://github.com/krishnan-r/sparkmonitor/releases/sparkmonitor.tar.gz  # sparkmonitor.zip for Windows
 ```
 
-3. The frontend extension is symlinked (```--symlink```) into the jupyter configuration directory by `jupyter nbextension` command. The second line configures the frontend extension to load on notebook startup.
+2. The frontend extension is symlinked (```--symlink```) into the jupyter configuration directory by `jupyter nbextension` command. The second line configures the frontend extension to load on notebook startup.
 
 ```bash
 jupyter nbextension install --py sparkmonitor --user --symlink
 jupyter nbextension enable sparkmonitor --user --py
 ```
-4. Configure the serverextension to load when the notebook server starts
+3. Configure the serverextension to load when the notebook server starts
 
 ```bash
  jupyter serverextension enable --py --user sparkmonitor
 ```
 
-5. Create the default profile configuration files (Skip if file already exists)
+4. Create the default profile configuration files (Skip if config file already exists)
 ```bash
 ipython profile create
 ```
-6. Configure the kernel to load the extension on startup. This is added to the configuration files in users home directory
+5. Configure the kernel to load the extension on startup. This is added to the configuration files in users home directory
 ```bash
 echo "c.InteractiveShellApp.extensions.append('sparkmonitor')" >>  $(ipython profile locate default)/ipython_kernel_config.py
+```
+## Build from Source
+```bash
+git clone https://github.com/krishnan-r/sparkmonitor
+cd sparkmonitor/extension
+#Build Javascript
+yarn install
+npm webpack -p
+#Build Scala jar
+cd scalalistener/jupyterspark/
+sbt package
+#Install as python package in editable format
+pip install -e .
+# sparkmonitor package is not installed. Configure with jupyter as above.
 ```
 
 # Testing with Docker

@@ -27,6 +27,9 @@ script:
 - sbt package
 - cd $TRAVIS_BUILD_DIR/extension/
 - python setup.py sdist --formats=gztar,zip
+- cd $TRAVIS_BUILD_DIR/extension/dist/
+- cp sparkmonitor*.tar.gz sparkmonitor.tar.gz
+- cp sparkmonitor*.zip sparkmonitor.zip
 after_success:
 - cd $TRAVIS_BUILD_DIR/notebooks/
 - git clone "https://github.com/prasanthkothuri/sparkTraining"
@@ -35,8 +38,9 @@ after_success:
   . && docker push krishnanr/sparkmonitor '
 deploy:
   provider: releases
-  file_glob: true
-  file: extension/dist/*
+  file:
+        - $TRAVIS_BUILD_DIR/extension/dist/sparkmonitor.tar.gz
+        - $TRAVIS_BUILD_DIR/extension/dist/sparkmonitor.zip
   skip_cleanup: true
   api_key:
     secure: a3buqLV2wwwAY6mkCSKT8/qHf8pFTa9/UP4Op3WPlkS2rYTAKw8cI3dAWd99dr5oCXkbbJc4aIA/e9voS1xAR+9mGYW+X3EakB8fRWnwQjg1/mRdsNp4S9wyeat1ETt4+/M1etcZed+uuuIUDfCyWgGGlu+bLGubHYqHIWhAE3lrT3PKjQVNGP/A5Tkctmoz+YE9gHoCNkFwa4cQ0p/hUeE97UT86u1RriHNJ1yKbqfX5/0FaOU6BbZogsGzk5tKBJyJtdACi3fgbLKlBPS7+aIE2wydl7PtQxwnLUV8Gitcb6+rfPQTYzQfc3vX2izfKBx6sC4hFZ433MdGw/3neyfUj1/Gh/tHnHrl4tSkt5VgKD7i4TPQiVLjt2N9tdkgZyqhjfJwit5r5IxSoSbdPsUK6uNIxDLsInFiakPyjwciczDToJihP/drelAuuWqIymKPPE70AGX1VsRI8H5JakXfkzI741ZpyiFiq3Z/b3WPqC/+bXnNS7aF5+P8SkYJVhGbMq6toq8gfYP36rYY2OAo55X7qTCqGkbxv8nAIwJNtrg3U0u5ra7ciamp6/ht8LmVVBfy0XERHzdejhqbHeyNpA1LFSiCkhvpZYWxpPgJOUbW+jkf4Ujk4fJwmvmS2FLsqMNzeOYqhUYwY5mwpmoaDjTFQ50Eu2BcouByVCw=
