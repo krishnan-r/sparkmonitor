@@ -8,3 +8,4 @@ extension/dist/
 extension/build/
 extension/node_modules/
 extension/sparkmonitor/static/
+*.jar

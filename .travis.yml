@@ -2,42 +2,45 @@ language: scala
 dist: trusty
 sudo: required
 env:
-    global:
-            secure: "Qw9zE4MOOkcPiUYF4jzt6tFhJogvA3d0u2pA/jMAybECjeQDMaio5AN67NbtXDU5/7VF2bab4ScWb4HMVhd30j6Mo8FmTAeuxYwVSldze82wM7/Aw2E6GARmWugC/Q5RNJKd+oIpRgHgWuepNWWpdXMuDx2mtHmL8KPShmjYRFQ9rEeiyrnUPqaO+JRT6BD13KZTb1004cFa3kK4piwOlQ7hrQ5t21YJAqkfgWMX9yybgCPIgMbPoQZFLsK2xdc0tYsBJDFkblXLleQjUyn1y7PbwgbscvLr+I75g2sN8mqR58x4ly3rpb1+8SQ3aRgCJHZUwCl1Ci2dO9RLVSgse4JPyfJ9/50epEU7TD9oNz+rXImOOlSCoVFdNEW3BOGDle9hci6AiA2ON3jESVWID7FY9dv7Fe1fEiwFoSg2cVIlPLRAF/Lt81v6OGurd7xFUUscUgELLYXTgZRnltUR7P5Na/1C/Atk/YjoenMlnhOy7DgTm54OpuZ4TZLLJOeWHS5RpeMXyl9d4SQ8ZExJCjWK0+DHb0CIze/uO6lSIIWsf2MIQKIbnUARIF34sW6/Ms3gvXQdC8qJNxkYZYbD3fcUNnsPsLAZMGC9nco4TxwO3M7oeTOpTlGJshnTg8l8XB+ppMqRFQhZyo6GQEUZQ8QVbSRGDrm+gSZnsnqFN+s="
+  global:
+    secure: Qw9zE4MOOkcPiUYF4jzt6tFhJogvA3d0u2pA/jMAybECjeQDMaio5AN67NbtXDU5/7VF2bab4ScWb4HMVhd30j6Mo8FmTAeuxYwVSldze82wM7/Aw2E6GARmWugC/Q5RNJKd+oIpRgHgWuepNWWpdXMuDx2mtHmL8KPShmjYRFQ9rEeiyrnUPqaO+JRT6BD13KZTb1004cFa3kK4piwOlQ7hrQ5t21YJAqkfgWMX9yybgCPIgMbPoQZFLsK2xdc0tYsBJDFkblXLleQjUyn1y7PbwgbscvLr+I75g2sN8mqR58x4ly3rpb1+8SQ3aRgCJHZUwCl1Ci2dO9RLVSgse4JPyfJ9/50epEU7TD9oNz+rXImOOlSCoVFdNEW3BOGDle9hci6AiA2ON3jESVWID7FY9dv7Fe1fEiwFoSg2cVIlPLRAF/Lt81v6OGurd7xFUUscUgELLYXTgZRnltUR7P5Na/1C/Atk/YjoenMlnhOy7DgTm54OpuZ4TZLLJOeWHS5RpeMXyl9d4SQ8ZExJCjWK0+DHb0CIze/uO6lSIIWsf2MIQKIbnUARIF34sW6/Ms3gvXQdC8qJNxkYZYbD3fcUNnsPsLAZMGC9nco4TxwO3M7oeTOpTlGJshnTg8l8XB+ppMqRFQhZyo6GQEUZQ8QVbSRGDrm+gSZnsnqFN+s=
 services:
-        - docker
+- docker
 scala: "-2.11.8"
 cache:
-    yarn: true
-    directories:
-    - "$TRAVIS_BUILD_DIR/extension/node_modules"
-    - "$HOME/.sbt"
-    - "$HOME/.ivy2/cache"
+  yarn: true
+  directories:
+  - "$TRAVIS_BUILD_DIR/extension/node_modules"
+  - "$HOME/.sbt"
+  - "$HOME/.ivy2/cache"
 before_install:
-        - nvm install 6.11.1
-        - nvm use 6.11.1
-install: 
-        - cd $TRAVIS_BUILD_DIR/extension/
-        - yarn install
-before_script: ""
+- nvm install 6.11.1
+- nvm use 6.11.1
+install:
+- cd $TRAVIS_BUILD_DIR/extension/
+- yarn install
+before_script: ''
 script:
-    - cd $TRAVIS_BUILD_DIR/extension/
-    - npm run webpack
-    - cd $TRAVIS_BUILD_DIR/extension/scalalistener/jupyterspark/
-    - sbt package
-
-    
+- cd $TRAVIS_BUILD_DIR/extension/
+- npm run webpack
+- cd $TRAVIS_BUILD_DIR/extension/scalalistener/jupyterspark/
+- sbt package
+- cd $TRAVIS_BUILD_DIR/extension/
+- python setup.py sdist --formats=gztar,zip
 after_success:
-    - cd $TRAVIS_BUILD_DIR/notebooks/
-    - git clone "https://github.com/prasanthkothuri/sparkTraining"
-    - cd $TRAVIS_BUILD_DIR/
-    - "docker login -u=$DOCKER_USER -p=$DOCKER_PASS &&
-       docker build -f Dockerfile -t krishnanr/sparkmonitor . &&
-       docker push krishnanr/sparkmonitor "
-
+- cd $TRAVIS_BUILD_DIR/notebooks/
+- git clone "https://github.com/prasanthkothuri/sparkTraining"
+- cd $TRAVIS_BUILD_DIR/
+- 'docker login -u=$DOCKER_USER -p=$DOCKER_PASS && docker build -f Dockerfile -t krishnanr/sparkmonitor
+  . && docker push krishnanr/sparkmonitor '
 deploy:
+  provider: releases
+  file_glob: true
+  file: extension/dist/*
   skip_cleanup: true
-  provider: script
-  script: echo "TODO Deployments"
-  
-
+  api_key:
+    secure: a3buqLV2wwwAY6mkCSKT8/qHf8pFTa9/UP4Op3WPlkS2rYTAKw8cI3dAWd99dr5oCXkbbJc4aIA/e9voS1xAR+9mGYW+X3EakB8fRWnwQjg1/mRdsNp4S9wyeat1ETt4+/M1etcZed+uuuIUDfCyWgGGlu+bLGubHYqHIWhAE3lrT3PKjQVNGP/A5Tkctmoz+YE9gHoCNkFwa4cQ0p/hUeE97UT86u1RriHNJ1yKbqfX5/0FaOU6BbZogsGzk5tKBJyJtdACi3fgbLKlBPS7+aIE2wydl7PtQxwnLUV8Gitcb6+rfPQTYzQfc3vX2izfKBx6sC4hFZ433MdGw/3neyfUj1/Gh/tHnHrl4tSkt5VgKD7i4TPQiVLjt2N9tdkgZyqhjfJwit5r5IxSoSbdPsUK6uNIxDLsInFiakPyjwciczDToJihP/drelAuuWqIymKPPE70AGX1VsRI8H5JakXfkzI741ZpyiFiq3Z/b3WPqC/+bXnNS7aF5+P8SkYJVhGbMq6toq8gfYP36rYY2OAo55X7qTCqGkbxv8nAIwJNtrg3U0u5ra7ciamp6/ht8LmVVBfy0XERHzdejhqbHeyNpA1LFSiCkhvpZYWxpPgJOUbW+jkf4Ujk4fJwmvmS2FLsqMNzeOYqhUYwY5mwpmoaDjTFQ50Eu2BcouByVCw=
+  on:
+    repo: krishnan-r/sparkmonitor
+    tags: true
+    
