@@ -26,7 +26,7 @@ echo "c.InteractiveShellApp.extensions.append('sparkmonitor')" >>  $(ipython pro
 1. Install the python package in the latest tagged github release. The python package contains the javascript resources and the listener jar file.
 
 ```bash
-pip install https://github.com/krishnan-r/sparkmonitor/releases/sparkmonitor.tar.gz  # sparkmonitor.zip for Windows
+pip install https://github.com/krishnan-r/sparkmonitor/releases/download/v0.0.1/sparkmonitor.tar.gz #Use latest version as in github releases
 ```
 
 2. The frontend extension is symlinked (```--symlink```) into the jupyter configuration directory by `jupyter nbextension` command. The second line configures the frontend extension to load on notebook startup.
@@ -61,7 +61,7 @@ cd scalalistener/jupyterspark/
 sbt package
 #Install as python package in editable format
 pip install -e .
-# sparkmonitor package is not installed. Configure with jupyter as above.
+# The sparkmonitor python package is now installed. Configure with jupyter as above.
 ```
 
 # Testing with Docker
