@@ -8,7 +8,7 @@ module.exports = {
         // library:'sparkmonitor',
         libraryTarget: 'amd'
     },
-    externals: ['jquery', 'require', 'base/js/namespace', 'base/js/events', 'notebook/js/codecell','moment'],
+    externals: ['jquery', 'require', 'base/js/namespace', 'base/js/events', 'notebook/js/codecell', 'moment'],
     devtool: 'source-map',
     module: {
         rules: [
@@ -60,7 +60,16 @@ module.exports = {
 
                     }
                 }
-            }
+            },
+            // {
+            //     test: /node_modules/,
+            //     use: {
+            //         loader: 'ify-loader',
+                    
+            //     },
+            //     enforce: 'post'
+            // }
+
         ],
     }
 };

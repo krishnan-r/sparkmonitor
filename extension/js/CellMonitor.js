@@ -7,7 +7,6 @@ import 'vis/dist/vis-timeline-graph2d.min.css'
 
 import livestamp from 'kuende-livestamp';
 import twix from 'twix'
-import Chart from 'chart.js'
 
 import widgetHTML from './cellmonitor.html'
 import './styles.css'
@@ -15,6 +14,9 @@ import spinner from './images/spinner.gif'
 
 import moment from 'moment'
 import requirejs from 'require'
+
+import Plotly from 'plotly.js/lib/core'
+
 
 
 function CellMonitor(monitor, cell) {
@@ -137,7 +139,7 @@ CellMonitor.prototype.createDisplay = function () {
                     </div>\
                     ');
 
-            iframe.find('.sparkuiframe').css('background-image', 'url("' + requirejs.toUrl('./'+spinner) + '")');
+            iframe.find('.sparkuiframe').css('background-image', 'url("' + requirejs.toUrl('./' + spinner) + '")');
             iframe.find('.sparkuiframe').css('background-repeat', 'no-repeat');
             iframe.find('.sparkuiframe').css('background-position', "50% 50%");
             iframe.find('.sparkuiframe').width('100%');
@@ -411,109 +413,52 @@ CellMonitor.prototype.createTaskGraph = function () {
         throw "SparkMonitor: Drawing tasks graph when view is not tasks";
     }
     var that = this;
-    if (this.taskChart) this.taskChart.destroy();
-    var container = this.displayElement.find('.taskcontainer').empty();
-    var canvas = $('<canvas></canvas>');
-    canvas.width = container.width();
-    canvas.height = container.height();
-    var toolbar = $('<div><input type="checkbox" class="checklabels" name="showlabels" value="Show Labels">Show Labels</div>');
-    container.append(toolbar, canvas);
+    var container = this.displayElement.find('.taskcontainer').empty()[0];
+    var trace1 = {
+        x: [new Date(1000), new Date(4000), new Date(11000), new Date(41000)],
+        y: [10, 15, 13, 17],
+        fill: 'tozeroy',
+        type: 'scatter',
+        mode: 'none',
+        fillcolor: '#0091ea',
+        name: 'Active Tasks'
+    };
 
-    var ctx = canvas[0].getContext('2d');
-    this.taskChartDataBuffer = [];
-    this.executorDataBuffer = [];
-    this.taskChart = new Chart(ctx, {
-        // The type of chart we want to create
-        type: 'line',
-        // The data for our dataset
+    var trace2 = {
+        x: [new Date(7000), new Date(19000), new Date(3000), new Date(21000)],
+        y: [16, 5, 11, 9],
+        fill: 'tozeroy',
+        type: 'scatter',
+        mode: 'none',
+        fillcolor: '#ffee58',
+        name: 'Executor Cores'
+    };
 
-        data: {
-            datasets: [{
-                label: "Active Tasks",
-                backgroundColor: '#00aedb',
-                //borderColor:,
-                pointRadius: 0,
-                data: that.taskChartData.slice(),
-                //fill: false,
-                lineTension: 0,
-            },
-            {
-                label: "Total Executor Cores",
-                backgroundColor: '#F5C936',
-                data: that.executorData.slice(),
-                pointRadius: 0,
-                lineTension: 0,
-            }
-            ]
+    var data = [trace1, trace2];
+    var layout = {
+        title: 'Active Tasks and Executors Cores',
+        // showlegend: false,
+        margin: {
+            t: 30, //top margin
+            l: 30, //left margin
+            r: 30, //right margin
+            b: 30 //bottom margin
         },
-        // Configuration options go here
-        options: {
-            responsive: true,
-            scales: {
-                xAxes: [{
-                    type: 'time',
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Time'
-                    }
-                }],
-                yAxes: [{
-                    // stacked: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Active Tasks'
-                    }
-                }]
+        xaxis: {
+            type: "date",
+            title: 'Time',
+        },
+        yaxis: {
 
-            },
-            // annotation: {
-            //     // Defines when the annotations are drawn.
-            //     // This allows positioning of the annotation relative to the other
-            //     // elements of the graph.
-            //     //
-            //     // Should be one of: afterDraw, afterDatasetsDraw, beforeDatasetsDraw
-            //     // See http://www.chartjs.org/docs/#advanced-usage-creating-plugins
-            //     drawTime: 'afterDatasetsDraw', // (default)
-
-            //     // Mouse events to enable on each annotation.
-            //     // Should be an array of one or more browser-supported mouse events
-            //     // See https://developer.mozilla.org/en-US/docs/Web/Events
-            //     events: ['click'],
-
-            //     // Double-click speed in ms used to distinguish single-clicks from 
-            //     // double-clicks whenever you need to capture both. When listening for
-            //     // both click and dblclick, click events will be delayed by this
-            //     // amount.
-            //     dblClickSpeed: 350, // ms (default)
-
-            //     // Array of annotation configuration objects
-            //     // See below for detailed descriptions of the annotation options
-            //     annotations: [{
-            //         drawTime: 'afterDraw', // overrides annotation.drawTime if set
-            //         id: 'a-line-1', // optional
-            //         type: 'line',
-            //         mode: 'vertical',
-            //         scaleID: 'x-axis-0',
-            //         value: new Date(),
-            //         borderColor: 'red',
-            //         borderWidth: 2,
-            //         label: {
-            //             enabled: true,
-            //             content: 'Test label'
-            //         },
-
-            //         // Fires when the user clicks this annotation on the chart
-            //         // (be sure to enable the event in the events array below).
-            //         onClick: function (e) {
-            //             // `this` is bound to the annotation element
-            //         }
-            //     }]
-            // }
+        },
+        legend: {
+            orientation: "h"
         }
-    });
-    this.registerTasksGraphRefresher();
-    //ts = this.taskChart;
+    };
+    var options = { displaylogo: false }
 
+    Plotly.newPlot(container, data, layout, options);
+    this.taskChart = container;
 }
 
 CellMonitor.prototype.addToTaskDataGraph = function (time, numTasks) {
@@ -553,41 +498,9 @@ CellMonitor.prototype.addLinetoTasks = function (time, id, title) {
     // }
 }
 
-CellMonitor.prototype.resizeTaskGraph = function (start, end) {
-    // if (this.view == 'tasks') {
-    //     try {
-    //         if (!start) start = new Date(this.cellStartTime);
-    //         // start.setTime(start.getTime() - 30000)
-    //         if (!end) {
-    //             if (!this.cellEndTime > 0) end = new Date();
-    //             else end = this.cellEndTime;
-    //         }
-    //         // this.taskGraph.setWindow(start, end, { animation: true });
-    //         this.taskGraph.setOptions({
-
-    //             dataAxis: {
-    //                 left: {
-    //                     range: {
-    //                         min: 0,
-    //                         max: this.maxNumActiveTasks + 1,
-    //                     },
-    //                 },
-    //             },
-
-    //         })
-    //     }
-    //     catch (err) {
-    //         console.log("SparkMonitor: Error resizing task graph:", err);
-    //     }
-    // }
-}
-
 CellMonitor.prototype.hideTasksGraph = function () {
-    this.clearTasksGraphRefresher();
-    try {
-        if (this.taskChart) this.taskChart.destroy();
-    }
-    catch (err) { console.log(err) }
+    Plotly.purge(this.taskChart);
+    this.taskChart = null;
 }
 
 CellMonitor.prototype.registerTasksGraphRefresher = function () {
@@ -595,6 +508,12 @@ CellMonitor.prototype.registerTasksGraphRefresher = function () {
     this.clearTasksGraphRefresher();
     this.taskinterval = setInterval(function () {
         if (that.taskcountchanged && that.view == "tasks" && that.taskChart) {
+            var update = {
+                x: [[time], [time]],
+                y: [[rand()], [rand()]]
+            }
+            Plotly.extendTraces(that.taskChart, { y: [[rand()], [rand()]] }, [0, 1])
+
             that.taskChart.data.datasets[0].data.push.apply(that.taskChart.data.datasets[0].data, that.taskChartDataBuffer);
             that.taskChart.data.datasets[1].data.push.apply(that.taskChart.data.datasets[1].data, that.executorDataBuffer);
             that.taskChart.update();

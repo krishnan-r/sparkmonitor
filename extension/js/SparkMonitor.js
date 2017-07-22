@@ -4,7 +4,7 @@ import $ from 'jquery';
 import CellMonitor from './CellMonitor'
 import currentcell from './currentcell'
 
-console.log("CellMonitor", CellMonitor);
+
 function SparkMonitor() {
 	var that = this;
 	this.cellmonitors = {};
@@ -73,12 +73,16 @@ SparkMonitor.prototype.startComm = function () {
 	}
 	console.log('SparkMonitor: Starting COMM NOW')
 	var that = this;
-	this.comm = Jupyter.notebook.kernel.comm_manager.new_comm('SparkMonitor',
-		{ 'msgtype': 'openfromfrontend' });
-
-	// Register a message handler
-	this.comm.on_msg($.proxy(that.on_comm_msg, that));
-	this.comm.on_close($.proxy(that.on_comm_close, that));
+	if (Jupyter.notebook.kernel) {
+		this.comm = Jupyter.notebook.kernel.comm_manager.new_comm('SparkMonitor',
+			{ 'msgtype': 'openfromfrontend' });
+		// Register a message handler
+		this.comm.on_msg($.proxy(that.on_comm_msg, that));
+		this.comm.on_close($.proxy(that.on_comm_close, that));
+	}
+	else {
+		console.log("SparkMonitor: No communication established, kernel null");
+	}
 }
 
 SparkMonitor.prototype.send = function (msg) {

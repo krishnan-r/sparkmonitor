@@ -2,6 +2,7 @@
 # Spark Monitor - An extension for Jupyter Notebook
 
 ## Work in Progress
+![jobdisplay](https://user-images.githubusercontent.com/6822941/28491063-1242eb42-6f07-11e7-8a57-abb96819ab0e.gif)
 
 ## Notes
 * This version uses a scala `SparkListener` that forwards data to the kernel using sockets. The SparkConf is configured to start the listener which is bundled and included as a jar in the python package.
