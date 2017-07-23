@@ -100,6 +100,10 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 	@volatile
 	var totalNumActiveTasks =0
 
+	val executorCores = new HashMap[String,Int]
+	@volatile var totalCores:Int =0
+	@volatile var numExecutors:Int =0
+
 	override def onApplicationStart(appStarted: SparkListenerApplicationStart):Unit = {
 		startTime = appStarted.time
 		appId=appStarted.appId.getOrElse("null")
@@ -181,7 +185,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 		}
 
 		val name=jobStart.properties.getProperty("callSite.short","null")
-		
+		println("Num Executors"+numExecutors.toInt)
 		val json=   ("msgtype" -> "sparkJobStart") ~
 					("jobGroup" -> jobGroup.getOrElse("null")) ~
 					("jobId" -> jobStart.jobId) ~
@@ -191,6 +195,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 					("stageInfos" -> stageinfojson) ~
 					("numTasks" -> jobData.numTasks) ~
 					("totalCores" -> totalCores) ~
+					("numExecutors" -> numExecutors) ~
 					("name" -> name)
 		 println("SPARKLISTENER JobStart: \n"+ pretty(render(json)) + "\n")
 		 send(pretty(render(json)))
@@ -498,13 +503,13 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 		math.max(retainedSize / 10, dataSize - retainedSize)
 	}
 
-	val executorCores = new HashMap[String,Int]
-	@volatile var totalCores:Int =0
+
 
 
 	override def onExecutorAdded(executorAdded: SparkListenerExecutorAdded): Unit = synchronized {
 		executorCores(executorAdded.executorId)=executorAdded.executorInfo.totalCores
 		totalCores+=executorAdded.executorInfo.totalCores
+		numExecutors+=1
 
 		val json=   ("msgtype" -> "sparkExecutorAdded") ~
 					("executorId" ->executorAdded.executorId) ~
@@ -519,6 +524,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 
 	override def onExecutorRemoved(executorRemoved: SparkListenerExecutorRemoved): Unit = synchronized {
 		totalCores-=executorCores.getOrElse(executorRemoved.executorId,0)
+		numExecutors-=1
 		val json=  	("msgtype" -> "sparkExecutorRemoved") ~
 					("executorId" ->executorRemoved.executorId) ~
 					("time" -> executorRemoved.time) ~

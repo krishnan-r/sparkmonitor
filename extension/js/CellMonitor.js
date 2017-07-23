@@ -1,36 +1,47 @@
 import Jupyter from 'base/js/namespace';
 import events from 'base/js/events';
+import requirejs from 'require'
+
 import $ from 'jquery';
 
-import vis from 'vis/index-timeline-graph2d';
-import 'vis/dist/vis-timeline-graph2d.min.css'
-
 import livestamp from 'kuende-livestamp';
-import twix from 'twix'
 
 import widgetHTML from './cellmonitor.html'
 import './styles.css'
+import './jobtable.css'
+
 import spinner from './images/spinner.gif'
 
 import moment from 'moment'
-import requirejs from 'require'
-
-import Plotly from 'plotly.js/lib/core'
 
 
+import 'moment-duration-format';
+
+var Timeline = null;
+var TaskChart = null;
+requirejs(['./timeline'], function (timeline) {
+    Timeline = timeline;
+    console.log("SparkMonitor: Timeline module loaded", timeline);
+});
+requirejs(['./taskchart'], function (taskchart) {
+    TaskChart = taskchart;
+    console.log("SparkMonitor: TaskChart module loaded", taskchart)
+});
 
 function CellMonitor(monitor, cell) {
-    //cm = this; //DEBUG
-    //cell level data----------------------------------
     var that = this;
     this.monitor = monitor; //Parent SparkMonitor instance
     this.cell = cell        //Jupyter Cell instance
     this.view = "jobs";     //The current display tab
-    this.lastview = "jobs";
+    this.lastview = "jobs"; //The previous display tab
     this.badgesmodified = false;
     this.displayCreated = false;
+    this.displayClosed = false;
 
-    setInterval($.proxy(this.setBadges, this), 1000);
+    this.timeline = new Timeline(this);
+    this.taskchart = new TaskChart(this);
+
+    this.badgeInterval = setInterval($.proxy(this.setBadges, this), 1000);
 
     this.displayElement = null;
 
@@ -41,76 +52,15 @@ function CellMonitor(monitor, cell) {
     this.numCompletedJobs = 0;
     this.numFailedJobs = 0;
 
-    this.numActiveTasks = 0;
-    this.maxNumActiveTasks = 0;
-
     events.off('finished' + cell.cell_id + 'currentcell');
     events.one('finished' + cell.cell_id + 'currentcell', function () {
         that.cellExecutionCompleted();
     })
 
-    //timeline data----------------------------------
-    this.timelineData = new vis.DataSet({
-        queue: true
-    });
-
-    this.timelineGroups = new vis.DataSet([
-        {
-            id: 'jobs',
-            content: 'Jobs:',
-            className: 'visjobgroup',
-        },
-        { id: 'stages', content: 'Stages:', },
-    ]);
-
-    this.timelineOptions = {
-        rollingMode: {
-            follow: false,
-            offset: 0.75
-        },
-        margin: {
-            item: 2,
-            axis: 2,
-
-        },
-        stack: true,
-        showTooltips: true,
-        maxHeight: '400px',
-        minHeight: '250px',
-        zoomMax: 10800000,
-        zoomMin: 2000,
-        editable: false,
-        tooltip: {
-            overflowMethod: 'cap',
-        },
-        align: 'center',
-        orientation: 'top',
-        verticalScroll: true,
-    };
-    this.timeline = null;
-    this.timelinefirstshow = false;
-
-    //aggregated taskgraph data----------------------------------
-
-    this.taskChart = null;
-    this.taskChartData = [];
-    this.executorData = [{
-        x: new Date(),
-        y: 0
-    },
-    {
-        x: new Date(),
-        y: 0
-    }];
-    that.taskChartDataBuffer = [];
-    that.executorDataBuffer = [];
-
-
     //Job Table Data----------------------------------
     this.jobData = {};
     this.stageData = {};
     this.stageIdtoJobId = {};
-    this.jobDataSetCallback = null;
 }
 
 CellMonitor.prototype.createDisplay = function () {
@@ -123,12 +73,17 @@ CellMonitor.prototype.createDisplay = function () {
         this.displayElement = element;
         this.cell.element.find('.inner_cell').append(element);
         element.slideToggle();
-        element.find('.cancel').click(function () {
+        element.find('.stopbutton').click(function () {
             console.log('Stopping Jobs');
             Jupyter.notebook.kernel.interrupt();
             that.monitor.send({
                 msgtype: 'sparkStopJobs',
             });
+        });
+        element.find('.closebutton').click(function () {
+            console.log('Closing Display');
+            that.displayClosed = true;
+            that.cleanUp();
         });
 
         element.find('.sparkuitabbutton').click(function () {
@@ -149,9 +104,9 @@ CellMonitor.prototype.createDisplay = function () {
                 width: 1000,
                 height: 500,
                 autoResize: false,
+                dialogClass: "sparkui-dialog"
             });
         });
-
         element.find('.titlecollapse').click(function () {
             if (that.view != "hidden") {
                 that.lastview = that.view;
@@ -226,14 +181,16 @@ CellMonitor.prototype.showView = function (view) {
             this.view = "tasks";
             element.find('.taskviewcontent').addClass('tabcontentactive');
             element.find('.taskviewtabbutton').addClass('tabbuttonactive');
-            this.createTaskGraph();
+            if (this.taskchart) this.taskchart.create();
+            else throw "Error Task Chart Module not loaded yet"
             break;
         case "timeline":
             this.hideView(this.view);
             this.view = "timeline";
             element.find('.timelinecontent').addClass('tabcontentactive');
             element.find('.timelinetabbutton').addClass('tabbuttonactive');
-            this.createTimeline();
+            if (this.timeline) this.timeline.create();
+            else throw "Error Timeline Module not loaded yet"
             break;
     }
 }
@@ -244,17 +201,21 @@ CellMonitor.prototype.hideView = function (view) {
             this.hideJobTable();
             break;
         case "tasks":
-            this.hideTasksGraph();
+            if (this.taskchart) this.taskchart.hide();
             break;
         case "timeline":
-            this.hideTimeline();
+            if (this.timeline) this.timeline.hide();
             break;
     }
 }
 
 CellMonitor.prototype.setBadges = function (redraw = false) {
     if (this.badgesmodified || redraw) {
+
         this.badgesmodified = false;
+
+        this.displayElement.find('.badgeexecutorcount').text(this.monitor.numExecutors);
+        this.displayElement.find('.badgeexecutorcorescount').text(this.monitor.totalCores);
         if (this.numActiveJobs > 0) {
             this.displayElement.find('.badgerunning').show(500).css('display', 'inline');
             this.displayElement.find('.badgerunningcount').html(this.numActiveJobs);
@@ -274,261 +235,8 @@ CellMonitor.prototype.setBadges = function (redraw = false) {
 }
 
 CellMonitor.prototype.cleanUp = function () {
-    //this.clearTimelineRefresher(); 
+    this.hideView(this.view);
     this.displayElement.remove();
-}
-
-//--------Timeline Functions-----------------------
-CellMonitor.prototype.registerTimelineRefresher = function () {
-
-    var that = this;
-    that.i = 0;
-    this.clearTimelineRefresher();
-    this.flushInterval = setInterval(function () {
-        that.i++;
-        if (that.i == 2) {
-            that.i = 0;
-            var date = new Date();
-            that.timelineData.flush();
-            that.timelineData.forEach(function (item) {
-                if (that.timelineData.get(item.id).mode == "ongoing") {
-                    that.timelineData.update({
-                        id: item.id,
-                        end: date
-                    });
-                }
-            });
-        }
-        that.timelineData.flush()
-    }, 1000);
-}
-
-CellMonitor.prototype.clearTimelineRefresher = function () {
-    if (this.flushInterval) {
-        clearInterval(this.flushInterval);
-        this.flushInterval = null;
-    }
-}
-
-CellMonitor.prototype.resizeTimeline = function (start, end) {
-    if (this.view == 'timeline') {
-        try {
-            if (!start) start = new Date(this.cellStartTime);
-            // start.setTime(start.getTime() - 30000)
-            if (!end) {
-                if (!this.cellEndTime) end = new Date(start.getTime() + 120000);
-                else end = this.cellEndTime;
-            }
-            this.timeline.setWindow(start, end, { animation: true });
-        }
-        catch (err) {
-            console.log("SparkMonitor: Error resizing timeline:", err);
-        }
-    }
-
-
-}
-
-CellMonitor.prototype.addLinetoTimeline = function (time, id, title) {
-    // console.log('adding line');
-    if (this.view == "timeline") {
-        this.timeline.addCustomTime(time, id);
-        this.timeline.setCustomTimeTitle(title, id);
-    }
-}
-
-CellMonitor.prototype.createTimeline = function () {
-    var that = this;
-    if (this.view == 'timeline') {
-
-        var container = this.displayElement.find('.timelinecontainer').empty()[0]
-        try {
-            if (this.timeline) this.timeline.destroy()
-        }
-        catch (err) { console.log(err) }
-
-        // this.timelineOptions.min = new Date(this.cellStartTime);
-        this.timelineOptions.start = new Date(this.cellStartTime);
-
-        if (this.cellEndTime > 0) {
-            this.timelineOptions.end = this.cellEndTime;
-            // this.timelineOptions.max = this.cellEndTime;
-        }
-        else {
-            var date = new Date();
-            date.setTime(date.getTime() + 30000);
-            this.timelineOptions.end = date;
-        }
-
-        this.timelinefirstshow = false;
-        this.timeline = new vis.Timeline(container, this.timelineData, this.timelineGroups, this.timelineOptions);
-
-        this.timelineData.forEach(function (item) {
-            if (item.id.slice(0, 3) == "job") {
-                that.addLinetoTimeline(item.start, item.id + 'start', "Job Started");
-                if (that.timelineData.get(item.id).mode == "done") that.addLinetoTimeline(item.end, item.id + 'end', "Job Ended");
-            }
-        });
-        this.registerTimelineRefresher();
-        this.timeline.on('select', function (properties) {
-            if (!that.popupdialog) that.popupdialog = $('<div></div>');
-            that.popupdialog.html('<div>Selected Items: ' + properties.items + '<br> TODO: Show Data Here</div><br>').dialog({
-                title: "Details"
-            });
-        });
-    }
-}
-
-CellMonitor.prototype.hideTimeline = function () {
-    try {
-        if (this.timeline) this.timeline.destroy()
-    }
-    catch (err) { console.log(err) }
-    this.clearTimelineRefresher();
-}
-
-CellMonitor.prototype.timelineCellCompleted = function () {
-    var b = this.cellEndTime.getTime();
-    var a = this.cellStartTime.getTime();
-    var min = new Date(a - ((b - a) / 10));
-    var max = new Date(b + ((b - a) / 10));
-    if (this.view == "timeline") {
-        if (this.timeline) {
-            this.timeline.setOptions({
-                max: max,
-                min: min,
-            });
-        }
-    }
-    this.timelineOptions['showCurrentTime'] = false;
-    this.timelineOptions['max'] = max;
-    this.timelineOptions['min'] = min;
-
-}
-
-//--------Task Graph Functions Functions-----------
-
-CellMonitor.prototype.createTaskGraph = function () {
-    if (this.view != 'tasks') {
-        throw "SparkMonitor: Drawing tasks graph when view is not tasks";
-    }
-    var that = this;
-    var container = this.displayElement.find('.taskcontainer').empty()[0];
-    var trace1 = {
-        x: [new Date(1000), new Date(4000), new Date(11000), new Date(41000)],
-        y: [10, 15, 13, 17],
-        fill: 'tozeroy',
-        type: 'scatter',
-        mode: 'none',
-        fillcolor: '#0091ea',
-        name: 'Active Tasks'
-    };
-
-    var trace2 = {
-        x: [new Date(7000), new Date(19000), new Date(3000), new Date(21000)],
-        y: [16, 5, 11, 9],
-        fill: 'tozeroy',
-        type: 'scatter',
-        mode: 'none',
-        fillcolor: '#ffee58',
-        name: 'Executor Cores'
-    };
-
-    var data = [trace1, trace2];
-    var layout = {
-        title: 'Active Tasks and Executors Cores',
-        // showlegend: false,
-        margin: {
-            t: 30, //top margin
-            l: 30, //left margin
-            r: 30, //right margin
-            b: 30 //bottom margin
-        },
-        xaxis: {
-            type: "date",
-            title: 'Time',
-        },
-        yaxis: {
-
-        },
-        legend: {
-            orientation: "h"
-        }
-    };
-    var options = { displaylogo: false }
-
-    Plotly.newPlot(container, data, layout, options);
-    this.taskChart = container;
-}
-
-CellMonitor.prototype.addToTaskDataGraph = function (time, numTasks) {
-    this.taskChartData.push({
-        x: new Date(time),
-        y: numTasks,
-    });
-    this.taskcountchanged = true;
-    if (this.view == "tasks") {
-        this.taskChartDataBuffer.push({
-            x: new Date(time),
-            y: numTasks
-        });
-    }
-    this.addExecutorToTaskGraph(time, this.monitor.totalCores);
-
-}
-
-CellMonitor.prototype.addExecutorToTaskGraph = function (time, numCores) {
-    this.executorData.push({
-        x: new Date(time),
-        y: numCores,
-    });
-    this.taskcountchanged = true;
-    if (this.view == "tasks") {
-        this.executorDataBuffer.push({
-            x: new Date(time),
-            y: numCores
-        });
-    }
-}
-
-CellMonitor.prototype.addLinetoTasks = function (time, id, title) {
-    // if (this.view == "tasks") {
-    //     // this.taskGraph.addCustomTime(time, id);
-    //     // this.taskGraph.setCustomTimeTitle(title, id);
-    // }
-}
-
-CellMonitor.prototype.hideTasksGraph = function () {
-    Plotly.purge(this.taskChart);
-    this.taskChart = null;
-}
-
-CellMonitor.prototype.registerTasksGraphRefresher = function () {
-    var that = this;
-    this.clearTasksGraphRefresher();
-    this.taskinterval = setInterval(function () {
-        if (that.taskcountchanged && that.view == "tasks" && that.taskChart) {
-            var update = {
-                x: [[time], [time]],
-                y: [[rand()], [rand()]]
-            }
-            Plotly.extendTraces(that.taskChart, { y: [[rand()], [rand()]] }, [0, 1])
-
-            that.taskChart.data.datasets[0].data.push.apply(that.taskChart.data.datasets[0].data, that.taskChartDataBuffer);
-            that.taskChart.data.datasets[1].data.push.apply(that.taskChart.data.datasets[1].data, that.executorDataBuffer);
-            that.taskChart.update();
-            that.taskChartDataBuffer = [];
-            that.executorDataBuffer = [];
-            that.taskcountchanged = false;
-        }
-    }, 1000);
-}
-
-CellMonitor.prototype.clearTasksGraphRefresher = function () {
-    if (this.taskinterval) {
-        clearInterval(this.taskinterval);
-        this.taskinterval = null;
-    }
 }
 
 //--------Job Table Functions----------------------
@@ -571,8 +279,9 @@ CellMonitor.prototype.createStageItem = function () {
     var progress = $('\<div class="cssprogress">\
                                <div class="data"></div><span class="val1"></span><span class="val2"></span></div>').addClass('tdstageitemprogress');
     var tdtasks = $('<td></td>').addClass("tdstageprogress").append(progress);
-    var tdstarttime = $('<td></td>').text('Unknown').addClass('tdstarttime');
-    srow.append(tdstageid, tdstagename, tdstatus, tdtasks, tdstarttime);
+    var tdstarttime = $('<td></td>').text('Unknown').addClass('tdstagestarttime');
+    var tdduration = $('<td></td>').text('-').addClass('tdstageduration');
+    srow.append(tdstageid, tdstagename, tdstatus, tdtasks, tdstarttime, tdduration);
     return srow;
 }
 
@@ -599,7 +308,11 @@ CellMonitor.prototype.updateStageItem = function (element, data, redraw = false)
         }
         if (data.start) {
             var start = $('<time></time>').addClass('timeago').attr('data-livestamp', data.start).attr('title', data.start.toString()).text(data.start.toString())
-            element.find('.tdstarttime').empty().html(start);
+            element.find('.tdstagestarttime').empty().html(start);
+        }
+        if (data.start && data.end && data.status != "RUNNING") {
+            var duration = moment.duration(data.end.getTime() - data.start.getTime());
+            element.find('.tdstageduration').text(duration.format("d[d] h[h]:mm[m]:ss[s]"));
         }
     }
 
@@ -614,6 +327,7 @@ CellMonitor.prototype.createJobItem = function () {
                     <th class='thstagestatus'>Status</th>\
                     <th class='thstagetasks'>Tasks</th>\
                     <th class='thstagestart'>Submission Time</th>\
+                    <th class='thstageduration'>Duration</th>\
                     </thead>\
                     <tbody></tbody></table>").addClass('stagetable');
     //var stagetablebody = stagetable.find('tbody');
@@ -636,7 +350,7 @@ CellMonitor.prototype.createJobItem = function () {
     var tdjobtasks = $('<td></td>').addClass('tdtasks').append(jobprogress);
     var duration = "-", durationtext = "-";
     var tdjobtime = $('<td></td>').addClass('tdjobstarttime')
-    var tdjobduration = $('<td></td>').text(durationtext).attr("title", duration).addClass('tdjobduration');
+    var tdjobduration = $('<td></td>').text(durationtext).addClass('tdjobduration');
     var row = $('<tr></tr>').addClass('jobrow')
     row.append(tdbutton, tdjobid, tdjobname, tdjobstatus, tdjobstages, tdjobtasks, tdjobtime, tdjobduration);
     return row.add(fakerow);
@@ -680,10 +394,8 @@ CellMonitor.prototype.updateJobItem = function (element, data, redraw = false) {
         element.find('.tdjobstarttime').html(start);
 
         if (data.status != "RUNNING") {
-            var t = moment(data.start.getTime()).twix(data.end.getTime());
-            var duration = t.simpleFormat();
-            var durationtext = t.humanizeLength();
-            element.find('.tdjobduration').text(durationtext).attr("title", duration)
+            var duration = moment.duration(data.end.getTime() - data.start.getTime());
+            element.find('.tdjobduration').text(duration.format("d[d] h[h]:mm[m]:ss[s]"));
         }
     }
 }
@@ -722,6 +434,11 @@ CellMonitor.prototype.hideJobTable = function () {
     this.clearJobTableRefresher();
 }
 
+CellMonitor.prototype.jobTableCellCompleted = function () {
+    //this.clearJobTableRefresher();
+}
+
+
 //----------Data Handling Functions----------------
 
 CellMonitor.prototype.sparkJobStart = function (data) {
@@ -729,10 +446,7 @@ CellMonitor.prototype.sparkJobStart = function (data) {
     this.numActiveJobs += 1;
     //this.setBadges();
     this.badgesmodified = true;
-
-
     var name = $('<div>').text(data.name).html().split(' ')[0];//Escaping HTML <, > from string
-
     //--------------
     this.jobData[data.jobId] = {
 
@@ -776,26 +490,13 @@ CellMonitor.prototype.sparkJobStart = function (data) {
         var laststageid = Math.max.apply(null, data.stageIds);
         that.jobData[data.jobId]['name'] = that.stageData[laststageid]['name'];
     }
-    //-----------------
     if (!this.displayCreated) {
         this.createDisplay();
         this.displayCreated = true;
     }
-
-    this.timelineData.update({
-        id: 'job' + data.jobId,
-        start: new Date(data.submissionTime),
-        end: new Date(),
-        content: '' + name,
-        // title: data.jobId + ': ' + data.name + ' ',
-        group: 'jobs',
-        className: 'itemrunning job',
-        mode: "ongoing",
-    });
-
-    // this.addLinetoTimeline(new Date(data.submissionTime), 'job' + data.jobId + 'start', 'Job ' + data.jobId + 'Started');
-    //  this.addLinetoTasks(new Date(data.submissionTime), 'job' + data.jobId + 'start', 'Job ' + data.jobId + 'Started');
-
+    console.log(this.timeline);
+    this.timeline.sparkJobStart(data);
+    this.taskchart.sparkJobStart(data);
 }
 
 CellMonitor.prototype.sparkJobEnd = function (data) {
@@ -822,22 +523,11 @@ CellMonitor.prototype.sparkJobEnd = function (data) {
 
     this.badgesmodified = true;
 
-
-    this.timelineData.update({
-        id: 'job' + data.jobId,
-        end: new Date(data.completionTime),
-        className: (data.status == "SUCCEEDED" ? 'itemfinished job' : 'itemfailed job'),
-        mode: "done",
-    });
-
-    //--------------
-
     this.jobData[data.jobId]['end'] = new Date(data.completionTime);
     this.jobData[data.jobId]['modified'] = true;
-    //-----------------
 
-    this.addLinetoTimeline(new Date(data.completionTime), 'job' + data.jobId + 'end', 'Job ' + data.jobId + 'Ended');
-    this.addLinetoTasks(new Date(data.completionTime), 'job' + data.jobId + 'end', 'Job ' + data.jobId + 'Ended');
+    this.timeline.sparkJobEnd(data);
+    this.taskchart.sparkJobEnd(data);
 }
 
 CellMonitor.prototype.sparkStageSubmitted = function (data) {
@@ -847,18 +537,6 @@ CellMonitor.prototype.sparkStageSubmitted = function (data) {
     if (data.submissionTime == -1) submissionDate = new Date()
     else submissionDate = new Date(data.submissionTime);
 
-    this.timelineData.update({
-        id: 'stage' + data.stageId,
-        start: submissionDate,
-        content: "" + name,
-        group: 'stages',
-        // title: 'Stage: ' + data.stageId + ' ' + name,
-        end: new Date(),
-        className: 'itemrunning stage',
-        mode: "ongoing",
-    });
-
-    //--------------
     this.stageIdtoJobId[data.stageId].forEach(function (jobId) {
         that.jobData[jobId]['numActiveStages'] += 1;
         that.jobData[jobId]['modified'] = true;
@@ -869,25 +547,15 @@ CellMonitor.prototype.sparkStageSubmitted = function (data) {
     this.stageData[data.stageId]['start'] = submissionDate;
     this.stageData[data.stageId]['numTasks'] = data.numTasks;
     this.stageData[data.stageId]['modified'] = true;
-    //--------------
+
+    this.timeline.sparkStageSubmitted(data);
+    this.taskchart.sparkStageSubmitted(data);
 }
 
 CellMonitor.prototype.sparkStageCompleted = function (data) {
     var that = this;
     var name = $('<div>').text(data.name).html().split(' ')[0];//Hack for escaping HTML <, > from string.
 
-    this.timelineData.update({
-        id: 'stage' + data.stageId,
-        start: new Date(data.submissionTime),
-        group: 'stages',
-        end: new Date(data.completionTime),
-        className: (data.status == "COMPLETED" ? 'itemfinished stage' : 'itemfailed stage'),
-        // title: 'Stage: ' + data.stageId + ' ' + name,
-        //content: '' + name,
-        mode: "done",
-    });
-
-    //--------------
     this.stageIdtoJobId[data.stageId].forEach(function (jobId) {
         that.jobData[jobId]['numActiveStages'] -= 1;
         that.jobData[jobId]['modified'] = true;
@@ -899,36 +567,18 @@ CellMonitor.prototype.sparkStageCompleted = function (data) {
         }
 
     });
-
     this.stageData[data.stageId]['status'] = data.status;
     this.stageData[data.stageId]['start'] = new Date(data.submissionTime);
     this.stageData[data.stageId]['end'] = new Date(data.completionTime);
     this.stageData[data.stageId]['modified'] = true;
-    //--------------
+
+    this.timeline.sparkStageCompleted(data);
+    this.taskchart.sparkStageCompleted(data);
 }
 
 CellMonitor.prototype.sparkTaskStart = function (data) {
     var that = this;
-    //Create a group for the executor if one does not exist.
-    if (!this.timelineGroups.get(data.executorId + '-' + data.host)) {
-        this.timelineGroups.update({
-            id: data.executorId + '-' + data.host,
-            content: 'Tasks:<br>' + data.executorId + '<br>' + data.host
-        });
-    }
 
-    this.timelineData.update({
-        id: 'task' + data.taskId,
-        start: new Date(data.launchTime),
-        end: new Date(),
-        content: '' + data.taskId,
-        group: data.executorId + '-' + data.host,
-        // title: 'Task: ' + data.taskId + ' from stage ' + data.stageId + ' Launched: ' + Date(data.launchTime),
-        className: 'itemrunning task',
-        mode: "ongoing",
-    });
-
-    //---------------
     this.stageData[data.stageId]['numActiveTasks'] += 1;
     this.stageData[data.stageId]['firsttaskstart'] = new Date(data.launchTime);
     this.stageData[data.stageId]['modified'] = true;
@@ -937,26 +587,14 @@ CellMonitor.prototype.sparkTaskStart = function (data) {
         that.jobData[jobId]['numActiveTasks'] += 1;
         that.jobData[jobId]['modified'] = true;
     })
-    //--------------
 
-    this.addToTaskDataGraph(data.launchTime, this.numActiveTasks);
-    this.numActiveTasks += 1;
-    if (this.maxNumActiveTasks < this.numActiveTasks) this.maxNumActiveTasks = this.numActiveTasks;
-    this.addToTaskDataGraph(data.launchTime, this.numActiveTasks);
+    this.timeline.sparkTaskStart(data);
+    this.taskchart.sparkTaskStart(data);
 }
 
 CellMonitor.prototype.sparkTaskEnd = function (data) {
     var that = this;
-    this.timelineData.update({
-        id: 'task' + data.taskId,
-        end: new Date(data.finishTime),
-        // title: 'Task:' + data.taskId + ' from stage ' + data.stageId + 'Launched' + Date(data.launchTime) + 'Completed: ' + Date(data.finishTime),
-        className: (data.status == "SUCCESS" ? 'itemfinished task' : 'itemfailed task'),
-        mode: "done",
-    });
 
-
-    //---------------
     this.stageData[data.stageId]['numActiveTasks'] -= 1;
     this.stageData[data.stageId]['modified'] = true;
 
@@ -978,21 +616,27 @@ CellMonitor.prototype.sparkTaskEnd = function (data) {
             console.error("Task Failed");
         }
     });
-    //--------------
-
-
-    this.addToTaskDataGraph(data.finishTime, this.numActiveTasks);
-    this.numActiveTasks -= 1;
-    this.addToTaskDataGraph(data.finishTime, this.numActiveTasks);
+    this.timeline.sparkTaskEnd(data);
+    this.taskchart.sparkTaskEnd(data);
 }
 
+CellMonitor.prototype.sparkExecutorAdded = function (data) {
+    this.badgesmodified = true;
+}
+
+CellMonitor.prototype.sparkExecutorRemoved = function (data) {
+    this.badgesmodified = true;
+}
 
 CellMonitor.prototype.cellExecutionCompleted = function () {
     console.log("SparkMonitor: Cell Execution Completed");
     this.cellEndTime = new Date();
-    this.timelineCellCompleted();
-    this.displayElement.find('.cancel').hide(500);
-}
 
+    this.timeline.cellCompleted();
+    this.taskchart.cellCompleted();
+    this.jobTableCellCompleted();
+
+    this.displayElement.find('.stopbutton').hide(500);
+}
 
 export default CellMonitor;

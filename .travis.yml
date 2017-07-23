@@ -36,6 +36,7 @@ after_success:
 - cd $TRAVIS_BUILD_DIR/
 - 'docker login -u=$DOCKER_USER -p=$DOCKER_PASS && docker build -f Dockerfile -t krishnanr/sparkmonitor
   . && docker push krishnanr/sparkmonitor'
+- 'docker build -f swanimage.Dockerfile -t krishnanr/sparkmonitorhub && docker push krishnanr/sparkmonitorhub'
 deploy:
   
   - provider: releases
@@ -55,4 +56,6 @@ deploy:
     script: 
         - docker tag krishnanr/sparkmonitor krishnanr/sparkmonitor:$TRAVIS_TAG
         - docker push krishnanr/sparkmonitor:$TRAVIS_TAG
+        - docker tag krishnanr/sparkmonitorhub krishnanr/sparkmonitorhub:$TRAVIS_TAG
+        - docker push krishnanr/sparkmonitorhub:$TRAVIS_TAG
     

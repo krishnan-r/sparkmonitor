@@ -1,12 +1,16 @@
 var path = require('path');
 
 module.exports = {
-    entry: './js/module.js',
+    entry: {
+        module: './js/module.js',
+        timeline: './js/Timeline.js',
+        taskchart: './js/TaskChart.js'
+    },
     output: {
         path: path.resolve(__dirname, 'sparkmonitor/static'),
-        filename: 'module.js',
+        filename: '[name].js',
         // library:'sparkmonitor',
-        libraryTarget: 'amd'
+        libraryTarget: 'umd'
     },
     externals: ['jquery', 'require', 'base/js/namespace', 'base/js/events', 'notebook/js/codecell', 'moment'],
     devtool: 'source-map',
@@ -18,8 +22,13 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['env']
+                        presets: ['env'],
+
+                        plugins: [
+                            "add-module-exports"
+                        ]
                     }
+
                 }
             },
             {
@@ -65,7 +74,7 @@ module.exports = {
             //     test: /node_modules/,
             //     use: {
             //         loader: 'ify-loader',
-                    
+
             //     },
             //     enforce: 'post'
             // }

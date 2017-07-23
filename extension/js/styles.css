@@ -67,7 +67,7 @@
   background-color: #DB3636;
 }
 
-.badgecompleted, .badgefailed, .badgerunning {
+.badgecompleted, .badgefailed, .badgerunning{
   font-size: 80%;
   padding: 5px 8px;
   color: white;
@@ -79,24 +79,20 @@
   margin: 0 2px;
 }
 
+.badgeexecutor, .badgeexecutorcores {
+  font-size: 80%;
+  padding: 5px 8px;
+  color: white;
+  border-radius: 2px;
+  box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.36);
+  white-space: nowrap;
+  font-weight: bold;
+  margin: 0px 2px;
+  background-color: rgba(117, 57, 0, 0.65);
+}
+
 .uibuttondisabled {
   color: #b2b2b2;
-}
-
-.pm .cancel {
-  margin: 0;
-  background-color: #F22626;
-  /*border-radius: 5px;*/
-  text-align: right;
-  /*transition: background-color 1s;*/
-  border: none;
-  cursor: pointer;
-  cursor: hand;
-  font-size: small;
-}
-
-.pm .cancel:hover {
-  background-color: #C45917;
 }
 
 .pm .cancel:active {
@@ -128,6 +124,17 @@
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAAG0lEQVR4AWMY2eA/BMJYmHAQahj19Kinhz0AAOazv0F7pjjzAAAAAElFTkSuQmCC);
 }
 
+.pm .stopbuttonicon {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAAr0lEQVR4Ab2TxxWDQBBDv2M3bmI7cJquoAsoiJNzAXvdAjBRzjl8XeaNJDL8nSFGyopQaFVMVmzuMGVLfqZtsb1Kl5j8hmK6XFDE7yi6vJj8gaant7pr1hkOr5DHkeleBghTxAGjpuKLCZw8Q6RaFqGmokleglhpqQqKS0tE0FIVxSXCB4UnL+nlm/7gsQ7ZPvPiXvs0Jh9+fNAluhPvfvoDiQFGwpJQaFlMVmz+zB4uewsoywq4xgAAAABJRU5ErkJggg==);
+}
+
+.pm .closebuttonicon {
+  background-size: 20px;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAAa0lEQVR4AeWSsREDIQwEtwlRhO3vP0JFPLgeHJDdnEfBh2y8F2hHnM5FJ1AayRtLshiE6F8WHUsw9kT0m8BDMFlMotZ10rzuaHtS63qo6s8HWkaLFXpo5ErXyKWukS25dRM5sXz+Pt+Ls/kBnolC6l7shJkAAAAASUVORK5CYII=);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 .pm .tabbutton {
   display: inline-block;
   position: relative;
@@ -135,15 +142,25 @@
   font-size: small;
   cursor: pointer;
   cursor: hand;
-  padding: 5px 15px;
+  padding: 5px 18px;
+}
+
+.pm .closebutton {
+  padding: 5px 5px;
+  border-left: 1px solid #c25e00
 }
 
 .pm .tabbuttons {
   margin: 0px 0px;
   font-size: 0;
+  border: 0 1px solid #c25e00;
 }
 
 .pm .tabbutton:hover {
+  background-color: #C45917;
+}
+
+.pm .cancelbutton:hover {
   background-color: #C45917;
 }
 
@@ -152,6 +169,7 @@
   box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.46) inset;
   background-color: rgba(0, 0, 0, 0.2);
   font-weight: bold;
+  border: 0;
 }
 
 
@@ -169,9 +187,7 @@
 }
 
 .jobtablecontent {
-  display: block;
-  /* max-height: 300px; */
-  /* overflow: auto; */
+  /* display: block; */
 }
 
 .pm .tabcontentactive {
@@ -185,191 +201,6 @@
   overflow: hidden;
   background-repeat: no-repeat;
   background-position: center center;
-}
-
-
-/*--------------Job Table--------------------*/
-
-.pm .tdstageicon {
-  display: block;
-  transition: transform 0.4s;
-  transform: rotate(0deg);
-}
-
-.pm .tdstageiconcollapsed {
-  transform: rotate(90deg);
-}
-
-.pm td.stagetableoffset {
-  background-color: #e7e7e7;
-}
-
-.pm th {
-  font-size: small;
-  background-color: #EEEEEE;
-  border: 0px;
-}
-
-.pm td {
-  background-color: white;
-  border: 0;
-  font-size: small;
-  border-top: 1px solid rgba(84, 84, 84, 0.08);
-}
-
-.pm table {
-  border-radius: 0px;
-  width: 100%;
-  border: 1px solid #CFCFCF;
-  /* height: 10px; */
-}
-
-.pm tbody {
-  height: 100px;
-  overflow: auto;
-}
-
-.pm tr {
-  border: 0px;
-}
-
-.pm td, .pm th {
-  text-align: center;
-  vertical-align: middle;
-  height: 25px;
-  line-height: 25px;
-}
-
-.pm tr .tdstagebutton:hover ~ td, tr .tdstagebutton:hover {
-  background-color: rgba(184, 223, 255, 0.37);
-}
-
-.pm th.thbutton {
-  width: 4%;
-}
-
-.pm th.thjobid {
-  width: 6%;
-}
-
-.pm th.thjobname {
-  width: 10%;
-}
-
-.pm th.thjobstatus {
-  width: 12%;
-}
-
-.pm th.thjobtages {
-  width: 10%;
-}
-
-.pm th.thjobtasks {
-  width: 28%;
-}
-
-.pm th.thjobstart {
-  width: 20%;
-}
-
-.pm th.thjobtime {
-  width: 10%;
-}
-
-progress {
-  padding: 2px;
-}
-
-.pm .tdstatus {
-  padding: 2px;
-}
-
-.pm .RUNNING {
-  background-color: #42A5F5;
-}
-
-.pm .FAILED {
-  background-color: #DB3636;
-}
-
-.pm .COMPLETED {
-  background-color: #20B520;
-}
-
-.pm .PENDING {
-  background-color: #9c27b0;
-}
-
-.pm .SKIPPED {
-  background-color: #616161;
-}
-
-.pm .COMPLETED, .pm .FAILED, .pm .RUNNING, .pm .PENDING, .pm .SKIPPED {
-  font-size: 75%;
-  padding: 4px 8px;
-  color: white;
-  border-radius: 2px;
-}
-
-
-/*--------------Timeline--------------------*/
-
-.pm .vis-timeline {
-  border: 1px solid #bfbfbf;
-}
-
-.pm .vis-item {
-  border-radius: 0;
-  font-size: smaller;
-  transition: width 200ms;
-}
-
-.pm .vis-item .vis-item-content {
-  padding: 1px 2px;
-}
-
-.pm .vis-time-axis {
-  font-size: smaller;
-}
-
-.pm .vis-tooltip {
-  color: white;
-  background-color: black;
-}
-
-.pm .vis-item.vis-background {
-  background-color: rgba(191, 191, 191, 0.58);
-}
-
-.pm .vis-custom-time {
-  pointer-events: none;
-  background-color: #42A5F5;
-}
-
-.pm .visjobgroup {
-  /*background-color: ;*/
-}
-
-.pm .vis-item.itemrunning {}
-
-.pm .vis-item.itemfinished:not(.vis-selected) {
-  background-color: #C9EF9B;
-  border-color: #6c9d34;
-}
-
-.pm .vis-item.itemfailed:not(.vis-selected) {
-  background-color: #F44336;
-  border-color: rgb(183, 13, 0);
-  color: white;
-}
-
-.pm .vis-item.itemfinished:active {
-  background-color: #6c9d34;
-}
-
-.pm .vis-selected {
-  border-color: #ffc200;
-  background-color: #fff785;
 }
 
 
@@ -424,15 +255,20 @@ progress {
   border-width: 0 10px 10px;
 }
 
-.ui-dialog {
+.sparkui-dialog {
   padding: 0;
+  box-shadow: 0px 0px 6px 0px rgba(128, 128, 128, 0.83);
 }
 
-.ui-corner-all {
+.sparkui-dialog .ui-corner-all {
   border-radius: 0px;
 }
 
-.ui-widget-header {
+.sparkui-dialog .ui-dialog-content.ui-widget-content {
+  padding: 0;
+}
+
+.sparkui-dialog .ui-widget-header {
   border: 1px solid rgb(243, 118, 0);
   background: #f37600;
   color: #000;
@@ -440,79 +276,6 @@ progress {
   text-align: center;
 }
 
-div.ui-widget-content {
-  /*border: 2px solid #c4c4c4;*/
-  box-shadow: 0px 0px 6px 0px rgba(128, 128, 128, 0.83);
-}
-
 .pm .taskcontainer {
   user-select: none;
-}
-
-.pm .stagetable tr th {
-  background: rgb(235, 235, 235);
-}
-
-.pm .cssprogress {
-  overflow: hidden;
-  display: block;
-  background: #e7e7e7;
-  width: 100%;
-  height: 20px;
-  padding: 0;
-  overflow: hidden;
-  text-align: left;
-  position: relative;
-  font-size: 75%;
-  border-radius: 2px;
-  color: white;
-}
-
-.pm .cssprogress .val1 {
-  width: 0%;
-  background: #20B520;
-}
-
-.pm .cssprogress .data {
-  text-align: center;
-  width: 100%;
-  position: absolute;
-  z-index: 4;
-  line-height: 20px;
-}
-
-.pm .cssprogress .val2 {
-  background: #42A5F5;
-  width: 0%;
-}
-
-.pm .cssprogress span {
-  position: relative;
-  height: 100%;
-  display: inline-block;
-  position: relative;
-  overflow: hidden;
-  margin: 0;
-  padding: 0;
-  transition: width 1s;
-}
-
-.pm th.thstageid {
-  width: 8%;
-}
-
-.pm th.thstagename {
-  width: 10%;
-}
-
-.pm th.thstagestatus {
-  width: 17%;
-}
-
-.pm th.thstagetasks {
-  width: 40%;
-}
-
-.pm th.thstagestart {
-  width: 25%;
 }
