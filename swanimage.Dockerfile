@@ -6,7 +6,7 @@ RUN sudo pip3 install jupyter_nbextensions_configurator
 ADD ./extension/ /extension/
 ADD ./notebooks/ /notebooks/
 
-RUN python3 -m pip install /extension/
+RUN which pip3; pip3 install /extension/
 RUN pip2 install /extension/
 
 #RUN /usr/local/bin/jupyter serverextension enable sparkmonitor --user --py
