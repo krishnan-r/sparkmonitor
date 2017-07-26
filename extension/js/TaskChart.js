@@ -5,17 +5,15 @@ function TaskChart(cellmonitor) {
     this.cellmonitor = cellmonitor;
 
     this.taskChart = null;
-    this.taskChartData = [];
-    this.executorData = [{
-        x: new Date(),
-        y: 0
-    },
-    {
-        x: new Date(),
-        y: 0
-    }];
-    this.taskChartDataBuffer = [];
-    this.executorDataBuffer = [];
+    this.taskChartDataX = [];
+    this.taskChartDataY = [];
+    this.executorDataX = [new Date()];
+    this.executorDataY = [0];
+
+    this.taskChartDataBufferX = [];
+    this.taskChartDataBufferY = [];
+    this.executorDataBufferX = [];
+    this.executorDataBufferY = [];
 
     this.numActiveTasks = 0;
     this.maxNumActiveTasks = 0;
@@ -26,11 +24,11 @@ TaskChart.prototype.create = function () {
         throw "SparkMonitor: Drawing tasks graph when view is not tasks";
     }
     var that = this;
-
+    this.clearRefresher();
     var container = this.cellmonitor.displayElement.find('.taskcontainer').empty()[0];
-    var trace1 = {
-        x: [new Date(1000), new Date(4000), new Date(11000), new Date(41000)],
-        y: [10, 15, 13, 17],
+    var tasktrace = {
+        x: that.taskChartDataX,
+        y: that.taskChartDataY,
         fill: 'tozeroy',
         type: 'scatter',
         mode: 'none',
@@ -38,9 +36,9 @@ TaskChart.prototype.create = function () {
         name: 'Active Tasks'
     };
 
-    var trace2 = {
-        x: [new Date(7000), new Date(19000), new Date(3000), new Date(21000)],
-        y: [16, 5, 11, 9],
+    var executortrace = {
+        x: that.executorDataX,
+        y: that.executorDataY,
         fill: 'tozeroy',
         type: 'scatter',
         mode: 'none',
@@ -48,7 +46,7 @@ TaskChart.prototype.create = function () {
         name: 'Executor Cores'
     };
 
-    var data = [trace1, trace2];
+    var data = [executortrace, tasktrace];
     var layout = {
         title: 'Active Tasks and Executors Cores',
         // showlegend: false,
@@ -69,87 +67,52 @@ TaskChart.prototype.create = function () {
             orientation: "h"
         },
         dragmode: 'pan',
-        shapes: [
-
-            //line vertical
-
-            {
-                type: 'line',
-                x0: Date(1000),
-                y0: 10,
-                x1: Date(1000),
-                y1: 0,
-                line: {
-                    color: 'rgb(55, 128, 191)',
-                    width: 3
-                }
-            },
-
-            //Line Horizontal
-
-            {
-                type: 'line',
-                x0: Date(2000),
-                y0: 2,
-                x1: Date(5000),
-                y1: 2,
-                line: {
-                    color: 'rgb(50, 171, 96)',
-                    width: 4,
-                    dash: 'dashdot'
-                }
-            },
-
-            //Line Diagonal
-
-            {
-                type: 'line',
-                x0: Date(5000),
-                y0: 0,
-                x1: Date(22000),
-                y1: 22,
-                line: {
-                    color: 'rgb(128, 0, 128)',
-                    width: 4,
-                    dash: 'dot'
-                }
-            }
-        ]
+        // shapes: [
+        //     {
+        //         type: 'line',
+        //         x0: new Date(),
+        //         y0: 0,
+        //         x1: new Date(),
+        //         y1: 1,
+        //         yref: "paper",
+        //         line: {
+        //             color: 'rgb(55, 128, 191)',
+        //             width: 5
+        //         }
+        //     },
+        // ]
 
     };
+    that.taskChartDataBufferX = [];
+    that.taskChartDataBufferY = [];
+    that.executorDataBufferX = [];
+    that.executorDataBufferY = [];
+
     var options = { displaylogo: false }
 
     Plotly.newPlot(container, data, layout, options);
     this.taskChart = container;
+    this.registerRefresher();
 }
 
 TaskChart.prototype.addData = function (time, numTasks) {
-    this.taskChartData.push({
-        x: new Date(time),
-        y: numTasks,
-    });
+    this.taskChartDataX.push(new Date(time));
+    this.taskChartDataY.push(numTasks);
     this.taskcountchanged = true;
     if (this.view == "tasks") {
-        this.taskChartDataBuffer.push({
-            x: new Date(time),
-            y: numTasks
-        });
+        this.taskChartDataBufferX.push(new Date(time));
+        this.taskChartDataBufferY.push(numTasks);
     }
     this.addExecutorData(time, this.cellmonitor.monitor.totalCores);
-
 }
 
 TaskChart.prototype.addExecutorData = function (time, numCores) {
-    this.executorData.push({
-        x: new Date(time),
-        y: numCores,
-    });
+    this.executorDataX.push(new Date(time));
+    this.executorDataY.push(numCores);
     this.taskcountchanged = true;
     if (this.view == "tasks") {
-        this.executorDataBuffer.push({
-            x: new Date(time),
-            y: numCores
-        });
+        this.executorDataBufferX.push(new Date(time));
+        this.executorDataBufferY.push(numCores);
     }
 }
 
@@ -161,26 +124,29 @@ TaskChart.prototype.addLinetoTasks = function (time, id, title) {
 }
 
 TaskChart.prototype.hide = function () {
+    this.clearRefresher()
     Plotly.purge(this.taskChart);
     this.taskChart = null;
 }
 
 TaskChart.prototype.registerRefresher = function () {
     var that = this;
-    this.clearTasksGraphRefresher();
+    this.clearRefresher();
     this.taskinterval = setInterval(function () {
-        if (that.taskcountchanged && that.view == "tasks" && that.taskChart) {
-            var update = {
-                x: [[time], [time]],
-                y: [[rand()], [rand()]]
-            }
-            Plotly.extendTraces(that.taskChart, { y: [[rand()], [rand()]] }, [0, 1])
-
-            that.taskChart.data.datasets[0].data.push.apply(that.taskChart.data.datasets[0].data, that.taskChartDataBuffer);
-            that.taskChart.data.datasets[1].data.push.apply(that.taskChart.data.datasets[1].data, that.executorDataBuffer);
-            that.taskChart.update();
-            that.taskChartDataBuffer = [];
-            that.executorDataBuffer = [];
+        console.log('Updating Chart');
+        if (that.taskcountchanged && that.cellmonitor.view == "tasks") {
+            console.log('Updating Chart2');
+            Plotly.extendTraces(
+                that.taskChart,
+                {
+                    x: [that.executorDataBufferX.slice(),that.taskChartDataBufferX.slice()],
+                    y: [that.executorDataBufferY.slice(), that.taskChartDataBufferY.slice()]
+                },
+                [0, 1]);
+            that.taskChartDataBufferX = [];
+            that.taskChartDataBufferY = [];
+            that.executorDataBufferX = [];
+            that.executorDataBufferY = [];
             that.taskcountchanged = false;
         }
     }, 1000);

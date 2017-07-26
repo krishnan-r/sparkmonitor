@@ -86,27 +86,7 @@ CellMonitor.prototype.createDisplay = function () {
             that.cleanUp();
         });
 
-        element.find('.sparkuitabbutton').click(function () {
-            var iframe = $('\
-                    <div style="overflow:hidden">\
-                    <iframe src="'+ Jupyter.notebook.base_url + 'sparkmonitor/" frameborder="0" scrolling="yes" class="sparkuiframe">\
-                    </iframe>\
-                    </div>\
-                    ');
-
-            iframe.find('.sparkuiframe').css('background-image', 'url("' + requirejs.toUrl('./' + spinner) + '")');
-            iframe.find('.sparkuiframe').css('background-repeat', 'no-repeat');
-            iframe.find('.sparkuiframe').css('background-position', "50% 50%");
-            iframe.find('.sparkuiframe').width('100%');
-            iframe.find('.sparkuiframe').height('100%');
-            iframe.dialog({
-                title: "Spark UI 127.0.0.1:4040",
-                width: 1000,
-                height: 500,
-                autoResize: false,
-                dialogClass: "sparkui-dialog"
-            });
-        });
+        element.find('.sparkuitabbutton').click(function(){that.openSparkUI('');});
         element.find('.titlecollapse').click(function () {
             if (that.view != "hidden") {
                 that.lastview = that.view;
@@ -155,6 +135,27 @@ CellMonitor.prototype.createDisplay = function () {
 
     }
     else console.error("SparkMonitor: Error Display Already Exists");
+}
+CellMonitor.prototype.openSparkUI = function (url='') {
+    var iframe = $('\
+                    <div style="overflow:hidden">\
+                    <iframe src="'+ Jupyter.notebook.base_url + 'sparkmonitor/'+url+'" frameborder="0" scrolling="yes" class="sparkuiframe">\
+                    </iframe>\
+                    </div>\
+                    ');
+
+    iframe.find('.sparkuiframe').css('background-image', 'url("' + requirejs.toUrl('./' + spinner) + '")');
+    iframe.find('.sparkuiframe').css('background-repeat', 'no-repeat');
+    iframe.find('.sparkuiframe').css('background-position', "50% 50%");
+    iframe.find('.sparkuiframe').width('100%');
+    iframe.find('.sparkuiframe').height('100%');
+    iframe.dialog({
+        title: "Spark UI 127.0.0.1:4040",
+        width: 1000,
+        height: 500,
+        autoResize: false,
+        dialogClass: "sparkui-dialog"
+    });
 }
 
 CellMonitor.prototype.showView = function (view) {

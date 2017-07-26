@@ -116,7 +116,8 @@ Timeline.prototype.create = function () {
         this.timelineOptions.start = new Date(this.cellmonitor.cellStartTime);
 
         if (this.cellmonitor.cellEndTime > 0) {
-            this.timelineOptions.end = this.cellmonitor.cellEndTime;
+            this.timelineOptions.end = this.timelineOptions.max
+            this.timelineOptions.start = this.timelineOptions.min
             // this.timelineOptions.max = this.cellEndTime;
         }
         else {
@@ -128,18 +129,28 @@ Timeline.prototype.create = function () {
         this.timelinefirstshow = false;
         this.timeline = new vis.Timeline(container, this.timelineData, this.timelineGroups, this.timelineOptions);
 
+        this.registerRefresher();
+        this.timeline.on('select', function (properties) {
+            console.log(properties)
+            if (properties.items.length) {
+                if (properties.items[0].substr(0, 3) == "job") {
+                    var name = properties.items[0].substring(3)
+                    that.cellmonitor.openSparkUI('jobs/job/?id=' + name);
+                }
+                if (properties.items[0].substr(0, 5) == "stage") {
+                    var name = properties.items[0].substring(5)
+                    that.cellmonitor.openSparkUI('stages/stage/?id=' + name + '&attempt=0');
+                }
+                if (properties.items[0].substr(0, 4) == "task") {
+                    that.cellmonitor.openSparkUI('stages/stage/?id=' + that.timelineData.get(properties.items[0]).stage + '&attempt=0');
+                }
+            }
+        });
         this.timelineData.forEach(function (item) {
             if (item.id.slice(0, 3) == "job") {
                 that.addLinetoTimeline(item.start, item.id + 'start', "Job Started");
                 if (that.timelineData.get(item.id).mode == "done") that.addLinetoTimeline(item.end, item.id + 'end', "Job Ended");
             }
-        });
-        this.registerRefresher();
-        this.timeline.on('select', function (properties) {
-            if (!that.popupdialog) that.popupdialog = $('<div></div>');
-            that.popupdialog.html('<div>Selected Items: ' + properties.items + '<br> TODO: Show Data Here</div><br>').dialog({
-                title: "Details"
-            });
         });
     }
 }
@@ -156,13 +167,16 @@ Timeline.prototype.hide = function () {
 Timeline.prototype.cellCompleted = function () {
     var b = this.cellmonitor.cellEndTime.getTime();
     var a = this.cellmonitor.cellStartTime.getTime();
-    var min = new Date(a - ((b - a) / 10));
-    var max = new Date(b + ((b - a) / 10));
-    if (this.view == "timeline") {
+    var min = new Date(a - ((b - a) / 15));
+    var max = new Date(b + ((b - a) / 15));
+    if (this.cellmonitor.view == "timeline") {
         if (this.timeline) {
             this.timeline.setOptions({
                 max: max,
                 min: min,
+                start: min,
+                end: max,
+                showCurrentTime: false,
             });
         }
     }
@@ -171,7 +185,6 @@ Timeline.prototype.cellCompleted = function () {
     this.timelineOptions['min'] = min;
     this.timelineOptions['end'] = max;
     this.timelineOptions['start'] = min;
-
 }
 
 //----------Data Handling Functions----------------
@@ -245,6 +258,7 @@ Timeline.prototype.sparkTaskStart = function (data) {
 
     this.timelineData.update({
         id: 'task' + data.taskId,
+        stage: data.stageId,
         start: new Date(data.launchTime),
         end: new Date(),
         content: '' + data.taskId,
