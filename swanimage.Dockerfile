@@ -11,6 +11,6 @@ RUN pip2 install /extension/
 
 #RUN /usr/local/bin/jupyter serverextension enable sparkmonitor --user --py
 #RUN sudo /usr/local/bin/jupyter serverextension enable sparkmonitor --py
-RUN /usr/local/bin/jupyter serverextension enable sparkmonitor --sys-prefix --py
+RUN sudo /usr/local/bin/jupyter serverextension enable sparkmonitor --sys-prefix --py
 
 ADD systemuser.sh /srv/singleuser/systemuser.sh
