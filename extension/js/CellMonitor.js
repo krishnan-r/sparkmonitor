@@ -21,15 +21,18 @@ var Timeline = null;
 var TaskChart = null;
 requirejs(['./timeline'], function (timeline) {
     Timeline = timeline;
-    console.log("SparkMonitor: Timeline module loaded", timeline);
+    console.log("SparkMonitor: Timeline module loaded", [timeline]);
 });
 requirejs(['./taskchart'], function (taskchart) {
     TaskChart = taskchart;
-    console.log("SparkMonitor: TaskChart module loaded", taskchart)
+    console.log("SparkMonitor: TaskChart module loaded", [taskchart])
 });
 
 function CellMonitor(monitor, cell) {
     var that = this;
+    window.cm=this;//Debugging
+
+
     this.monitor = monitor; //Parent SparkMonitor instance
     this.cell = cell        //Jupyter Cell instance
     this.view = "jobs";     //The current display tab
@@ -38,8 +41,7 @@ function CellMonitor(monitor, cell) {
     this.displayCreated = false;
     this.displayClosed = false;
 
-    this.timeline = new Timeline(this);
-    this.taskchart = new TaskChart(this);
+
 
     this.badgeInterval = setInterval($.proxy(this.setBadges, this), 1000);
 
@@ -61,6 +63,10 @@ function CellMonitor(monitor, cell) {
     this.jobData = {};
     this.stageData = {};
     this.stageIdtoJobId = {};
+
+    this.timeline = new Timeline(this);
+    this.taskchart = new TaskChart(this);
+
 }
 
 CellMonitor.prototype.createDisplay = function () {
@@ -86,7 +92,7 @@ CellMonitor.prototype.createDisplay = function () {
             that.cleanUp();
         });
 
-        element.find('.sparkuitabbutton').click(function(){that.openSparkUI('');});
+        element.find('.sparkuitabbutton').click(function () { that.openSparkUI(''); });
         element.find('.titlecollapse').click(function () {
             if (that.view != "hidden") {
                 that.lastview = that.view;
@@ -136,10 +142,10 @@ CellMonitor.prototype.createDisplay = function () {
     }
     else console.error("SparkMonitor: Error Display Already Exists");
 }
-CellMonitor.prototype.openSparkUI = function (url='') {
+CellMonitor.prototype.openSparkUI = function (url = '') {
     var iframe = $('\
                     <div style="overflow:hidden">\
-                    <iframe src="'+ Jupyter.notebook.base_url + 'sparkmonitor/'+url+'" frameborder="0" scrolling="yes" class="sparkuiframe">\
+                    <iframe src="'+ Jupyter.notebook.base_url + 'sparkmonitor/' + url + '" frameborder="0" scrolling="yes" class="sparkuiframe">\
                     </iframe>\
                     </div>\
                     ');
@@ -447,6 +453,7 @@ CellMonitor.prototype.sparkJobStart = function (data) {
     this.numActiveJobs += 1;
     //this.setBadges();
     this.badgesmodified = true;
+    this.appId = data.appId;
     var name = $('<div>').text(data.name).html().split(' ')[0];//Escaping HTML <, > from string
     //--------------
     this.jobData[data.jobId] = {

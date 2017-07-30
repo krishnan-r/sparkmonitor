@@ -24,7 +24,7 @@ class SparkMonitorHandler(IPythonHandler):
         http = httpclient.AsyncHTTPClient()
         baseurl="http://127.0.0.1"
         port="4040"
-        #port=os.environ.get('SPARK_PORT_4',"4040")
+        #port=os.environ.get('',"4040")
         #TODO get port from frontend first.
         url=baseurl+":"+port
 

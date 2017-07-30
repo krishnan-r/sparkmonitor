@@ -17,9 +17,12 @@ import scala.collection.mutable.{HashMap, HashSet, LinkedHashMap, ListBuffer}
 import java.net._
 import java.io._
 
+// SparkListener Implementation that forwards data to the ipython kernel.
 class PythonNotifyListener(conf: SparkConf) extends SparkListener {
-	println("SPARKLISTENER: Started ScalaListener Constructor")
+
+	println("SPARKLISTENER: Started SparkListener for Jupyter Notebook")
 	//val port = conf.get("spark.monitor.port")
+	//Instead of using the SparkConf to store the port, it is taken from an environment variable. Some versions of spark discard unknows configurations in SparkConf
 	val port = scala.util.Properties.envOrElse("spark.monitor.port", "ERRORNOTFOUND")
 	println("SPARKLISTENER: Port obtained from environment: "+port)
   	//println("SPARKLISTENER: Connecting to port"+conf.get("spark.monitor.port"))
@@ -57,6 +60,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 	
   
   //----------------Stored Data------------------------
+  // Some of these are borrowed from JobProgressListener used internally by the Spark UI
 	type JobId = Int
 	type JobGroupId = String
 	type StageId = Int
@@ -195,6 +199,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 					("stageInfos" -> stageinfojson) ~
 					("numTasks" -> jobData.numTasks) ~
 					("totalCores" -> totalCores) ~
+					("appId"-> appId) ~
 					("numExecutors" -> numExecutors) ~
 					("name" -> name)
 		 println("SPARKLISTENER JobStart: \n"+ pretty(render(json)) + "\n")
@@ -443,6 +448,32 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 			  	}
 			}
 		}
+		
+		//val inputmetrics =
+		//val outputmetrics =
+		//val shufflereadmetrics =
+		//val shufflewritemetrics =
+		//val jsonmetrics = ("executorDeserializeTime" -> ) ~
+		//				  ("executorDeserializeCpuTime" -> ) ~
+		//				  ("executorRunTime" -> ) ~
+		//				  ("executorCpuTime" -> ) ~
+		//				  ("resultSize" -> ) ~
+		//				  ("jvmGCTime" -> ) ~
+		//				  ("resultSerializationTime" -> ) ~
+		//				  ("memoryBytesSpilled" -> ) ~
+		//				  ("diskBytesSpilled" -> ) ~
+		//				  ("peakExecutionMemory" -> ) ~
+		//				  ("" -> ) ~
+		//				  ("" -> ) ~
+		//				  ("" -> ) ~
+		//				  ("" -> ) ~
+		//				  ("" -> ) ~
+		//				  ("" -> ) ~
+		//				  ("" -> ) ~
+		//				  ("" -> ) ~
+		//				  ("" -> ) ~
+		//				  ("" -> ) ~
+		//				  ("" -> ) ~
 
 		val json=   ("msgtype" -> "sparkTaskEnd") ~
 					("launchTime" -> info.launchTime) ~

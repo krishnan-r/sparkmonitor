@@ -97,13 +97,13 @@ class SocketThread(Thread):
         })
         pass
 
-#---------------------------------Module level functions for ipython exten
+#-----------------Module level functions for ipython extension
 
 
 def load_ipython_extension(ipython):
     # Called when the extension is loaded.
     # ipython is the InteractiveShell instance
-    global ip, monitor
+    global ip, monitor  #For Debugging
 
     #-----Configure logging for the extension, currently writing to a file in same directory as notebook.
 

@@ -6,19 +6,28 @@ import './timeline.css';
 function Timeline(cellmonitor) {
 
     this.cellmonitor = cellmonitor;
-
-    this.timelineData = new vis.DataSet({ queue: true });
-
-    this.timelineGroups = new vis.DataSet([
+    this.timelineGroups1 = new vis.DataSet([
         {
             id: 'jobs',
             content: 'Jobs:',
             className: 'visjobgroup',
-        },
+        }
+    ]);
+    this.timelineGroups2 = new vis.DataSet([
         { id: 'stages', content: 'Stages:', },
     ]);
+    this.timelineGroups3 = new vis.DataSet([]);
+    this.timelineData1 = new vis.DataSet({ queue: true });
+    this.timelineData2 = new vis.DataSet({ queue: true });
+    this.timelineData3 = new vis.DataSet({ queue: true });
 
-    this.timelineOptions = {
+    this.runningItems1 = new vis.DataSet();
+    this.runningItems2 = new vis.DataSet();
+    this.runningItems3 = new vis.DataSet();
+
+    this.runningItems = {};
+
+    this.timelineOptions1 = {
         rollingMode: {
             follow: false,
             offset: 0.75
@@ -30,8 +39,7 @@ function Timeline(cellmonitor) {
         },
         stack: true,
         showTooltips: true,
-        maxHeight: '400px',
-        minHeight: '250px',
+        minHeight: '100px',
         zoomMax: 10800000,
         zoomMin: 2000,
         editable: false,
@@ -40,10 +48,61 @@ function Timeline(cellmonitor) {
         },
         align: 'center',
         orientation: 'top',
-        verticalScroll: true,
+        verticalScroll: false,
     };
-    this.timeline = null;
-    this.timelinefirstshow = false;
+    this.timelineOptions2 = {
+        rollingMode: {
+            follow: false,
+            offset: 0.75
+        },
+        margin: {
+            item: 2,
+            axis: 2,
+
+        },
+        stack: true,
+        showTooltips: true,
+        minHeight: '50px',
+        showMinorLabels: false,
+        showMajorLabels: false,
+        zoomMax: 10800000,
+        zoomMin: 2000,
+        editable: false,
+        tooltip: {
+            overflowMethod: 'cap',
+        },
+        align: 'center',
+        orientation: 'top',
+        verticalScroll: false,
+    };
+    this.timelineOptions3 = {
+        rollingMode: {
+            follow: false,
+            offset: 0.75
+        },
+        margin: {
+            item: 2,
+            axis: 2,
+
+        },
+        stack: true,
+        showTooltips: true,
+        minHeight: '100px',
+        showMinorLabels: false,
+        showMajorLabels: false,
+        zoomMax: 10800000,
+        zoomMin: 2000,
+        editable: false,
+        tooltip: {
+            overflowMethod: 'cap',
+        },
+        align: 'center',
+        orientation: 'top',
+        verticalScroll: false,
+    };
+    this.timeline1 = null;
+    this.timeline2 = null;
+    this.timeline3 = null;
 }
 
 Timeline.prototype.registerRefresher = function () {
@@ -56,17 +115,35 @@ Timeline.prototype.registerRefresher = function () {
         if (that.i == 2) {
             that.i = 0;
             var date = new Date();
-            that.timelineData.flush();
-            that.timelineData.forEach(function (item) {
-                if (that.timelineData.get(item.id).mode == "ongoing") {
-                    that.timelineData.update({
-                        id: item.id,
-                        end: date
-                    });
-                }
+            that.timelineData1.flush();
+            that.timelineData2.flush();
+            that.timelineData3.flush();
+            that.runningItems1.forEach(function (item) {
+                that.timelineData1.update({
+                    id: item.id,
+                    end: date
+                });
             });
+            that.runningItems2.forEach(function (item) {
+                that.timelineData2.update({
+                    id: item.id,
+                    end: date
+                });
+            });
+            that.runningItems3.forEach(function (item) {
+                that.timelineData3.update({
+                    id: item.id,
+                    end: date
+                });
+            });
+            that.setRanges(
+                that.cellmonitor.cellStartTime,
+                (that.cellmonitor.cellEndTime > 0 ? that.cellmonitor.cellEndTime : new Date()),
+                false, true);
         }
-        that.timelineData.flush()
+        that.timelineData1.flush()
+        that.timelineData2.flush()
+        that.timelineData3.flush()
     }, 1000);
 }
 
@@ -86,7 +163,9 @@ Timeline.prototype.resizeTimeline = function (start, end) {
                 if (!this.cellmonitor.cellEndTime) end = new Date(start.getTime() + 120000);
                 else end = this.cellmonitor.cellEndTime;
             }
-            this.timeline.setWindow(start, end, { animation: true });
+            this.timeline1.setWindow(start, end, { animation: true });
+            this.timeline2.setWindow(start, end, { animation: true });
+            this.timeline3.setWindow(start, end, { animation: true });
         }
         catch (err) {
             console.log("SparkMonitor-Timeline: Error resizing timeline:", err);
@@ -97,8 +176,55 @@ Timeline.prototype.resizeTimeline = function (start, end) {
 Timeline.prototype.addLinetoTimeline = function (time, id, title) {
     // console.log('SparkMonitor-Timeline: adding line');
     if (this.cellmonitor.view == "timeline") {
-        this.timeline.addCustomTime(time, id);
-        this.timeline.setCustomTimeTitle(title, id);
+        this.timeline1.addCustomTime(time, id);
+        this.timeline1.setCustomTimeTitle(title, id);
+        this.timeline2.addCustomTime(time, id);
+        this.timeline2.setCustomTimeTitle(title, id);
+        this.timeline3.addCustomTime(time, id);
+        this.timeline3.setCustomTimeTitle(title, id);
+    }
+}
+
+Timeline.prototype.setRanges = function (start, end, set = false, moveWindow) {
+    var b = end.getTime();
+    var a = start.getTime();
+    var min = new Date(a - ((b - a) / 15));
+    var max = new Date(b + ((b - a) / 15));
+
+    this.timelineOptions1.start = new Date(min);
+    this.timelineOptions2.start = new Date(min);
+    this.timelineOptions3.start = new Date(min);
+
+    this.timelineOptions1.end = new Date(max);
+    this.timelineOptions2.end = new Date(max);
+    this.timelineOptions3.end = new Date(max);
+
+
+
+    if (set) {
+        this.timelineOptions1['showCurrentTime'] = false;
+        this.timelineOptions2['showCurrentTime'] = false;
+        this.timelineOptions3['showCurrentTime'] = false;
+        this.timelineOptions1.min = new Date(min);
+        this.timelineOptions2.min = new Date(min);
+        this.timelineOptions3.min = new Date(min);
+
+        this.timelineOptions1.max = new Date(max);
+        this.timelineOptions2.max = new Date(max);
+        this.timelineOptions3.max = new Date(max);
+    }
+    if (moveWindow && this.cellmonitor.view == "timeline") {
+        if (this.timeline1) this.timeline1.setWindow(min, max);
+        if (this.timeline2) this.timeline2.setWindow(min, max);
+        if (this.timeline3) this.timeline3.setWindow(min, max);
+    }
+
+
+    if (this.cellmonitor.view == "timeline" && set) {
+
+        if (this.timeline1) this.timeline1.setOptions(this.timelineOptions1);
+        if (this.timeline2) this.timeline2.setOptions(this.timelineOptions2);
+        if (this.timeline3) this.timeline3.setOptions(this.timelineOptions3);
     }
 }
 
@@ -106,94 +232,88 @@ Timeline.prototype.create = function () {
     var that = this;
     if (this.cellmonitor.view == 'timeline') {
 
-        var container = this.cellmonitor.displayElement.find('.timelinecontainer').empty()[0]
-        try {
-            if (this.timeline) this.timeline.destroy()
-        }
-        catch (err) { console.log("SparkMonitor-Timeline: Error destroying timeline, ", err) }
+        var container1 = this.cellmonitor.displayElement.find('.timelinecontainer1').empty()[0]
+        var container2 = this.cellmonitor.displayElement.find('.timelinecontainer2').empty()[0]
+        var container3 = this.cellmonitor.displayElement.find('.timelinecontainer3').empty()[0]
 
-        // this.timelineOptions.min = new Date(this.cellStartTime);
-        this.timelineOptions.start = new Date(this.cellmonitor.cellStartTime);
+        this.setRanges(
+            this.cellmonitor.cellStartTime,
+            (this.cellmonitor.cellEndTime > 0 ? this.cellmonitor.cellEndTime : new Date()),
+            false);
 
-        if (this.cellmonitor.cellEndTime > 0) {
-            this.timelineOptions.end = this.timelineOptions.max
-            this.timelineOptions.start = this.timelineOptions.min
-            // this.timelineOptions.max = this.cellEndTime;
-        }
-        else {
-            var date = new Date();
-            date.setTime(date.getTime() + 30000);
-            this.timelineOptions.end = date;
-        }
+        this.timeline1 = new vis.Timeline(container1, this.timelineData1, this.timelineGroups1, this.timelineOptions1);
+        this.timeline2 = new vis.Timeline(container2, this.timelineData2, this.timelineGroups2, this.timelineOptions2);
+        this.timeline3 = new vis.Timeline(container3, this.timelineData3, this.timelineGroups3, this.timelineOptions3);
 
-        this.timelinefirstshow = false;
-        this.timeline = new vis.Timeline(container, this.timelineData, this.timelineGroups, this.timelineOptions);
+        //Make dragging one timeline drag all timelines
+        this.timeline1.on('rangechange', function (properties) {
+            if (properties.byUser) that.timeline2.setWindow(properties.start, properties.end, { animation: false });
+            if (properties.byUser) that.timeline3.setWindow(properties.start, properties.end, { animation: false });
+        });
+        this.timeline2.on('rangechange', function (properties) {
+            if (properties.byUser) that.timeline1.setWindow(properties.start, properties.end, { animation: false });
+            if (properties.byUser) that.timeline3.setWindow(properties.start, properties.end, { animation: false });
+        });
+        this.timeline3.on('rangechange', function (properties) {
+            if (properties.byUser) that.timeline1.setWindow(properties.start, properties.end, { animation: false });
+            if (properties.byUser) that.timeline2.setWindow(properties.start, properties.end, { animation: false });
+        });
+
+        this.timeline1.redraw();
+        this.timeline2.redraw();
+        this.timeline3.redraw();
+
+
 
         this.registerRefresher();
-        this.timeline.on('select', function (properties) {
-            console.log(properties)
-            if (properties.items.length) {
-                if (properties.items[0].substr(0, 3) == "job") {
-                    var name = properties.items[0].substring(3)
-                    that.cellmonitor.openSparkUI('jobs/job/?id=' + name);
-                }
-                if (properties.items[0].substr(0, 5) == "stage") {
-                    var name = properties.items[0].substring(5)
-                    that.cellmonitor.openSparkUI('stages/stage/?id=' + name + '&attempt=0');
-                }
-                if (properties.items[0].substr(0, 4) == "task") {
-                    that.cellmonitor.openSparkUI('stages/stage/?id=' + that.timelineData.get(properties.items[0]).stage + '&attempt=0');
-                }
-            }
-        });
-        this.timelineData.forEach(function (item) {
-            if (item.id.slice(0, 3) == "job") {
-                that.addLinetoTimeline(item.start, item.id + 'start', "Job Started");
-                if (that.timelineData.get(item.id).mode == "done") that.addLinetoTimeline(item.end, item.id + 'end', "Job Ended");
-            }
-        });
+        // this.timeline.on('select', function (properties) {
+        //     console.log(properties)
+        //     if (properties.items.length) {
+        //         if (properties.items[0].substr(0, 3) == "job") {
+        //             var name = properties.items[0].substring(3)
+        //             that.cellmonitor.openSparkUI('jobs/job/?id=' + name);
+        //         }
+        //         if (properties.items[0].substr(0, 5) == "stage") {
+        //             var name = properties.items[0].substring(5)
+        //             that.cellmonitor.openSparkUI('stages/stage/?id=' + name + '&attempt=0');
+        //         }
+        //         if (properties.items[0].substr(0, 4) == "task") {
+        //             that.cellmonitor.openSparkUI('stages/stage/?id=' + that.timelineData.get(properties.items[0]).stage + '&attempt=0');
+        //         }
+        //     }
+        // });
+        setTimeout(function () {
+            that.timelineData1.forEach(function (item) {
+                that.addLinetoTimeline(item.start, '' + that.cellmonitor.appId + item.id + 'start', "Job Started");
+                if (that.timelineData1.get(item.id).mode == "done") that.addLinetoTimeline(item.end, '' + that.cellmonitor.appId + item.id + 'end', "Job Ended");
+            });
+        }, 0);
     }
 }
 
 Timeline.prototype.hide = function () {
     try {
-        if (this.timeline) this.timeline.destroy()
-        this.timeline = null;
+        if (this.timeline1) this.timeline1.destroy()
+        if (this.timeline2) this.timeline2.destroy()
+        if (this.timeline3) this.timeline3.destroy()
+        this.timeline1 = null;
+        this.timeline2 = null;
+        this.timeline3 = null;
     }
-    catch (err) { "SparkMonitor-Timeline: Error destroying timeline2, ", console.log(err) }
+    catch (err) { "SparkMonitor-Timeline: Error destroying timeline, ", console.log(err) }
     this.clearRefresher();
 }
 
 Timeline.prototype.cellCompleted = function () {
-    var b = this.cellmonitor.cellEndTime.getTime();
-    var a = this.cellmonitor.cellStartTime.getTime();
-    var min = new Date(a - ((b - a) / 15));
-    var max = new Date(b + ((b - a) / 15));
-    if (this.cellmonitor.view == "timeline") {
-        if (this.timeline) {
-            this.timeline.setOptions({
-                max: max,
-                min: min,
-                start: min,
-                end: max,
-                showCurrentTime: false,
-            });
-        }
-    }
-    this.timelineOptions['showCurrentTime'] = false;
-    this.timelineOptions['max'] = max;
-    this.timelineOptions['min'] = min;
-    this.timelineOptions['end'] = max;
-    this.timelineOptions['start'] = min;
+    this.setRanges(this.cellmonitor.cellStartTime, this.cellmonitor.cellEndTime, true);
 }
 
 //----------Data Handling Functions----------------
 
 Timeline.prototype.sparkJobStart = function (data) {
-    var that = this;
     var name = $('<div>').text(data.name).html().split(' ')[0];//Escaping HTML <, > from string
-    this.timelineData.update({
-        id: 'job' + data.jobId,
+    this.timelineData1.update({
+        id: data.jobId,
         start: new Date(data.submissionTime),
         end: new Date(),
         content: '' + name,
@@ -202,15 +322,17 @@ Timeline.prototype.sparkJobStart = function (data) {
         className: 'itemrunning job',
         mode: "ongoing",
     });
+    this.runningItems1.add({ id: data.jobId });
 }
 
 Timeline.prototype.sparkJobEnd = function (data) {
-    this.timelineData.update({
-        id: 'job' + data.jobId,
+    this.timelineData1.update({
+        id: data.jobId,
         end: new Date(data.completionTime),
         className: (data.status == "SUCCEEDED" ? 'itemfinished job' : 'itemfailed job'),
         mode: "done",
     });
+    this.runningItems1.remove({ id: data.jobId });
     this.addLinetoTimeline(new Date(data.completionTime), 'job' + data.jobId + 'end', 'Job ' + data.jobId + 'Ended');
 }
 
@@ -220,8 +342,8 @@ Timeline.prototype.sparkStageSubmitted = function (data) {
     if (data.submissionTime == -1) submissionDate = new Date()
     else submissionDate = new Date(data.submissionTime);
 
-    this.timelineData.update({
-        id: 'stage' + data.stageId,
+    this.timelineData2.update({
+        id: data.stageId,
         start: submissionDate,
         content: "" + name,
         group: 'stages',
@@ -230,13 +352,13 @@ Timeline.prototype.sparkStageSubmitted = function (data) {
         className: 'itemrunning stage',
         mode: "ongoing",
     });
+    this.runningItems2.add({ id: data.stageId });
 }
 
 Timeline.prototype.sparkStageCompleted = function (data) {
     var name = $('<div>').text(data.name).html().split(' ')[0];//Hack for escaping HTML <, > from string.
-
-    this.timelineData.update({
-        id: 'stage' + data.stageId,
+    this.timelineData2.update({
+        id: data.stageId,
         start: new Date(data.submissionTime),
         group: 'stages',
         end: new Date(data.completionTime),
@@ -245,19 +367,19 @@ Timeline.prototype.sparkStageCompleted = function (data) {
         //content: '' + name,
         mode: "done",
     });
+    this.runningItems2.remove({ id: data.stageId });
 }
 
 Timeline.prototype.sparkTaskStart = function (data) {
-    //Create a group for the executor if one does not exist.
-    if (!this.timelineGroups.get(data.executorId + '-' + data.host)) {
-        this.timelineGroups.update({
+    if (!this.timelineGroups3.get(data.executorId + '-' + data.host)) {
+        this.timelineGroups3.update({
             id: data.executorId + '-' + data.host,
             content: 'Tasks:<br>' + data.executorId + '<br>' + data.host
         });
     }
 
-    this.timelineData.update({
-        id: 'task' + data.taskId,
+    this.timelineData3.update({
+        id: data.taskId,
         stage: data.stageId,
         start: new Date(data.launchTime),
         end: new Date(),
@@ -267,18 +389,18 @@ Timeline.prototype.sparkTaskStart = function (data) {
         className: 'itemrunning task',
         mode: "ongoing",
     });
+    this.runningItems3.add({ id: data.taskId });
 }
 
 Timeline.prototype.sparkTaskEnd = function (data) {
-    this.timelineData.update({
-        id: 'task' + data.taskId,
+    this.timelineData3.update({
+        id: data.taskId,
         end: new Date(data.finishTime),
         // title: 'Task:' + data.taskId + ' from stage ' + data.stageId + 'Launched' + Date(data.launchTime) + 'Completed: ' + Date(data.finishTime),
         className: (data.status == "SUCCESS" ? 'itemfinished task' : 'itemfailed task'),
         mode: "done",
     });
+    this.runningItems3.remove({ id: data.taskId });
 }
-
-
 
 export default Timeline;

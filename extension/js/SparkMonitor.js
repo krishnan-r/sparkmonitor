@@ -111,7 +111,7 @@ SparkMonitor.prototype.sparkJobStart = function (data) {
 	}
 	this.totalCores = data.totalCores;
 	this.numExecutors=data.numExecutors;
-	if (!cellmonitor.displayClosed)
+	if (cellmonitor && !cellmonitor.displayClosed)
 		cellmonitor.sparkJobStart(data);
 }
 
@@ -120,7 +120,7 @@ SparkMonitor.prototype.sparkJobEnd = function (data) {
 	var cellid = this.data['app' + this.app + 'job' + data.jobId]['cell_id'];
 	if (cellid) {
 		var cellmonitor = this.cellmonitors[cellid]
-		if (!cellmonitor.displayClosed) cellmonitor.sparkJobEnd(data);
+		if (cellmonitor && !cellmonitor.displayClosed) cellmonitor.sparkJobEnd(data);
 
 	}
 	else console.error('SparkMonitor:ERROR no cellID for job');
@@ -139,7 +139,7 @@ SparkMonitor.prototype.sparkStageSubmitted = function (data) {
 		cell_id: cell.cell_id,
 	};
 	var cellmonitor = this.getCellMonitor(cell);
-	if (!cellmonitor.displayClosed) cellmonitor.sparkStageSubmitted(data);
+	if (cellmonitor && !cellmonitor.displayClosed) cellmonitor.sparkStageSubmitted(data);
 }
 
 SparkMonitor.prototype.sparkStageCompleted = function (data) {
@@ -147,7 +147,7 @@ SparkMonitor.prototype.sparkStageCompleted = function (data) {
 	var cellid = this.data['app' + this.app + 'stage' + data.stageId]['cell_id'];
 	if (cellid) {
 		var cellmonitor = this.cellmonitors[cellid]
-		if (!cellmonitor.displayClosed) cellmonitor.sparkStageCompleted(data);
+		if (cellmonitor && !cellmonitor.displayClosed) cellmonitor.sparkStageCompleted(data);
 	}
 	else console.error('SparkMonitor:ERROR no cellId for completed stage');
 }
@@ -157,7 +157,7 @@ SparkMonitor.prototype.sparkTaskStart = function (data) {
 	var cellid = this.data['app' + this.app + 'stage' + data.stageId]['cell_id'];
 	if (cellid) {
 		var cellmonitor = this.cellmonitors[cellid]
-		if (!cellmonitor.displayClosed) cellmonitor.sparkTaskStart(data);
+		if (cellmonitor && !cellmonitor.displayClosed) cellmonitor.sparkTaskStart(data);
 
 	}
 	else console.error('SparkMonitor:ERROR no cellID for task start');
@@ -167,7 +167,7 @@ SparkMonitor.prototype.sparkTaskEnd = function (data) {
 	var cellid = this.data['app' + this.app + 'stage' + data.stageId]['cell_id'];
 	if (cellid) {
 		var cellmonitor = this.cellmonitors[cellid]
-		if (!cellmonitor.displayClosed) cellmonitor.sparkTaskEnd(data);
+		if (cellmonitor && !cellmonitor.displayClosed) cellmonitor.sparkTaskEnd(data);
 
 	}
 	else console.error('SparkMonitor:ERROR no cellID for task end');

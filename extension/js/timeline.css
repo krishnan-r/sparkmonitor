@@ -1,5 +1,14 @@
+.pm .timelinewrapper {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
 .pm .vis-timeline {
-  border: 1px solid #bfbfbf;
+   /* border: 0;  */
+}
+
+.pm .vis-labelset .vis-label .vis-inner {
+  width: 100px;
 }
 
 .pm .vis-item {
@@ -26,7 +35,7 @@
 }
 
 .pm .vis-custom-time {
-  pointer-events: none;
+  pointer-events: none; 
   background-color: #42A5F5;
 }
 
