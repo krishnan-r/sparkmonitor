@@ -1,3 +1,7 @@
+# SparkMonitor Jupyter Serverextension
+# This module adds a request handler to jupyter webserver. It proxies the spark UI assumed to be running at 127.0.0.1:4040 
+# to the endpoint [notebook rooturl]/sparkmonitor
+# TODO Create unique endpoints for different kernels or spark applications.
 
 from notebook.base.handlers import IPythonHandler
 
@@ -54,7 +58,7 @@ class SparkMonitorHandler(IPythonHandler):
         self.write(content)
         self.finish()
 
-
+# Called when the serverextension is loaded
 def load_jupyter_server_extension(nb_server_app):
     """
     Called when the extension is loaded.

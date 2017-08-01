@@ -111,7 +111,8 @@ def load_ipython_extension(ipython):
     logger = logging.getLogger('sparkscalamonitor')
     logger.setLevel(logging.DEBUG)
     logger.propagate = False
-    fh = logging.FileHandler('scalamonitorextension.log')  # ,mode='w')
+    # For debugging this module - Writes logs to a file
+    fh = logging.FileHandler('sparkmonitor_kernelextension.log',mode='w')
     fh.setLevel(logging.DEBUG)
     formatter = logging.Formatter(
         '%(levelname)s:  %(asctime)s - %(name)s - %(process)d - %(processName)s - \
@@ -138,7 +139,9 @@ def load_ipython_extension(ipython):
     # Injecting conf into users namespace
     if(spark_imported):
         conf = ipython.user_ns.get('conf')
+        
         if(conf):
+            logger.info("Conf: "+conf.toDebugString())
             if(isinstance(conf, SparkConf)):
                 configure(conf)
             else:
