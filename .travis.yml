@@ -53,6 +53,6 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
-    script: 'docker tag krishnanr/sparkmonitor krishnanr/sparkmonitor:$TRAVIS_TAG && docker push krishnanr/sparkmonitor:$TRAVIS_TAG
+    script: 'docker tag krishnanr/sparkmonitor krishnanr/sparkmonitor:$TRAVIS_TAG && docker push krishnanr/sparkmonitor:$TRAVIS_TAG'
        
     
