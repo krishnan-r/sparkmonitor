@@ -1,5 +1,14 @@
 .pm .tdstageicon {
   display: block;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAAXUlEQVR4AWMAgVGwjkGKNA3/GT4wZDAwkqABDA8zaBKtAQp/MjQwsBGnAQGvMVgTpwEB/zFMZ+AjoAEDPmUIpKGGfwzTGPho5OmfDPUMbKREnAYpSSOdgZGSxDcKADdXTK1stp++AAAAAElFTkSuQmCC);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100%;
+  width: 15px;
+  /* display: inline-block; */
+  top: -2px;
+  height: 24px;
+  vertical-align: middle;
   transition: transform 0.4s;
   transform: rotate(0deg);
 }
@@ -83,6 +92,7 @@
 .pm th.thjobtime {
   width: 10%;
 }
+
 .pm th.thstageid {
   width: 8%;
 }
@@ -115,7 +125,6 @@ progress {
   padding: 2px;
 }
 
-
 .pm .RUNNING {
   background-color: #42A5F5;
 }
@@ -142,7 +151,6 @@ progress {
   color: white;
   border-radius: 2px;
 }
-
 
 .pm .stagetable tr th {
   background: rgb(235, 235, 235);
@@ -191,4 +199,3 @@ progress {
   padding: 0;
   transition: width 1s;
 }
-

@@ -1,7 +1,7 @@
 import vis from 'vis/index-timeline-graph2d';
 import 'vis/dist/vis-timeline-graph2d.min.css';
 import './timeline.css';
-
+import taskUI from './taskdetails'
 
 function Timeline(cellmonitor) {
 
@@ -96,7 +96,7 @@ function Timeline(cellmonitor) {
         tooltip: {
             overflowMethod: 'cap',
         },
-        align: 'center',
+        align: 'left',
         orientation: 'top',
         verticalScroll: false,
     };
@@ -266,22 +266,26 @@ Timeline.prototype.create = function () {
 
 
         this.registerRefresher();
-        // this.timeline.on('select', function (properties) {
-        //     console.log(properties)
-        //     if (properties.items.length) {
-        //         if (properties.items[0].substr(0, 3) == "job") {
-        //             var name = properties.items[0].substring(3)
-        //             that.cellmonitor.openSparkUI('jobs/job/?id=' + name);
-        //         }
-        //         if (properties.items[0].substr(0, 5) == "stage") {
-        //             var name = properties.items[0].substring(5)
-        //             that.cellmonitor.openSparkUI('stages/stage/?id=' + name + '&attempt=0');
-        //         }
-        //         if (properties.items[0].substr(0, 4) == "task") {
-        //             that.cellmonitor.openSparkUI('stages/stage/?id=' + that.timelineData.get(properties.items[0]).stage + '&attempt=0');
-        //         }
-        //     }
-        // });
+        this.timeline3.on('select', function (properties) {
+            if (properties.items.length) {
+                taskUI.show();
+            }
+        });
+
+        this.timeline1.on('select', function (properties) {
+            if (properties.items.length) {
+                var name = properties.items[0]
+                that.cellmonitor.openSparkUI('jobs/job/?id=' + name);
+            }
+        });
+        this.timeline2.on('select', function (properties) {
+            if (properties.items.length) {
+                var name = properties.items[0]
+                that.cellmonitor.openSparkUI('stages/stage/?id=' + name + '&attempt=0');
+            }
+        });
+
+
         setTimeout(function () {
             that.timelineData1.forEach(function (item) {
                 that.addLinetoTimeline(item.start, '' + that.cellmonitor.appId + item.id + 'start', "Job Started");
@@ -308,6 +312,9 @@ Timeline.prototype.cellCompleted = function () {
     this.setRanges(this.cellmonitor.cellStartTime, this.cellmonitor.cellEndTime, true);
 }
 
+Timeline.prototype.allCompleted = function () {
+
+}
 //----------Data Handling Functions----------------
 
 Timeline.prototype.sparkJobStart = function (data) {
@@ -388,19 +395,71 @@ Timeline.prototype.sparkTaskStart = function (data) {
         // title: 'Task: ' + data.taskId + ' from stage ' + data.stageId + ' Launched: ' + Date(data.launchTime),
         className: 'itemrunning task',
         mode: "ongoing",
+        align: "center"
     });
     this.runningItems3.add({ id: data.taskId });
 }
 
 Timeline.prototype.sparkTaskEnd = function (data) {
+    var that = this;
+    var content;
+    if (data.status == "SUCCESS") {
+        content = this.createTaskBar();
+    }
+    else content = "" + data.taskId;
     this.timelineData3.update({
         id: data.taskId,
         end: new Date(data.finishTime),
         // title: 'Task:' + data.taskId + ' from stage ' + data.stageId + 'Launched' + Date(data.launchTime) + 'Completed: ' + Date(data.finishTime),
         className: (data.status == "SUCCESS" ? 'itemfinished task' : 'itemfailed task'),
         mode: "done",
+        content: content,
+        align: (data.status == "SUCCESS" ? "left" : "center"),
     });
     this.runningItems3.remove({ id: data.taskId });
 }
+
+Timeline.prototype.createTaskBar = function (data) {
+    var html = '<div class="taskbardiv"><svg class="taskbarsvg">' +
+        '<rect class="scheduler-delay-proportion" x="0%" y="0px" height="100%" width="10%"></rect>' +
+        '<rect class="deserialization-time-proportion" x="10%" y="0px" height="100%" width="10%"></rect>' +
+        '<rect class="shuffle-read-time-proportion" x="20%" y="0px" height="100%" width="20%"></rect>' +
+        '<rect class="executor-runtime-proportion" x="40%" y="0px" height="100%" width="10%"></rect>' +
+        '<rect class="shuffle-write-time-proportion" x="50%" y="0px" height="100%" width="10%"></rect>' +
+        '<rect class="serialization-time-proportion" x="60%" y="0px" height="100%" width="20%"></rect>' +
+        '<rect class="getting-result-time-proportion" x="80%" y="0px" height="100%" width="20%"></rect>' +
+        '</svg></div>'
+    return html
+}
+Timeline.prototype.createTaskBarData = function (data) {
+    var totaltime = data.finishTime - data.launchTime;
+    var metrics = data.metrics;
+
+    var proportion = {
+        "scheduler-delay-proportion": 0,
+        "deserialization-time-proportion": metrics.executorDeserializeTime ? metrics.executorDeserializeTime / totaltime : 0,
+        "shuffle-read-time-proportion": metrics.shuffleReadTime ? metrics.shuffleReadTime / totaltime : 0,
+        "executor-runtime-proportion": 0,
+        "shuffle-write-time-proportion": metrics.shuffleWriteTime ? metrics.shuffleWriteTime / totaltime : 0,
+        "serialization-time-proportion": metrics.resultSerializationTime ? metrics.resultSerializationTime / totaltime : 0,
+        "getting-result-time-proportion": 0,
+    }
+    var pos = {
+        "scheduler-delay-pos": 0,
+        "deserialization-time-pos": 0,
+        "shuffle-read-time-pos": 0,
+        "executor-runtime-pos": 0,
+        "shuffle-write-time-pos": 0,
+        "serialization-time-pos": 0,
+        "getting-result-time-pos": 0,
+    }
+    return {
+        proportion: proportion,
+        pos: pos,
+    }
+
+}
+
+
 
 export default Timeline;

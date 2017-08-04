@@ -1,0 +1,80 @@
+.taskdetails {
+    font-family: sans-serif;
+    margin: 10px;
+}
+
+.taskdetails rect.scheduler-delay-proportion {
+    fill: #80B1D3;
+    stroke: #6B94B0;
+}
+
+.taskdetails rect.deserialization-time-proportion {
+    fill: #FB8072;
+    stroke: #D26B5F;
+}
+
+.taskdetails rect.shuffle-read-time-proportion {
+    fill: #FDB462;
+    stroke: #D39651;
+}
+
+.taskdetails rect.executor-runtime-proportion {
+    fill: #B3DE69;
+    stroke: #95B957;
+}
+
+.taskdetails rect.shuffle-write-time-proportion {
+    fill: #FFED6F;
+    stroke: #D5C65C;
+}
+
+.taskdetails rect.serialization-time-proportion {
+    fill: #BC80BD;
+    stroke: #9D6B9E;
+}
+
+.taskdetails rect.getting-result-time-proportion {
+    fill: #8DD3C7;
+    stroke: #75B0A6;
+}
+
+.taskdetails .taskbarsvg {
+    height: 40px;
+    width: 100%;
+}
+
+.taskdetails .taskbarsvg {
+    box-shadow: 0 0 11px 0px rgba(119, 119, 119, 0.36);
+}
+
+.legend-area {
+    font-size: small;
+    padding: 10px;
+    margin-top: 5px;
+}
+
+.task-dialog {
+    padding: 0;
+    box-shadow: 0px 0px 6px 0px rgba(128, 128, 128, 0.83);
+}
+
+.task-dialog .ui-corner-all {
+    border-radius: 0px;
+}
+
+.task-dialog .ui-dialog-content.ui-widget-content {
+    padding: 0;
+}
+
+.task-dialog .ui-widget-header {
+    border: 1px solid rgb(243, 118, 0);
+    background: #f37600;
+    color: #000;
+    font-weight: bold;
+    text-align: center;
+}
+
+.taskdetails td {
+    text-align: center;
+    padding: 5px;
+}

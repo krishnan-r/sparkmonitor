@@ -42,7 +42,15 @@
 }
 
 .headericon {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAAXUlEQVR4AWMAgVGwjkGKNA3/GT4wZDAwkqABDA8zaBKtAQp/MjQwsBGnAQGvMVgTpwEB/zFMZ+AjoAEDPmUIpKGGfwzTGPho5OmfDPUMbKREnAYpSSOdgZGSxDcKADdXTK1stp++AAAAAElFTkSuQmCC);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100%;
+  width: 15px;
   display: inline-block;
+  top: -2px;
+  height: 24px;
+  vertical-align: middle;
   transition: transform 0.4s;
   transform: rotate(90deg);
 }
@@ -67,7 +75,7 @@
   background-color: #DB3636;
 }
 
-.badgecompleted, .badgefailed, .badgerunning{
+.badgecompleted, .badgefailed, .badgerunning {
   font-size: 80%;
   padding: 5px 8px;
   color: white;

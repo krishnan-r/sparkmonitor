@@ -4,7 +4,8 @@
 }
 
 .pm .vis-timeline {
-   /* border: 0;  */
+  border-top: 0;
+  border-bottom: 1px;
 }
 
 .pm .vis-labelset .vis-label .vis-inner {
@@ -18,8 +19,14 @@
 }
 
 .pm .vis-item .vis-item-content {
-  padding: 1px 2px;
+  padding: 0;
 }
+
+
+/* .pm timelinecontainer3 .vis-item {
+  line-height: 0;
+  font-size: 0;
+} */
 
 .pm .vis-time-axis {
   font-size: smaller;
@@ -35,7 +42,7 @@
 }
 
 .pm .vis-custom-time {
-  pointer-events: none; 
+  pointer-events: none;
   background-color: #42A5F5;
 }
 
@@ -45,15 +52,19 @@
 
 .pm .vis-item.itemrunning {}
 
-.pm .vis-item.itemfinished:not(.vis-selected) {
-  background-color: #C9EF9B;
+.pm .vis-item.itemfinished {
+  /* :not(.vis-selected) { */
+  background-color: #90dc34;
   border-color: #6c9d34;
+  border: 0;
 }
 
-.pm .vis-item.itemfailed:not(.vis-selected) {
+.pm .vis-item.itemfailed {
+  /* :not(.vis-selected) {  */
   background-color: #F44336;
   border-color: rgb(183, 13, 0);
   color: white;
+  border: 0;
 }
 
 .pm .vis-item.itemfinished:active {
@@ -62,5 +73,97 @@
 
 .pm .vis-selected {
   border-color: #ffc200;
-  background-color: #fff785;
+  background-color: #ffc200;
+  border: 0;
+}
+
+.pm .vis-item.itemrunning {
+  /* :not(.vis-selected) { */
+  background-color: rgb(134, 199, 251);
+  border: 0;
+}
+
+.pm .taskbarsvg rect.scheduler-delay-proportion {
+  fill: #80B1D3;
+  stroke: #6B94B0;
+}
+
+.pm .taskbarsvg rect.deserialization-time-proportion {
+  fill: #FB8072;
+  stroke: #D26B5F;
+}
+
+.pm .taskbarsvg rect.shuffle-read-time-proportion {
+  fill: #FDB462;
+  stroke: #D39651;
+}
+
+.pm .taskbarsvg rect.executor-runtime-proportion {
+  fill: #B3DE69;
+  stroke: #95B957;
+}
+
+.pm .taskbarsvg rect.shuffle-write-time-proportion {
+  fill: #FFED6F;
+  stroke: #D5C65C;
+}
+
+.pm .taskbarsvg rect.serialization-time-proportion {
+  fill: #BC80BD;
+  stroke: #9D6B9E;
+}
+
+.pm .taskbarsvg rect.getting-result-time-proportion {
+  fill: #8DD3C7;
+  stroke: #75B0A6;
+}
+
+
+/* .pm .taskbarsvg rect {
+  fill: "none";
+}
+
+.pm .taskbarsvg:hover rect.scheduler-delay-proportion {
+  fill: #80B1D3;
+  stroke: #6B94B0;
+}
+
+.pm .taskbarsvg:hover rect.deserialization-time-proportion {
+  fill: #FB8072;
+  stroke: #D26B5F;
+}
+
+.pm .taskbarsvg:hover rect.shuffle-read-time-proportion {
+  fill: #FDB462;
+  stroke: #D39651;
+}
+
+.pm .taskbarsvg:hover rect.executor-runtime-proportion {
+  fill: #B3DE69;
+  stroke: #95B957;
+}
+
+.pm .taskbarsvg:hover rect.shuffle-write-time-proportion {
+  fill: #FFED6F;
+  stroke: #D5C65C;
+}
+
+.pm .taskbarsvg:hover rect.serialization-time-proportion {
+  fill: #BC80BD;
+  stroke: #9D6B9E;
+}
+
+.pm .taskbarsvg:hover rect.getting-result-time-proportion {
+  fill: #8DD3C7;
+  stroke: #75B0A6;
+} */
+
+.pm .taskbarsvg {
+  width: 100%;
+  height: 20px;
+}
+
+.pm taskbardiv {
+  width: 100%;
+  height: 100%;
 }

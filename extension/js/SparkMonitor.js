@@ -129,7 +129,7 @@ SparkMonitor.prototype.sparkJobEnd = function (data) {
 
 SparkMonitor.prototype.sparkStageSubmitted = function (data) {
 	console.log('SparkMonitor:Stage Submitted', data);
-	//TODO Get cell from JobId instead of running cell
+	//TODO Get cell from JobId instead of running cell??
 	var cell = currentcell.getRunningCell()
 	if (cell == null) {
 		console.error('SparkMonitor: Stage started with no running cell.');
@@ -185,7 +185,7 @@ SparkMonitor.prototype.sparkApplicationStart = function (data) {
 }
 
 SparkMonitor.prototype.sparkExecutorAdded = function (data) {
-	this.totalCores += data.totalCores;
+	this.totalCores = data.totalCores;
 	this.numExecutors += 1;
 
 	var cell = currentcell.getRunningCell()
@@ -198,7 +198,7 @@ SparkMonitor.prototype.sparkExecutorAdded = function (data) {
 }
 
 SparkMonitor.prototype.sparkExecutorRemoved = function (data) {
-	this.totalCores += data.totalCores;
+	this.totalCores = data.totalCores;
 	this.numExecutors -= 1;
 
 	var cell = currentcell.getRunningCell()

@@ -406,6 +406,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 		// If stage attempt id is -1, it means the DAGScheduler had no idea which attempt this task
 		// completion event is for. Let's just drop it here. This means we might have some speculation
 		// tasks on the web ui that's never marked as complete.
+		var errorMessage: Option[String] = None
 		if (info != null && taskEnd.stageAttemptId != -1) {
 			val stageData = stageIdToData.getOrElseUpdate((taskEnd.stageId, taskEnd.stageAttemptId), {
 				println("SPARKLISTENER: Task end for unknown stage " + taskEnd.stageId)
@@ -413,12 +414,12 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 			})
 			
 			stageData.numActiveTasks -= 1
-			val errorMessage: Option[String] =
-				taskEnd.reason match {
+			 errorMessage =	taskEnd.reason match {
 					case org.apache.spark.Success =>
 						stageData.completedIndices.add(info.index)
 			    		stageData.numCompleteTasks += 1
 			    		None
+					// The class sparkTaskKilled is marked private by the package, so not accessible
 					//case kill: org.apache.spark.TaskKilled =>
 			      	//	stageData.reasonToNumKilled = stageData.reasonToNumKilled.updated(
 			        //	kill.reason, stageData.reasonToNumKilled.getOrElse(kill.reason, 0) + 1)
@@ -448,32 +449,20 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 			  	}
 			}
 		}
-		
-		//val inputmetrics =
-		//val outputmetrics =
-		//val shufflereadmetrics =
-		//val shufflewritemetrics =
-		//val jsonmetrics = ("executorDeserializeTime" -> ) ~
-		//				  ("executorDeserializeCpuTime" -> ) ~
-		//				  ("executorRunTime" -> ) ~
-		//				  ("executorCpuTime" -> ) ~
-		//				  ("resultSize" -> ) ~
-		//				  ("jvmGCTime" -> ) ~
-		//				  ("resultSerializationTime" -> ) ~
-		//				  ("memoryBytesSpilled" -> ) ~
-		//				  ("diskBytesSpilled" -> ) ~
-		//				  ("peakExecutionMemory" -> ) ~
-		//				  ("" -> ) ~
-		//				  ("" -> ) ~
-		//				  ("" -> ) ~
-		//				  ("" -> ) ~
-		//				  ("" -> ) ~
-		//				  ("" -> ) ~
-		//				  ("" -> ) ~
-		//				  ("" -> ) ~
-		//				  ("" -> ) ~
-		//				  ("" -> ) ~
-		//				  ("" -> ) ~
+		var jsonmetrics:JObject = (""->"")
+		var taskmetrics = Option(taskEnd.taskMetrics)
+		taskmetrics.foreach { metrics =>
+  			jsonmetrics = ("executorDeserializeTime" -> metrics.executorDeserializeTime) ~
+						  ("executorDeserializeCpuTime" -> metrics.executorDeserializeCpuTime) ~
+						  ("executorRunTime" -> metrics.executorRunTime) ~
+						  ("executorCpuTime" -> metrics.executorCpuTime) ~
+						  ("resultSize" -> metrics.resultSize) ~
+						  ("jvmGCTime" -> metrics.jvmGCTime ) ~
+						  ("resultSerializationTime" -> metrics.resultSerializationTime ) ~
+						  ("memoryBytesSpilled" -> metrics.memoryBytesSpilled ) ~
+						  ("diskBytesSpilled" -> metrics.diskBytesSpilled ) ~
+						  ("peakExecutionMemory" ->metrics.peakExecutionMemory )
+		}	
 
 		val json=   ("msgtype" -> "sparkTaskEnd") ~
 					("launchTime" -> info.launchTime) ~
@@ -487,9 +476,11 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 					("executorId" -> info.executorId) ~
 					("host" -> info.host) ~
 					("status" ->info.status) ~
-					("speculative" -> info.speculative)
+					("speculative" -> info.speculative) ~
+					("errorMessage" -> errorMessage) ~
+					("metrics" -> jsonmetrics)
 
- 		//println("SPARKLISTENER Task Ended: \n"+ pretty(render(json)) + "\n")
+ 		println("SPARKLISTENER Task Ended: \n"+ pretty(render(json)) + "\n")
 		send(pretty(render(json)))
 	}
 

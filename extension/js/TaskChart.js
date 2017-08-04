@@ -60,7 +60,8 @@ TaskChart.prototype.create = function () {
         type: 'scatter',
         mode: 'markers',
         fillcolor: '#F5C936',
-        name: 'Jobs',
+        // name: 'Jobs',
+        showlegend: false,
         marker: {
             symbol: 23,
             color: "#4CB5AE",
@@ -72,26 +73,37 @@ TaskChart.prototype.create = function () {
 
     var data = [executortrace, tasktrace, jobtrace];
     var layout = {
-        title: 'Active Tasks and Executors Cores',
+        // title: 'Active Tasks and Executors Cores',
         // showlegend: false,
         margin: {
             t: 30, //top margin
             l: 30, //left margin
             r: 30, //right margin
-            b: 30 //bottom margin
+            b: 60 //bottom margin
         },
         xaxis: {
             type: "date",
-            title: 'Time',
+            // title: 'Time',
         },
         yaxis: {
             fixedrange: true
         },
-        legend: {
-            orientation: "h"
-        },
         dragmode: 'pan',
         shapes: that.shapes,
+        legend: {
+            orientation: "h",
+            x: 0,
+            y: 5,
+            // traceorder: 'normal',
+            font: {
+                family: 'sans-serif',
+                size: 12,
+                color: '#000'
+            },
+            // bgcolor: '#E2E2E2',
+            // bordercolor: '#FFFFFF',
+            // borderwidth: 2
+        }
     };
     that.taskChartDataBufferX = [];
     that.taskChartDataBufferY = [];
@@ -220,6 +232,7 @@ TaskChart.prototype.addJobData = function (jobId, time, event) {
 
 TaskChart.prototype.sparkJobStart = function (data) {
     this.addJobData(data.jobId, new Date(data.submissionTime), "started");
+    this.addExecutorData(data.submissionTime, data.totalCores);
 }
 
 TaskChart.prototype.sparkJobEnd = function (data) {

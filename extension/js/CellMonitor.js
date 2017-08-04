@@ -339,7 +339,7 @@ CellMonitor.prototype.createJobItem = function () {
                     <tbody></tbody></table>").addClass('stagetable');
     //var stagetablebody = stagetable.find('tbody');
     fakerow.find('.stagedata').append(stagetable);
-    var tdbutton = $('<td></td>').addClass('tdstagebutton').html('<span class="tdstageicon"> &#9658;</span>');
+    var tdbutton = $('<td></td>').addClass('tdstagebutton').html('<span class="tdstageicon"></span>');
     var icon = tdbutton.find('.tdstageicon');
     tdbutton.click(function () {
         icon.toggleClass('tdstageiconcollapsed');
