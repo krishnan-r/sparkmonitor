@@ -11,7 +11,7 @@ function showTaskDetails(data) {
     var options = {
         dialogClass: 'noTitleStuff',
         title: "Task Details",
-        width: 800,
+        width: 500,
         height: 500,
         autoResize: false,
         dialogClass: "task-dialog",

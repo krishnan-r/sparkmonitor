@@ -100,52 +100,57 @@ function Timeline(cellmonitor) {
         orientation: 'top',
         verticalScroll: false,
     };
-    this.timeline1 = null;
-    this.timeline2 = null;
-    this.timeline3 = null;
+    this.timeline1 = null; // Jobs
+    this.timeline2 = null; // Stages
+    this.timeline3 = null; // Tasks
 }
 
 Timeline.prototype.registerRefresher = function () {
     var that = this;
     that.i = 0;
     this.clearRefresher();
-    this.flushInterval = setInterval(function () {
-        console.log("SparkMonitor-Timeline: Updating Timeline")
-        that.i++;
-        if (that.i == 2) {
-            that.i = 0;
-            var date = new Date();
-            that.timelineData1.flush();
-            that.timelineData2.flush();
-            that.timelineData3.flush();
-            that.runningItems1.forEach(function (item) {
-                that.timelineData1.update({
-                    id: item.id,
-                    end: date
-                });
-            });
-            that.runningItems2.forEach(function (item) {
-                that.timelineData2.update({
-                    id: item.id,
-                    end: date
-                });
-            });
-            that.runningItems3.forEach(function (item) {
-                that.timelineData3.update({
-                    id: item.id,
-                    end: date
-                });
-            });
-            that.setRanges(
-                that.cellmonitor.cellStartTime,
-                (that.cellmonitor.cellEndTime > 0 ? that.cellmonitor.cellEndTime : new Date()),
-                false, true);
-        }
-        that.timelineData1.flush()
-        that.timelineData2.flush()
-        that.timelineData3.flush()
-    }, 1000);
+    this.flushInterval = setInterval(function () { that.refreshTimeline(); }, 1000);
 }
+
+Timeline.prototype.refreshTimeline = function (redraw) {
+    var that = this;
+    console.log("SparkMonitor-Timeline: Updating Timeline")
+    that.i++;
+    if (that.i >= 2 || redraw) {
+        that.i = 0;
+        var date = new Date();
+        that.timelineData1.flush();
+        that.timelineData2.flush();
+        that.timelineData3.flush();
+        that.runningItems1.forEach(function (item) {
+            that.timelineData1.update({
+                id: item.id,
+                end: date
+            });
+        });
+        that.runningItems2.forEach(function (item) {
+            that.timelineData2.update({
+                id: item.id,
+                end: date
+            });
+        });
+        that.runningItems3.forEach(function (item) {
+            that.timelineData3.update({
+                id: item.id,
+                end: date
+            });
+        });
+        that.setRanges(
+            that.cellmonitor.cellStartTime,
+            (that.cellmonitor.cellEndTime > 0 ? that.cellmonitor.cellEndTime : new Date()),
+            false, true);
+    }
+    that.timelineData1.flush()
+    that.timelineData2.flush()
+    that.timelineData3.flush()
+}
+
+
 
 Timeline.prototype.clearRefresher = function () {
     if (this.flushInterval) {
@@ -175,7 +180,7 @@ Timeline.prototype.resizeTimeline = function (start, end) {
 
 Timeline.prototype.addLinetoTimeline = function (time, id, title) {
     // console.log('SparkMonitor-Timeline: adding line');
-    if (this.cellmonitor.view == "timeline") {
+    if (this.cellmonitor.view == "timeline" && this.cellmonitor.displayVisible) {
         this.timeline1.addCustomTime(time, id);
         this.timeline1.setCustomTimeTitle(title, id);
         this.timeline2.addCustomTime(time, id);
@@ -213,14 +218,14 @@ Timeline.prototype.setRanges = function (start, end, set = false, moveWindow) {
         this.timelineOptions2.max = new Date(max);
         this.timelineOptions3.max = new Date(max);
     }
-    if (moveWindow && this.cellmonitor.view == "timeline") {
+    if (moveWindow && this.cellmonitor.view == "timeline" && this.cellmonitor.cellEndTime <= 0) {
         if (this.timeline1) this.timeline1.setWindow(min, max);
         if (this.timeline2) this.timeline2.setWindow(min, max);
         if (this.timeline3) this.timeline3.setWindow(min, max);
     }
 
 
-    if (this.cellmonitor.view == "timeline" && set) {
+    if (this.cellmonitor.view == "timeline" && this.cellmonitor.displayVisible && set) {
 
         if (this.timeline1) this.timeline1.setOptions(this.timelineOptions1);
         if (this.timeline2) this.timeline2.setOptions(this.timelineOptions2);
@@ -240,6 +245,10 @@ Timeline.prototype.create = function () {
             this.cellmonitor.cellStartTime,
             (this.cellmonitor.cellEndTime > 0 ? this.cellmonitor.cellEndTime : new Date()),
             false);
+
+        this.timelineData1.flush();
+        this.timelineData2.flush();
+        this.timelineData3.flush();
 
         this.timeline1 = new vis.Timeline(container1, this.timelineData1, this.timelineGroups1, this.timelineOptions1);
         this.timeline2 = new vis.Timeline(container2, this.timelineData2, this.timelineGroups2, this.timelineOptions2);
@@ -265,7 +274,7 @@ Timeline.prototype.create = function () {
 
 
 
-        this.registerRefresher();
+        if (!this.cellmonitor.allcompleted) this.registerRefresher();
         this.timeline3.on('select', function (properties) {
             if (properties.items.length) {
                 taskUI.show();
@@ -308,16 +317,16 @@ Timeline.prototype.hide = function () {
     this.clearRefresher();
 }
 
-Timeline.prototype.cellCompleted = function () {
+Timeline.prototype.onAllCompleted = function () {
     this.setRanges(this.cellmonitor.cellStartTime, this.cellmonitor.cellEndTime, true);
-}
-
-Timeline.prototype.allCompleted = function () {
-
+    this.clearRefresher();
+    if (this.cellmonitor.displayVisible && this.cellmonitor.view == "timeline") {
+        this.refreshTimeline(true);
+    }
 }
 //----------Data Handling Functions----------------
 
-Timeline.prototype.sparkJobStart = function (data) {
+Timeline.prototype.onSparkJobStart = function (data) {
     var name = $('<div>').text(data.name).html().split(' ')[0];//Escaping HTML <, > from string
     this.timelineData1.update({
         id: data.jobId,
@@ -332,7 +341,7 @@ Timeline.prototype.sparkJobStart = function (data) {
     this.runningItems1.add({ id: data.jobId });
 }
 
-Timeline.prototype.sparkJobEnd = function (data) {
+Timeline.prototype.onSparkJobEnd = function (data) {
     this.timelineData1.update({
         id: data.jobId,
         end: new Date(data.completionTime),
@@ -343,7 +352,7 @@ Timeline.prototype.sparkJobEnd = function (data) {
     this.addLinetoTimeline(new Date(data.completionTime), 'job' + data.jobId + 'end', 'Job ' + data.jobId + 'Ended');
 }
 
-Timeline.prototype.sparkStageSubmitted = function (data) {
+Timeline.prototype.onSparkStageSubmitted = function (data) {
     var name = $('<div>').text(data.name).html().split(' ')[0];//Hack for escaping HTML <, > from string.
     var submissionDate;
     if (data.submissionTime == -1) submissionDate = new Date()
@@ -362,7 +371,7 @@ Timeline.prototype.sparkStageSubmitted = function (data) {
     this.runningItems2.add({ id: data.stageId });
 }
 
-Timeline.prototype.sparkStageCompleted = function (data) {
+Timeline.prototype.onSparkStageCompleted = function (data) {
     var name = $('<div>').text(data.name).html().split(' ')[0];//Hack for escaping HTML <, > from string.
     this.timelineData2.update({
         id: data.stageId,
@@ -377,7 +386,7 @@ Timeline.prototype.sparkStageCompleted = function (data) {
     this.runningItems2.remove({ id: data.stageId });
 }
 
-Timeline.prototype.sparkTaskStart = function (data) {
+Timeline.prototype.onSparkTaskStart = function (data) {
     if (!this.timelineGroups3.get(data.executorId + '-' + data.host)) {
         this.timelineGroups3.update({
             id: data.executorId + '-' + data.host,
@@ -400,7 +409,7 @@ Timeline.prototype.sparkTaskStart = function (data) {
     this.runningItems3.add({ id: data.taskId });
 }
 
-Timeline.prototype.sparkTaskEnd = function (data) {
+Timeline.prototype.onSparkTaskEnd = function (data) {
     var that = this;
     var content;
     if (data.status == "SUCCESS") {

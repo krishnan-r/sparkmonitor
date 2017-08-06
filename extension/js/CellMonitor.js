@@ -1,20 +1,13 @@
 import Jupyter from 'base/js/namespace';
 import events from 'base/js/events';
 import requirejs from 'require'
-
 import $ from 'jquery';
-
 import livestamp from 'kuende-livestamp';
-
-import widgetHTML from './cellmonitor.html'
+import WidgetHTML from './cellmonitor.html'
 import './styles.css'
 import './jobtable.css'
-
 import spinner from './images/spinner.gif'
-
 import moment from 'moment'
-
-
 import 'moment-duration-format';
 
 var Timeline = null;
@@ -30,67 +23,59 @@ requirejs(['./taskchart'], function (taskchart) {
 
 function CellMonitor(monitor, cell) {
     var that = this;
-    window.cm=this;//Debugging
-
+    window.cm = this;//Debugging from console
 
     this.monitor = monitor; //Parent SparkMonitor instance
     this.cell = cell        //Jupyter Cell instance
-    this.view = "jobs";     //The current display tab
-    this.lastview = "jobs"; //The previous display tab
-    this.badgesmodified = false;
-    this.displayCreated = false;
-    this.displayClosed = false;
+    this.view = "jobs";     //The current display tab -- "jobs" || "timeline" || "tasks"
+    this.lastview = "jobs"; //The previous display tab, used for restoring hidden display
 
+    this.initialDisplayCreated = false; //Used by jobstart event to show display first time
+    this.displayVisible = false; //Used to toggle display
 
-
-    this.badgeInterval = setInterval($.proxy(this.setBadges, this), 1000);
+    this.cellcompleted = false;
+    this.allcompleted = false;
 
     this.displayElement = null;
 
-    this.cellStartTime = new Date();
+    this.cellStartTime = new Date(); //This is only from the frontend
     this.cellEndTime = -1;
 
+    this.badgesmodified = false;
+    this.badgeInterval = null;
     this.numActiveJobs = 0;
     this.numCompletedJobs = 0;
     this.numFailedJobs = 0;
 
-    events.off('finished' + cell.cell_id + 'currentcell');
-    events.one('finished' + cell.cell_id + 'currentcell', function () {
-        that.cellExecutionCompleted();
-    })
+    events.off('finished' + cell.cell_id + 'currentcell'); //Clearing event handler from previous instance if any
+    events.one('finished' + cell.cell_id + 'currentcell', function () { that.onCellExecutionCompleted(); })
 
     //Job Table Data----------------------------------
     this.jobData = {};
     this.stageData = {};
     this.stageIdtoJobId = {};
 
-    this.timeline = new Timeline(this);
-    this.taskchart = new TaskChart(this);
+    this.timeline = null;
+    this.taskchart = null;
 
+    if (Timeline) this.timeline = new Timeline(this);
+    if (TaskChart) this.taskchart = new TaskChart(this);
 }
 
 CellMonitor.prototype.createDisplay = function () {
-    this.html = widgetHTML
     var that = this;
-
     if (!this.cell.element.find('.CellMonitor').length) {
-        var element = $(this.html).hide();
-        //element.find('.content').hide()
+        var element = $(WidgetHTML).hide();
         this.displayElement = element;
         this.cell.element.find('.inner_cell').append(element);
         element.slideToggle();
-        element.find('.stopbutton').click(function () {
-            console.log('Stopping Jobs');
-            Jupyter.notebook.kernel.interrupt();
-            that.monitor.send({
-                msgtype: 'sparkStopJobs',
-            });
-        });
-        element.find('.closebutton').click(function () {
-            console.log('Closing Display');
-            that.displayClosed = true;
-            that.cleanUp();
-        });
+        this.displayVisible = true;
+        if (!this.allcompleted) this.badgeInterval = setInterval($.proxy(this.setBadges, this), 1000);
+        this.setBadges(true);
+
+        element.find('.stopbutton').click(function () { that.stopJobs(); });
+        if (this.cellcompleted) element.find('.stopbutton').hide();
+        element.find('.closebutton').click(function () { that.removeDisplay(); });
 
         element.find('.sparkuitabbutton').click(function () { that.openSparkUI(''); });
         element.find('.titlecollapse').click(function () {
@@ -110,6 +95,8 @@ CellMonitor.prototype.createDisplay = function () {
                 that.showView(that.lastview);
             }
         });
+        if (!this.timeline) element.find('.timelinetabbutton').hide();
+        if (!this.taskchart) element.find('.taskviewtabbutton').hide();
         element.find('.taskviewtabbutton').click(function () {
             if (that.view != 'tasks') { that.showView("tasks"); }
         });
@@ -119,30 +106,30 @@ CellMonitor.prototype.createDisplay = function () {
         element.find('.jobtabletabbutton').click(function () {
             if (that.view != 'jobs') { that.showView("jobs"); }
         });
-
-        // $("[dt='tooltiptop']").tooltip({
-        //     position: { my: 'center bottom', at: 'center top-10' },
-        //     'tooltipClass': "tptop",
-        // });
-        // $("[dt='tooltipbottom']").tooltip({
-        //     position: { my: 'center top', at: 'center bottom+10' },
-        //     'tooltipClass': "tpbottom",
-        // });
-        // $("[dt='tooltipleft']").tooltip({
-        //     position: { my: 'right center', at: 'left-10 center' },
-        //     'tooltipClass': "tpleft",
-        // });
-        // $("[dt='tooltipright']").tooltip({
-        //     position: { my: 'left center', at: 'right+10 center' },
-        //     'tooltipClass': "tpright",
-        // });
-
         this.showView("jobs");
-
     }
     else console.error("SparkMonitor: Error Display Already Exists");
 }
-CellMonitor.prototype.openSparkUI = function (url = '') {
+
+CellMonitor.prototype.removeDisplay = function () {
+    this.displayVisible = false;
+    if (this.badgeInterval) {
+        clearInterval(this.badgeInterval);
+        this.badgeInterval = null;
+    }
+    this.hideView(this.view);
+    this.displayElement.remove();
+}
+
+CellMonitor.prototype.stopJobs = function () {
+    Jupyter.notebook.kernel.interrupt();
+    this.monitor.send({
+        msgtype: 'sparkStopJobs',
+    });
+}
+
+CellMonitor.prototype.openSparkUI = function (url) {
+    if (!url) url = '';
     var iframe = $('\
                     <div style="overflow:hidden">\
                     <iframe src="'+ Jupyter.notebook.base_url + 'sparkmonitor/' + url + '" frameborder="0" scrolling="yes" class="sparkuiframe">\
@@ -203,16 +190,21 @@ CellMonitor.prototype.showView = function (view) {
 }
 
 CellMonitor.prototype.hideView = function (view) {
-    switch (view) {
-        case "jobs":
-            this.hideJobTable();
-            break;
-        case "tasks":
-            if (this.taskchart) this.taskchart.hide();
-            break;
-        case "timeline":
-            if (this.timeline) this.timeline.hide();
-            break;
+    try {
+        switch (view) {
+            case "jobs":
+                this.hideJobTable();
+                break;
+            case "tasks":
+                if (this.taskchart) this.taskchart.hide();
+                break;
+            case "timeline":
+                if (this.timeline) this.timeline.hide();
+                break;
+        }
+    }
+    catch (err) {
+        console.log("SparkMonitor:Error Hiding View");
     }
 }
 
@@ -241,10 +233,30 @@ CellMonitor.prototype.setBadges = function (redraw = false) {
     }
 }
 
-CellMonitor.prototype.cleanUp = function () {
-    this.hideView(this.view);
-    this.displayElement.remove();
+CellMonitor.prototype.onCellExecutionCompleted = function () {
+    console.log("SparkMonitor: Cell Execution Completed");
+    this.cellEndTime = new Date();
+    this.cellcompleted = true;
+
+    if (this.numActiveJobs == 0 && !this.allcompleted) {
+        this.onAllCompleted();
+    }
+    if (this.displayVisible) this.displayElement.find('.stopbutton').hide(500);
 }
+
+CellMonitor.prototype.onAllCompleted = function () {
+    this.allcompleted = true;
+    if (this.badgeInterval) {
+        clearInterval(this.badgeInterval);
+        this.badgeInterval = null;
+    }
+    if (this.displayVisible) this.setBadges(true);
+    console.log("SparkMonitor: Cell Execution and Jobs Completed");
+    this.onJobTableAllCompleted();
+    if (this.timeline) this.timeline.onAllCompleted();
+    if (this.taskchart) this.taskchart.onAllCompleted();
+}
+
 
 //--------Job Table Functions----------------------
 
@@ -274,7 +286,7 @@ CellMonitor.prototype.createJobTable = function () {
     var table = $("<table/>").addClass('jobtable');
     table.append(thead, tbody);
     this.displayElement.find('.jobtablecontent').empty().append(table);
-    this.registerJobTableRefresher();
+    if (!this.allcompleted) this.registerJobTableRefresher();
 }
 
 CellMonitor.prototype.createStageItem = function () {
@@ -441,17 +453,16 @@ CellMonitor.prototype.hideJobTable = function () {
     this.clearJobTableRefresher();
 }
 
-CellMonitor.prototype.jobTableCellCompleted = function () {
-    //this.clearJobTableRefresher();
+CellMonitor.prototype.onJobTableAllCompleted = function () {
+
 }
 
 
 //----------Data Handling Functions----------------
 
-CellMonitor.prototype.sparkJobStart = function (data) {
+CellMonitor.prototype.onSparkJobStart = function (data) {
     var that = this;
     this.numActiveJobs += 1;
-    //this.setBadges();
     this.badgesmodified = true;
     this.appId = data.appId;
     var name = $('<div>').text(data.name).html().split(' ')[0];//Escaping HTML <, > from string
@@ -498,16 +509,16 @@ CellMonitor.prototype.sparkJobStart = function (data) {
         var laststageid = Math.max.apply(null, data.stageIds);
         that.jobData[data.jobId]['name'] = that.stageData[laststageid]['name'];
     }
-    if (!this.displayCreated) {
+    if (!this.initialDisplayCreated) {
         this.createDisplay();
-        this.displayCreated = true;
+        this.initialDisplayCreated = true;
     }
-    console.log(this.timeline);
-    this.timeline.sparkJobStart(data);
-    this.taskchart.sparkJobStart(data);
+
+    if (this.timeline) this.timeline.onSparkJobStart(data);
+    if (this.taskchart) this.taskchart.onSparkJobStart(data);
 }
 
-CellMonitor.prototype.sparkJobEnd = function (data) {
+CellMonitor.prototype.onSparkJobEnd = function (data) {
     var that = this;
     this.jobData[data.jobId]['status'] = data.status;
     this.jobData[data.jobId]['stageIds'].forEach(function (stageid) {
@@ -519,12 +530,12 @@ CellMonitor.prototype.sparkJobEnd = function (data) {
             that.jobData[data.jobId]['numTasks'] -= that.stageData[stageid]['numTasks'];
         }
     })
+
+    this.numActiveJobs -= 1;
     if (data.status == "SUCCEEDED") {
-        this.numActiveJobs -= 1;
         this.numCompletedJobs += 1;
         this.jobData[data.jobId]['status'] = "COMPLETED";
     } else {
-        this.numActiveJobs -= 1;
         this.numFailedJobs += 1;
         this.jobData[data.jobId]['status'] = "FAILED"
     }
@@ -534,11 +545,15 @@ CellMonitor.prototype.sparkJobEnd = function (data) {
     this.jobData[data.jobId]['end'] = new Date(data.completionTime);
     this.jobData[data.jobId]['modified'] = true;
 
-    this.timeline.sparkJobEnd(data);
-    this.taskchart.sparkJobEnd(data);
+    if (this.timeline) this.timeline.onSparkJobEnd(data);
+    if (this.taskchart) this.taskchart.onSparkJobEnd(data);
+
+    if (this.numActiveJobs == 0 && this.cellcompleted && !this.allcompleted) {
+        this.onAllCompleted();
+    }
 }
 
-CellMonitor.prototype.sparkStageSubmitted = function (data) {
+CellMonitor.prototype.onSparkStageSubmitted = function (data) {
     var that = this;
     var name = $('<div>').text(data.name).html().split(' ')[0];//Hack for escaping HTML <, > from string.
     var submissionDate;
@@ -556,11 +571,11 @@ CellMonitor.prototype.sparkStageSubmitted = function (data) {
     this.stageData[data.stageId]['numTasks'] = data.numTasks;
     this.stageData[data.stageId]['modified'] = true;
 
-    this.timeline.sparkStageSubmitted(data);
-    this.taskchart.sparkStageSubmitted(data);
+    if (this.timeline) this.timeline.onSparkStageSubmitted(data);
+    if (this.taskchart) this.taskchart.onSparkStageSubmitted(data);
 }
 
-CellMonitor.prototype.sparkStageCompleted = function (data) {
+CellMonitor.prototype.onSparkStageCompleted = function (data) {
     var that = this;
     var name = $('<div>').text(data.name).html().split(' ')[0];//Hack for escaping HTML <, > from string.
 
@@ -580,11 +595,11 @@ CellMonitor.prototype.sparkStageCompleted = function (data) {
     this.stageData[data.stageId]['end'] = new Date(data.completionTime);
     this.stageData[data.stageId]['modified'] = true;
 
-    this.timeline.sparkStageCompleted(data);
-    this.taskchart.sparkStageCompleted(data);
+    if (this.timeline) this.timeline.onSparkStageCompleted(data);
+    if (this.taskchart) this.taskchart.onSparkStageCompleted(data);
 }
 
-CellMonitor.prototype.sparkTaskStart = function (data) {
+CellMonitor.prototype.onSparkTaskStart = function (data) {
     var that = this;
 
     this.stageData[data.stageId]['numActiveTasks'] += 1;
@@ -596,11 +611,11 @@ CellMonitor.prototype.sparkTaskStart = function (data) {
         that.jobData[jobId]['modified'] = true;
     })
 
-    this.timeline.sparkTaskStart(data);
-    this.taskchart.sparkTaskStart(data);
+    if (this.timeline) this.timeline.onSparkTaskStart(data);
+    if (this.taskchart) this.taskchart.onSparkTaskStart(data);
 }
 
-CellMonitor.prototype.sparkTaskEnd = function (data) {
+CellMonitor.prototype.onSparkTaskEnd = function (data) {
     var that = this;
 
     this.stageData[data.stageId]['numActiveTasks'] -= 1;
@@ -621,30 +636,18 @@ CellMonitor.prototype.sparkTaskEnd = function (data) {
         }
         else {
             that.jobData[jobId]['numFailedTasks'] += 1;
-            console.error("Task Failed");
         }
     });
-    this.timeline.sparkTaskEnd(data);
-    this.taskchart.sparkTaskEnd(data);
+    if (this.timeline) this.timeline.onSparkTaskEnd(data);
+    if (this.taskchart) this.taskchart.onSparkTaskEnd(data);
 }
 
-CellMonitor.prototype.sparkExecutorAdded = function (data) {
+CellMonitor.prototype.onSparkExecutorAdded = function (data) {
     this.badgesmodified = true;
 }
 
-CellMonitor.prototype.sparkExecutorRemoved = function (data) {
+CellMonitor.prototype.onSparkExecutorRemoved = function (data) {
     this.badgesmodified = true;
-}
-
-CellMonitor.prototype.cellExecutionCompleted = function () {
-    console.log("SparkMonitor: Cell Execution Completed");
-    this.cellEndTime = new Date();
-
-    this.timeline.cellCompleted();
-    this.taskchart.cellCompleted();
-    this.jobTableCellCompleted();
-
-    this.displayElement.find('.stopbutton').hide(500);
 }
 
 export default CellMonitor;

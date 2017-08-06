@@ -15,7 +15,7 @@
 .pm .vis-item {
   border-radius: 0;
   font-size: smaller;
-  transition: width 200ms;
+  /* transition: width 200ms; */
 }
 
 .pm .vis-item .vis-item-content {

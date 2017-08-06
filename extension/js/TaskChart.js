@@ -117,7 +117,7 @@ TaskChart.prototype.create = function () {
 
     Plotly.newPlot(container, data, layout, options);
     this.taskChart = container;
-    this.registerRefresher();
+    if (!this.cellmonitor.allcompleted) this.registerRefresher();
 }
 
 TaskChart.prototype.addData = function (time, numTasks) {
@@ -147,51 +147,58 @@ TaskChart.prototype.addLinetoTasks = function (time, id, title) {
 
 TaskChart.prototype.hide = function () {
     this.clearRefresher()
-    Plotly.purge(this.taskChart);
+    try {
+        Plotly.purge(this.taskChart);
+    }
+    catch (err) {
+        console.log("SparkMonitor: Error Hiding taskchart"); //err);
+    }
     this.taskChart = null;
 }
 
 TaskChart.prototype.registerRefresher = function () {
     var that = this;
     this.clearRefresher();
-    this.taskinterval = setInterval(function () {
-        console.log('Updating Chart');
-        if (that.taskcountchanged && that.cellmonitor.view == "tasks") {
-            try {
-                Plotly.extendTraces(
-                    that.taskChart,
-                    {
-                        x: [that.executorDataBufferX.slice(), that.taskChartDataBufferX.slice()],
-                        y: [that.executorDataBufferY.slice(), that.taskChartDataBufferY.slice()],
-                    },
-                    [0, 1]);
-                Plotly.extendTraces(
-                    that.taskChart,
-                    {
-                        x: [that.jobDataBufferX.slice()],
-                        //  y: [that.jobDataBufferY.slice()],
-                        text: [that.jobDataBufferText]
-                    },
-                    [2]);
+    this.taskinterval = setInterval(function () { that.refreshTaskChart(); }, 800);
+}
+TaskChart.prototype.refreshTaskChart = function () {
+    var that = this;
+    console.log('SparkMonitor: Updating Chart');
+    if (that.taskcountchanged && that.cellmonitor.view == "tasks") {
+        try {
+            Plotly.extendTraces(
+                that.taskChart,
+                {
+                    x: [that.executorDataBufferX.slice(), that.taskChartDataBufferX.slice()],
+                    y: [that.executorDataBufferY.slice(), that.taskChartDataBufferY.slice()],
+                },
+                [0, 1]);
+            Plotly.extendTraces(
+                that.taskChart,
+                {
+                    x: [that.jobDataBufferX.slice()],
+                    //  y: [that.jobDataBufferY.slice()],
+                    text: [that.jobDataBufferText]
+                },
+                [2]);
 
-                var update = {
-                    shapes: that.shapes
-                };
-                Plotly.relayout(that.taskChart, update)
-            }
-            catch (err) {
-                console.log("SparkMonitor: Exception in updating task graph ", err);
-            }
-            that.taskChartDataBufferX = [];
-            that.taskChartDataBufferY = [];
-            that.executorDataBufferX = [];
-            that.executorDataBufferY = [];
-            that.jobDataBufferX = [];
-            that.jobDataBufferY = [];
-            that.jobDataBufferText = [];
-            that.taskcountchanged = false;
+            var update = {
+                shapes: that.shapes
+            };
+            Plotly.relayout(that.taskChart, update)
         }
-    }, 500);
+        catch (err) {
+            console.log("SparkMonitor: Exception in updating task graph ", err);
+        }
+        that.taskChartDataBufferX = [];
+        that.taskChartDataBufferY = [];
+        that.executorDataBufferX = [];
+        that.executorDataBufferY = [];
+        that.jobDataBufferX = [];
+        that.jobDataBufferY = [];
+        that.jobDataBufferText = [];
+        that.taskcountchanged = false;
+    }
 }
 
 TaskChart.prototype.clearRefresher = function () {
@@ -201,7 +208,8 @@ TaskChart.prototype.clearRefresher = function () {
     }
 }
 
-TaskChart.prototype.cellCompleted = function () {
+TaskChart.prototype.onAllCompleted = function () {
+    this.clearRefresher();
 }
 
 TaskChart.prototype.addJobData = function (jobId, time, event) {
@@ -230,32 +238,31 @@ TaskChart.prototype.addJobData = function (jobId, time, event) {
 
 //----------Data Handling Functions----------------
 
-TaskChart.prototype.sparkJobStart = function (data) {
+TaskChart.prototype.onSparkJobStart = function (data) {
     this.addJobData(data.jobId, new Date(data.submissionTime), "started");
     this.addExecutorData(data.submissionTime, data.totalCores);
 }
 
-TaskChart.prototype.sparkJobEnd = function (data) {
+TaskChart.prototype.onSparkJobEnd = function (data) {
     this.addJobData(data.jobId, new Date(data.completionTime), "ended");
 }
 
-TaskChart.prototype.sparkStageSubmitted = function (data) {
+TaskChart.prototype.onSparkStageSubmitted = function (data) {
 }
 
-TaskChart.prototype.sparkStageCompleted = function (data) {
+TaskChart.prototype.onSparkStageCompleted = function (data) {
 
 }
 
-TaskChart.prototype.sparkTaskStart = function (data) {
+TaskChart.prototype.onSparkTaskStart = function (data) {
     this.addData(data.launchTime, this.numActiveTasks);
     this.numActiveTasks += 1;
     this.addData(data.launchTime, this.numActiveTasks);
 }
 
-TaskChart.prototype.sparkTaskEnd = function (data) {
+TaskChart.prototype.onSparkTaskEnd = function (data) {
     this.addData(data.finishTime, this.numActiveTasks);
     this.numActiveTasks -= 1;
     this.addData(data.finishTime, this.numActiveTasks);
 }
-
 export default TaskChart;
