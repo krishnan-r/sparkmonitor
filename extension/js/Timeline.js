@@ -26,6 +26,7 @@ function Timeline(cellmonitor) {
     this.runningItems3 = new vis.DataSet();
 
     this.runningItems = {};
+    this.userdragged = false;
 
     this.timelineOptions1 = {
         rollingMode: {
@@ -218,7 +219,7 @@ Timeline.prototype.setRanges = function (start, end, set = false, moveWindow) {
         this.timelineOptions2.max = new Date(max);
         this.timelineOptions3.max = new Date(max);
     }
-    if (moveWindow && this.cellmonitor.view == "timeline" && this.cellmonitor.cellEndTime <= 0) {
+    if (moveWindow && this.cellmonitor.view == "timeline" && this.cellmonitor.cellEndTime <= 0 && !this.userdragged) {
         if (this.timeline1) this.timeline1.setWindow(min, max);
         if (this.timeline2) this.timeline2.setWindow(min, max);
         if (this.timeline3) this.timeline3.setWindow(min, max);
@@ -240,7 +241,7 @@ Timeline.prototype.create = function () {
         var container1 = this.cellmonitor.displayElement.find('.timelinecontainer1').empty()[0]
         var container2 = this.cellmonitor.displayElement.find('.timelinecontainer2').empty()[0]
         var container3 = this.cellmonitor.displayElement.find('.timelinecontainer3').empty()[0]
-
+        this.userdragged = false;
         this.setRanges(
             this.cellmonitor.cellStartTime,
             (this.cellmonitor.cellEndTime > 0 ? this.cellmonitor.cellEndTime : new Date()),
@@ -272,12 +273,30 @@ Timeline.prototype.create = function () {
         this.timeline2.redraw();
         this.timeline3.redraw();
 
+        var onuserclick = function () {
+            //console.log("User Clicked", arguments);
+            that.userdragged = true;
+        }
+
+        var onuserdrag = function (data) {
+            // console.log("User Dragged", arguments);
+            if (data.byUser) that.userdragged = true;
+        }
+
+        this.timeline1.on('click', onuserclick);
+        this.timeline2.on('click', onuserclick);
+        this.timeline3.on('click', onuserclick);
+
+        this.timeline1.on('rangechanged', onuserdrag);
+        this.timeline2.on('rangechanged', onuserdrag);
+        this.timeline3.on('rangechanged', onuserdrag);
+
 
 
         if (!this.cellmonitor.allcompleted) this.registerRefresher();
         this.timeline3.on('select', function (properties) {
             if (properties.items.length) {
-                taskUI.show();
+                taskUI.show(that.timelineData3.get(properties.items[0]));
             }
         });
 
@@ -332,7 +351,7 @@ Timeline.prototype.onSparkJobStart = function (data) {
         id: data.jobId,
         start: new Date(data.submissionTime),
         end: new Date(),
-        content: '' + name,
+        content: ''+data.jobId+':' + name,
         // title: data.jobId + ': ' + data.name + ' ',
         group: 'jobs',
         className: 'itemrunning job',
@@ -361,7 +380,7 @@ Timeline.prototype.onSparkStageSubmitted = function (data) {
     this.timelineData2.update({
         id: data.stageId,
         start: submissionDate,
-        content: "" + name,
+        content: ''+data.stageId+":" + name,
         group: 'stages',
         // title: 'Stage: ' + data.stageId + ' ' + name,
         end: new Date(),
@@ -404,7 +423,8 @@ Timeline.prototype.onSparkTaskStart = function (data) {
         // title: 'Task: ' + data.taskId + ' from stage ' + data.stageId + ' Launched: ' + Date(data.launchTime),
         className: 'itemrunning task',
         mode: "ongoing",
-        align: "center"
+        align: "center",
+        data: data
     });
     this.runningItems3.add({ id: data.taskId });
 }
@@ -413,7 +433,7 @@ Timeline.prototype.onSparkTaskEnd = function (data) {
     var that = this;
     var content;
     if (data.status == "SUCCESS") {
-        content = this.createTaskBar();
+        content = this.createTaskBar(data);
     }
     else content = "" + data.taskId;
     this.timelineData3.update({
@@ -424,12 +444,13 @@ Timeline.prototype.onSparkTaskEnd = function (data) {
         mode: "done",
         content: content,
         align: (data.status == "SUCCESS" ? "left" : "center"),
+        data: data
     });
     this.runningItems3.remove({ id: data.taskId });
 }
 
 Timeline.prototype.createTaskBar = function (data) {
-    var html = '<div class="taskbardiv"><svg class="taskbarsvg">' +
+    var html = '<svg class="taskbarsvg">' +
         '<rect class="scheduler-delay-proportion" x="0%" y="0px" height="100%" width="10%"></rect>' +
         '<rect class="deserialization-time-proportion" x="10%" y="0px" height="100%" width="10%"></rect>' +
         '<rect class="shuffle-read-time-proportion" x="20%" y="0px" height="100%" width="20%"></rect>' +
@@ -437,8 +458,39 @@ Timeline.prototype.createTaskBar = function (data) {
         '<rect class="shuffle-write-time-proportion" x="50%" y="0px" height="100%" width="10%"></rect>' +
         '<rect class="serialization-time-proportion" x="60%" y="0px" height="100%" width="20%"></rect>' +
         '<rect class="getting-result-time-proportion" x="80%" y="0px" height="100%" width="20%"></rect>' +
-        '</svg></div>'
-    return html
+        '</svg>'
+    var element = $('<div></div>').html(html).addClass('taskbardiv');
+    var metrics = data.metrics;
+    var svg = element.find('.taskbarsvg');
+    svg.find('.scheduler-delay-proportion')
+        .attr('x', '' + metrics.schedulerDelayProportionPos + '%')
+        .attr('width', '' + metrics.schedulerDelayProportion + '%');
+
+    svg.find('.deserialization-time-proportion')
+        .attr('x', '' + metrics.deserializationTimeProportionPos + '%')
+        .attr('width', '' + metrics.deserializationTimeProportion + '%');
+
+    svg.find('.shuffle-read-time-proportion')
+        .attr('x', '' + metrics.shuffleReadTimeProportionPos + '%')
+        .attr('width', '' + metrics.shuffleReadTimeProportion + '%');
+
+    svg.find('.executor-runtime-proportion')
+        .attr('x', '' + metrics.executorComputingTimeProportionPos + '%')
+        .attr('width', '' + metrics.executorComputingTimeProportion + '%');
+
+    svg.find('.shuffle-write-time-proportion')
+        .attr('x', '' + metrics.shuffleWriteTimeProportionPos + '%')
+        .attr('width', '' + metrics.shuffleWriteTimeProportion + '%');
+
+    svg.find('.serialization-time-proportion')
+        .attr('x', '' + metrics.serializationTimeProportionPos + '%')
+        .attr('width', '' + metrics.serializationTimeProportion + '%');
+
+    svg.find('.getting-result-time-proportion')
+        .attr('x', '' + metrics.gettingResultTimeProportionPos + '%')
+        .attr('width', '' + metrics.gettingResultTimeProportion + '%');
+
+    return element.prop('outerHTML')
 }
 Timeline.prototype.createTaskBarData = function (data) {
     var totaltime = data.finishTime - data.launchTime;

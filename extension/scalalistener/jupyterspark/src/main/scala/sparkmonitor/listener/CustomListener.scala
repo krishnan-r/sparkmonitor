@@ -449,20 +449,78 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 			  	}
 			}
 		}
+
 		var jsonmetrics:JObject = (""->"")
-		var taskmetrics = Option(taskEnd.taskMetrics)
-		taskmetrics.foreach { metrics =>
-  			jsonmetrics = ("executorDeserializeTime" -> metrics.executorDeserializeTime) ~
-						  ("executorDeserializeCpuTime" -> metrics.executorDeserializeCpuTime) ~
-						  ("executorRunTime" -> metrics.executorRunTime) ~
-						  ("executorCpuTime" -> metrics.executorCpuTime) ~
-						  ("resultSize" -> metrics.resultSize) ~
-						  ("jvmGCTime" -> metrics.jvmGCTime ) ~
-						  ("resultSerializationTime" -> metrics.resultSerializationTime ) ~
-						  ("memoryBytesSpilled" -> metrics.memoryBytesSpilled ) ~
-						  ("diskBytesSpilled" -> metrics.diskBytesSpilled ) ~
-						  ("peakExecutionMemory" ->metrics.peakExecutionMemory )
-		}	
+		val totalExecutionTime = info.finishTime - info.launchTime
+		def toProportion(time: Long) = time.toDouble / totalExecutionTime * 100
+
+		var metricsOpt = Option(taskEnd.taskMetrics)
+        val shuffleReadTime =  metricsOpt.map(_.shuffleReadMetrics.fetchWaitTime).getOrElse(0L)
+        val shuffleReadTimeProportion = toProportion(shuffleReadTime)
+        val shuffleWriteTime = (metricsOpt.map(_.shuffleWriteMetrics.writeTime).getOrElse(0L) / 1e6).toLong
+        val shuffleWriteTimeProportion = toProportion(shuffleWriteTime)
+        val serializationTime = metricsOpt.map(_.resultSerializationTime).getOrElse(0L)
+        val serializationTimeProportion = toProportion(serializationTime)
+        val deserializationTime = metricsOpt.map(_.executorDeserializeTime).getOrElse(0L)
+        val deserializationTimeProportion = toProportion(deserializationTime)
+        val gettingResultTime = if (info.gettingResult) {
+     								 if (info.finished) {
+        								info.finishTime - info.gettingResultTime
+      									} else {
+        									0L //currentTime - info.gettingResultTime
+      									}
+    								} else {
+      								0L
+    								}
+        val gettingResultTimeProportion = toProportion(gettingResultTime)
+      	val executorOverhead = serializationTime + deserializationTime
+      	val executorRunTime =  metricsOpt.map(_.executorRunTime).getOrElse(totalExecutionTime - executorOverhead - gettingResultTime)
+		val schedulerDelay =  math.max(0,totalExecutionTime - executorRunTime - executorOverhead - gettingResultTime)
+        val schedulerDelayProportion = toProportion(schedulerDelay)
+        val executorComputingTime = executorRunTime - shuffleReadTime - shuffleWriteTime
+        val executorComputingTimeProportion =
+          math.max(100 - schedulerDelayProportion - shuffleReadTimeProportion -
+            shuffleWriteTimeProportion - serializationTimeProportion -
+            deserializationTimeProportion - gettingResultTimeProportion, 0)
+
+        val schedulerDelayProportionPos = 0
+        val deserializationTimeProportionPos = schedulerDelayProportionPos + schedulerDelayProportion
+        val shuffleReadTimeProportionPos = deserializationTimeProportionPos + deserializationTimeProportion
+        val executorRuntimeProportionPos = shuffleReadTimeProportionPos + shuffleReadTimeProportion
+        val shuffleWriteTimeProportionPos = executorRuntimeProportionPos + executorComputingTimeProportion
+        val serializationTimeProportionPos = shuffleWriteTimeProportionPos + shuffleWriteTimeProportion
+        val gettingResultTimeProportionPos = serializationTimeProportionPos + serializationTimeProportion
+
+  		if(!metricsOpt.isEmpty){	
+		  jsonmetrics =   ("shuffleReadTime" -> shuffleReadTime ) ~
+						  ("shuffleWriteTime" -> shuffleWriteTime ) ~
+						  ("serializationTime" -> serializationTime ) ~
+						  ("deserializationTime" -> deserializationTime ) ~
+						  ("gettingResultTime" -> gettingResultTime ) ~
+						  ("executorComputingTime" -> executorComputingTime ) ~
+						  ("schedulerDelay" -> schedulerDelay ) ~
+						  ("shuffleReadTimeProportion" -> shuffleReadTimeProportion ) ~
+						  ("shuffleWriteTimeProportion" -> shuffleWriteTimeProportion ) ~
+						  ("serializationTimeProportion" -> serializationTimeProportion ) ~
+						  ("deserializationTimeProportion" -> deserializationTimeProportion ) ~
+						  ("gettingResultTimeProportion" -> gettingResultTimeProportion ) ~
+						  ("executorComputingTimeProportion" -> executorComputingTimeProportion ) ~
+						  ("schedulerDelayProportion" -> schedulerDelayProportion ) ~
+						  ("shuffleReadTimeProportionPos" -> shuffleReadTimeProportionPos ) ~
+						  ("shuffleWriteTimeProportionPos" -> shuffleWriteTimeProportionPos ) ~
+						  ("serializationTimeProportionPos" -> serializationTimeProportionPos ) ~
+						  ("deserializationTimeProportionPos" -> deserializationTimeProportionPos ) ~
+						  ("gettingResultTimeProportionPos" -> gettingResultTimeProportionPos ) ~
+						  ("executorComputingTimeProportionPos" -> executorRuntimeProportionPos ) ~
+						  ("schedulerDelayProportionPos" -> schedulerDelayProportionPos ) ~
+						  ("resultSize" -> metricsOpt.map(_.resultSize).getOrElse(0L)) ~
+						  ("jvmGCTime" -> metricsOpt.map(_.jvmGCTime ).getOrElse(0L)) ~
+						  ("memoryBytesSpilled" -> metricsOpt.map(_.memoryBytesSpilled ).getOrElse(0L)) ~
+						  ("diskBytesSpilled" -> metricsOpt.map(_.diskBytesSpilled ).getOrElse(0L)) ~
+						  ("peakExecutionMemory" -> metricsOpt.map(_.peakExecutionMemory ).getOrElse(0L)) ~
+						  ("test" -> info.gettingResultTime)	  
+			}
+
 
 		val json=   ("msgtype" -> "sparkTaskEnd") ~
 					("launchTime" -> info.launchTime) ~
@@ -524,9 +582,6 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 	private def calculateNumberToRemove(dataSize: Int, retainedSize: Int): Int = {
 		math.max(retainedSize / 10, dataSize - retainedSize)
 	}
-
-
-
 
 	override def onExecutorAdded(executorAdded: SparkListenerExecutorAdded): Unit = synchronized {
 		executorCores(executorAdded.executorId)=executorAdded.executorInfo.totalCores

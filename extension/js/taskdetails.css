@@ -2,6 +2,15 @@
     font-family: sans-serif;
     margin: 10px;
 }
+.taskdetails .success {
+    display: none;
+}
+.taskdetails .error {
+    display: none;
+}
+.taskdetails .finish {
+    display: none;
+}
 
 .taskdetails rect.scheduler-delay-proportion {
     fill: #80B1D3;
