@@ -22,14 +22,16 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 
 	println("SPARKLISTENER: Started SparkListener for Jupyter Notebook")
 	//val port = conf.get("spark.monitor.port")
-	//Instead of using the SparkConf to store the port, it is taken from an environment variable. Some versions of spark discard unknows configurations in SparkConf
-	val port = scala.util.Properties.envOrElse("spark.monitor.port", "ERRORNOTFOUND")
+	//Instead of using the SparkConf to store the port, it is taken from an environment variable. 
+	//Some versions of spark possibly discard unknows configurations in SparkConf
+	val port = scala.util.Properties.envOrElse("SPARKMONITOR_KERNEL_PORT", "ERRORNOTFOUND")
 	println("SPARKLISTENER: Port obtained from environment: "+port)
   	//println("SPARKLISTENER: Connecting to port"+conf.get("spark.monitor.port"))
 	  
 
 	var socket:Socket = null
 	var out:OutputStreamWriter = null
+	
 	try {
 		socket =new Socket("localhost",port.toInt)
 		out =new OutputStreamWriter(socket.getOutputStream())

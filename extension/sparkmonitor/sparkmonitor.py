@@ -169,14 +169,15 @@ def configure(conf):
     global monitor
     port = monitor.getPort()
     print("SparkConf Configured, Starting to listen on port:", str(port))
-    #logger.info("SparkConf configured with port %s", str(port))
+   
+   
+    # logger.info("SparkConf configured with port %s", str(port))
     # Configuring Spark Conf
-    # conf.set("spark.monitor.port", port) #spark discards configs without
-    # spark[dot]*
+    # conf.set("spark.monitor.port", port) #spark discards configs without spark[dot]*
 
-    os.environ["spark.monitor.port"] = str(port)
+    os.environ["SPARKMONITOR_KERNEL_PORT"] = str(port)
 
-    logger.info(os.environ["spark.monitor.port"])
+    logger.info(os.environ["SPARKMONITOR_KERNEL_PORT"])
     conf.set('spark.extraListeners',
              'sparkmonitor.listener.PythonNotifyListener')
 

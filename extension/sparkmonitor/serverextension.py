@@ -26,14 +26,15 @@ class SparkMonitorHandler(IPythonHandler):
     def get(self):
         print("SPARKSERVER: Handler GET")
         http = httpclient.AsyncHTTPClient()
-        baseurl="http://127.0.0.1"
-        port="4040"
-        #port=os.environ.get('',"4040")
-        #TODO get port from frontend first.
-        url=baseurl+":"+port
+        baseurl=os.environ.get("SPARKMONITOR_UI_HOST","127.0.0.1") # Without protocol and trailing slash
+        port=os.environ.get("SPARKMONITOR_UI_PORT","4040")
 
-        print("SPARKSERVER: Request URI" + self.request.uri)
-        # TODO add baseURL
+        #TODO option to get url from user.
+        url='http://'+baseurl+":"+port
+
+        print("SPARKMONITORSERVER: Request URI" + self.request.uri)
+        print("SPARKMONITORSERVER: Getting from " + url)
+
         request_path = self.request.uri[len(proxy_root):]
         backendurl = url_path_join(url, request_path)
         http.fetch(backendurl, self.handle_response)
