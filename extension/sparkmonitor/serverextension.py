@@ -1,5 +1,5 @@
-# SparkMonitor Jupyter Serverextension
-# This module adds a request handler to jupyter webserver. It proxies the spark UI assumed to be running at 127.0.0.1:4040 
+# SparkMonitor Jupyter Server Extension
+# This module adds a request handler to jupyter webserver. It proxies the spark UI by default running at 127.0.0.1:4040 
 # to the endpoint [notebook rooturl]/sparkmonitor
 # TODO Create unique endpoints for different kernels or spark applications.
 
@@ -24,26 +24,32 @@ class SparkMonitorHandler(IPythonHandler):
 
     @tornado.web.asynchronous
     def get(self):
-        print("SPARKSERVER: Handler GET")
+        print("SPARKMONITOR_SERVER: Handler GET")
         http = httpclient.AsyncHTTPClient()
         baseurl=os.environ.get("SPARKMONITOR_UI_HOST","127.0.0.1") # Without protocol and trailing slash
         port=os.environ.get("SPARKMONITOR_UI_PORT","4040")
 
         #TODO option to get url from user.
         url='http://'+baseurl+":"+port
+        
+        
 
-        print("SPARKMONITORSERVER: Request URI" + self.request.uri)
-        print("SPARKMONITORSERVER: Getting from " + url)
+        print("SPARKMONITOR_SERVER: Request URI" + self.request.uri)
+        print("SPARKMONITOR_SERVER: Getting from " + url)
 
         request_path = self.request.uri[len(proxy_root):]
         backendurl = url_path_join(url, request_path)
+
+        self.debug_url=url
+        self.backendurl=backendurl
+
         http.fetch(backendurl, self.handle_response)
 
     def handle_response(self, response):
         if response.error:
             content_type = 'application/json'
-            content = json.dumps({'error': 'SPARK_UI_NOT_RUNNING'})
-            print('SPARKSERVER: Spark UI not running')
+            content = json.dumps({'error': 'SPARK_UI_NOT_RUNNING','url':self.debug_url,'backendurl':self.backendurl})
+            print('SPARKMONITOR_SERVER: Spark UI not running')
         else:
             content_type = response.headers['Content-Type']
             #print('SPARKSERVER: CONTENT TYPE: '+ content_type + '\n')
@@ -67,7 +73,7 @@ def load_jupyter_server_extension(nb_server_app):
     Args:
         nb_server_app (NotebookWebApplication): handle to the Notebook webserver instance.
     """
-    print("SPARKSERVER: Loading Server Extension")
+    print("SPARKMONITOR_SERVER: Loading Server Extension")
     web_app = nb_server_app.web_app
     host_pattern = '.*$'
     route_pattern = url_path_join(
