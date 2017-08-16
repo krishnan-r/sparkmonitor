@@ -34,7 +34,8 @@
   },
   "scripts": {
     "webpack": "webpack -p --config webpack.config.js",
-    "webpackwatch": "webpack --watch --config webpack.config.js"
+    "webpackwatch": "webpack --watch --config webpack.config.js",
+    "docs":"esdoc"
   },
   "dependencies": {
     "kuende-livestamp": "^1.1.2",
