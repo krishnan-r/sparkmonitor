@@ -2,11 +2,12 @@ import './taskdetails.css'
 import taskHTML from './taskdetails.html'
 
 import $ from 'jquery';
+import moment from 'moment'
 
 
 
 function showTaskDetails(item) {
-    console.log("Popoup data: ", item);
+    //console.log("Popup data: ", item);
 
     var div = $('<div></div>').html(taskHTML);
     fillData(div, item);
@@ -32,13 +33,17 @@ function fillData(element, item) {
     element.find('.data-stageid').text(data.stageId);
     element.find('.data-host').text(data.host);
     element.find('.data-executorid').text(data.executorId);
-    element.find('.data-status').text(data.status);
-    element.find('.data-launchtime').text(data.launchTime);
+    var status = $('<span></span>').addClass(data.status).text(data.status)
+    element.find('.data-status').html(status);
+    var start = $('<time></time>').addClass('timeago').attr('data-livestamp', new Date(data.launchTime)).attr('title', new Date(data.launchTime).toString()).livestamp(new Date(data.launchTime));
+    element.find('.data-launchtime').html(start);
 
     if (data.finishTime) {
+        var end = $('<time></time>').addClass('timeago').attr('data-livestamp', new Date(data.finishTime)).attr('title', new Date(data.finishTime).toString()).livestamp(new Date(data.finishTime));
         element.find('.finish').show();
-        element.find('.data-finishtime').text(data.finishTime);
-        element.find('.data-duration').text(data.finishTime - data.launchTime);
+        element.find('.data-finishtime').html(end);
+        var duration = moment.duration(new Date(data.finishTime).getTime() - new Date(data.launchTime).getTime());
+        element.find('.data-duration').text(duration.format("d[d] h[h]:mm[m]:ss[s]:SS[ms]"));
     }
 
     if (data.status == "FAILED" || data.status == "KILLED") {

@@ -258,8 +258,14 @@ Timeline.prototype.create = function () {
         var checkbox = this.cellmonitor.displayElement.find('.timecheckbox');
 
         checkbox.click(function () {
-            that.cellmonitor.displayElement.find('.timelinewrapper').toggleClass('showphases').toggleClass('hidephases');
-            console.log('clicked');
+            if(this.checked) {
+                that.cellmonitor.displayElement.find('.timelinewrapper').addClass('showphases').removeClass('hidephases');
+            }
+            else {
+                that.cellmonitor.displayElement.find('.timelinewrapper').addClass('hidephases').removeClass('showphases');
+            }
+            
+            console.log('clicked',this);
         })
 
         //Make dragging one timeline drag all timelines

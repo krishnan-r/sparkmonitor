@@ -216,12 +216,12 @@ CellMonitor.prototype.setBadges = function (redraw = false) {
         this.displayElement.find('.badgeexecutorcount').text(this.monitor.numExecutors);
         this.displayElement.find('.badgeexecutorcorescount').text(this.monitor.totalCores);
         if (this.numActiveJobs > 0) {
-            this.displayElement.find('.badgerunning').show(500).css('display', 'inline');
+            this.displayElement.find('.badgerunning').show().css('display', 'inline');
             this.displayElement.find('.badgerunningcount').html(this.numActiveJobs);
         }
         else this.displayElement.find('.badgerunning').hide(500)
         if (this.numCompletedJobs > 0) {
-            this.displayElement.find('.badgecompleted').show(500).css('display', 'inline');
+            this.displayElement.find('.badgecompleted').show().css('display', 'inline');
             this.displayElement.find('.badgecompletedcount').html(this.numCompletedJobs);
         }
         else this.displayElement.find('.badgecompleted').hide(500)
