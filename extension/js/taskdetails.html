@@ -18,7 +18,8 @@
 
 
     <div class="legend-area metricdata">
-        <div>Legend:</div>
+        Metrics:
+        <!-- <div>Legend:</div>
         <svg>
             <rect x="5px" y="8px" width="10px" height="10px" class="scheduler-delay-proportion"></rect>
             <text x="25px" y="18px">Scheduler Delay</text>
@@ -40,10 +41,91 @@
 
             <rect x="5px" y="128px" width="10px" height="10px" class="getting-result-time-proportion "> </rect>
             <text x="25px" y="138px">Getting Result Time</text>
-        </svg>
+        </svg> -->
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Phase</th>
+                    <th>Time Taken</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <svg>
+                            <rect x="0px" y="0px" width="10px" height="10px" class="scheduler-delay-proportion"></rect>
+                        </svg>
+                    </td>
+                    <td>Scheduler Delay</td>
+                    <td class="scheduler-delay">0</td>
+                </tr>
+                <tr class="finish">
+                    <td>
+                        <svg>
+                            <rect x="0px" y="0px" width="10px" height="10px" class="deserialization-time-proportion"></rect>
+                        </svg>
+                    </td>
+                    <td>Task Deserialization Time</td>
+                    <td class="deserialization-time">0</td>
+                </tr>
+                <tr class="finish">
+                    <td>
+                        <svg>
+                            <rect x="0px" y="0px" width="10px" height="10px" class="shuffle-read-time-proportion"></rect>
+                        </svg>
+                    </td>
+                    <td>Shuffle Read Time</td>
+                    <td class="shuffle-read-time">0</td>
+                </tr>
+                <tr>
+                    <td>
+                        <svg>
+                            <rect x="0px" y="0px" width="10px" height="10px" class="executor-runtime-proportion"></rect>
+                        </svg>
+                    </td>
+                    <td>Executor Computing Time</td>
+                    <td class="executor-runtime">0</td>
+                </tr>
+                <tr>
+                    <td>
+                        <svg>
+                            <rect x="0px" y="0px" width="10px" height="10px" class="shuffle-write-time-proportion"></rect>
+                        </svg>
+                    </td>
+                    <td>Shuffle Write Time</td>
+                    <td class="shuffle-write-time">0</td>
+                </tr>
+                <tr>
+                    <td>
+                        <svg>
+                            <rect x="0px" y="0px" width="10px" height="10px" class="serialization-time-proportion"></rect>
+                        </svg>
+                    </td>
+                    <td>Result Serialization Time</td>
+                    <td class="serialization-time">0</td>
+                </tr>
+                <tr>
+                    <td>
+                        <svg>
+                            <rect x="0px" y="0px" width="10px" height="10px" class="getting-result-time-proportion"></rect>
+                        </svg>
+                    </td>
+                    <td>Getting Result Time</td>
+                    <td class="getting-result-time">0</td>
+                </tr>
+            </tbody>
+        </table>
+
+
+
+
+
+
+
 
     </div>
-
+    Other Details:
     <table>
         <thead>
             <tr>

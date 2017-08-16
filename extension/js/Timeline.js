@@ -104,6 +104,10 @@ function Timeline(cellmonitor) {
     this.timeline1 = null; // Jobs
     this.timeline2 = null; // Stages
     this.timeline3 = null; // Tasks
+
+    this.firstJobStart = new Date();
+    this.firstjobstarted = false;
+    this.latestTime = new Date();
 }
 
 Timeline.prototype.registerRefresher = function () {
@@ -141,41 +145,17 @@ Timeline.prototype.refreshTimeline = function (redraw) {
                 end: date
             });
         });
-        that.setRanges(
-            that.cellmonitor.cellStartTime,
-            (that.cellmonitor.cellEndTime > 0 ? that.cellmonitor.cellEndTime : new Date()),
-            false, true);
+        that.setRanges(that.firstJobStart, that.latestTime, false, true);
     }
     that.timelineData1.flush()
     that.timelineData2.flush()
     that.timelineData3.flush()
 }
 
-
-
 Timeline.prototype.clearRefresher = function () {
     if (this.flushInterval) {
         clearInterval(this.flushInterval);
         this.flushInterval = null;
-    }
-}
-
-Timeline.prototype.resizeTimeline = function (start, end) {
-    if (this.cellmonitor.view == 'timeline') {
-        try {
-            if (!start) start = new Date(this.cellmonitor.cellStartTime);
-            // start.setTime(start.getTime() - 30000)
-            if (!end) {
-                if (!this.cellmonitor.cellEndTime) end = new Date(start.getTime() + 120000);
-                else end = this.cellmonitor.cellEndTime;
-            }
-            this.timeline1.setWindow(start, end, { animation: true });
-            this.timeline2.setWindow(start, end, { animation: true });
-            this.timeline3.setWindow(start, end, { animation: true });
-        }
-        catch (err) {
-            console.log("SparkMonitor-Timeline: Error resizing timeline:", err);
-        }
     }
 }
 
@@ -191,7 +171,7 @@ Timeline.prototype.addLinetoTimeline = function (time, id, title) {
     }
 }
 
-Timeline.prototype.setRanges = function (start, end, set = false, moveWindow) {
+Timeline.prototype.setRanges = function (start, end, setminmax, moveWindow, hidecurrenttime) {
     var b = end.getTime();
     var a = start.getTime();
     var min = new Date(a - ((b - a) / 15));
@@ -205,12 +185,12 @@ Timeline.prototype.setRanges = function (start, end, set = false, moveWindow) {
     this.timelineOptions2.end = new Date(max);
     this.timelineOptions3.end = new Date(max);
 
-
-
-    if (set) {
+    if (hidecurrenttime) {
         this.timelineOptions1['showCurrentTime'] = false;
         this.timelineOptions2['showCurrentTime'] = false;
         this.timelineOptions3['showCurrentTime'] = false;
+    }
+    if (setminmax) {
         this.timelineOptions1.min = new Date(min);
         this.timelineOptions2.min = new Date(min);
         this.timelineOptions3.min = new Date(min);
@@ -219,18 +199,15 @@ Timeline.prototype.setRanges = function (start, end, set = false, moveWindow) {
         this.timelineOptions2.max = new Date(max);
         this.timelineOptions3.max = new Date(max);
     }
-    if (moveWindow && this.cellmonitor.view == "timeline" && this.cellmonitor.cellEndTime <= 0 && !this.userdragged) {
+
+    if (moveWindow && this.cellmonitor.view == "timeline" && !this.userdragged && this.cellmonitor.displayVisible) {
         if (this.timeline1) this.timeline1.setWindow(min, max);
         if (this.timeline2) this.timeline2.setWindow(min, max);
         if (this.timeline3) this.timeline3.setWindow(min, max);
-    }
 
-
-    if (this.cellmonitor.view == "timeline" && this.cellmonitor.displayVisible && set) {
-
-        if (this.timeline1) this.timeline1.setOptions(this.timelineOptions1);
-        if (this.timeline2) this.timeline2.setOptions(this.timelineOptions2);
-        if (this.timeline3) this.timeline3.setOptions(this.timelineOptions3);
+        // if (this.timeline1) this.timeline1.setOptions(this.timelineOptions1);
+        // if (this.timeline2) this.timeline2.setOptions(this.timelineOptions2);
+        // if (this.timeline3) this.timeline3.setOptions(this.timelineOptions3);
     }
 }
 
@@ -243,10 +220,7 @@ Timeline.prototype.create = function () {
         var container2 = this.cellmonitor.displayElement.find('.timelinecontainer2').empty()[0]
         var container3 = this.cellmonitor.displayElement.find('.timelinecontainer3').empty()[0]
         this.userdragged = false;
-        this.setRanges(
-            this.cellmonitor.cellStartTime,
-            (this.cellmonitor.cellEndTime > 0 ? this.cellmonitor.cellEndTime : new Date()),
-            false);
+        this.setRanges(this.firstJobStart, this.latestTime, false, true, false);
 
         this.timelineData1.flush();
         this.timelineData2.flush();
@@ -258,14 +232,14 @@ Timeline.prototype.create = function () {
         var checkbox = this.cellmonitor.displayElement.find('.timecheckbox');
 
         checkbox.click(function () {
-            if(this.checked) {
+            if (this.checked) {
                 that.cellmonitor.displayElement.find('.timelinewrapper').addClass('showphases').removeClass('hidephases');
             }
             else {
                 that.cellmonitor.displayElement.find('.timelinewrapper').addClass('hidephases').removeClass('showphases');
             }
-            
-            console.log('clicked',this);
+
+            console.log('clicked', this);
         })
 
         //Make dragging one timeline drag all timelines
@@ -350,7 +324,7 @@ Timeline.prototype.hide = function () {
 }
 
 Timeline.prototype.onAllCompleted = function () {
-    this.setRanges(this.cellmonitor.cellStartTime, this.cellmonitor.cellEndTime, true);
+    this.setRanges(this.firstJobStart, this.latestTime, true, false, true);
     this.clearRefresher();
     if (this.cellmonitor.displayVisible && this.cellmonitor.view == "timeline") {
         this.refreshTimeline(true);
@@ -371,6 +345,11 @@ Timeline.prototype.onSparkJobStart = function (data) {
         mode: "ongoing",
     });
     this.runningItems1.add({ id: data.jobId });
+    if (!this.firstjobstarted) {
+        this.firstJobStart = new Date(data.submissionTime);
+        this.firstjobstarted = true;
+    }
+    this.latestTime = new Date(data.submissionTime);
 }
 
 Timeline.prototype.onSparkJobEnd = function (data) {
@@ -382,6 +361,7 @@ Timeline.prototype.onSparkJobEnd = function (data) {
     });
     this.runningItems1.remove({ id: data.jobId });
     this.addLinetoTimeline(new Date(data.completionTime), 'job' + data.jobId + 'end', 'Job ' + data.jobId + 'Ended');
+    this.latestTime = new Date(data.completionTime);
 }
 
 Timeline.prototype.onSparkStageSubmitted = function (data) {
@@ -440,6 +420,8 @@ Timeline.prototype.onSparkTaskStart = function (data) {
         data: data
     });
     this.runningItems3.add({ id: data.taskId });
+    this.latestTime = new Date(data.launchTime);
+
 }
 
 Timeline.prototype.onSparkTaskEnd = function (data) {
@@ -460,6 +442,7 @@ Timeline.prototype.onSparkTaskEnd = function (data) {
         data: data
     });
     this.runningItems3.remove({ id: data.taskId });
+    this.latestTime = new Date(data.finishTime);
 }
 
 Timeline.prototype.createTaskBar = function (data) {

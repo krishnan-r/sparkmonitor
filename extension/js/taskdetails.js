@@ -54,35 +54,43 @@ function fillData(element, item) {
     if (data.status == "SUCCESS" || data.status == "FAILED" || data.status == "KILLED") {
         var metrics = data.metrics;
         element.find('.metricdata').show();
+        var e = element.find('.legend-area');
         var svg = element.find('.taskbarsvg');
 
         svg.find('.scheduler-delay-proportion')
             .attr('x', '' + metrics.schedulerDelayProportionPos + '%')
             .attr('width', '' + metrics.schedulerDelayProportion + '%');
+        e.find('.scheduler-delay').text(moment.duration(metrics.schedulerDelay).format("d[d] h[h]:mm[m]:ss[s]:SS[ms]"));
 
         svg.find('.deserialization-time-proportion')
             .attr('x', '' + metrics.deserializationTimeProportionPos + '%')
             .attr('width', '' + metrics.deserializationTimeProportion + '%');
+        e.find('.deserialization-time').text(moment.duration(metrics.deserializationTime).format("d[d] h[h]:mm[m]:ss[s]:SS[ms]"));
 
         svg.find('.shuffle-read-time-proportion')
             .attr('x', '' + metrics.shuffleReadTimeProportionPos + '%')
             .attr('width', '' + metrics.shuffleReadTimeProportion + '%');
+        e.find('.shuffle-read-time').text(moment.duration(metrics.shuffleReadTime).format("d[d] h[h]:mm[m]:ss[s]:SS[ms]"));
 
         svg.find('.executor-runtime-proportion')
             .attr('x', '' + metrics.executorComputingTimeProportionPos + '%')
             .attr('width', '' + metrics.executorComputingTimeProportion + '%');
+        e.find('.executor-runtime').text(moment.duration(metrics.executorComputingTime).format("d[d] h[h]:mm[m]:ss[s]:SS[ms]"));
 
         svg.find('.shuffle-write-time-proportion')
             .attr('x', '' + metrics.shuffleWriteTimeProportionPos + '%')
             .attr('width', '' + metrics.shuffleWriteTimeProportion + '%');
+        e.find('.shuffle-write-time').text(moment.duration(metrics.shuffleWriteTime).format("d[d] h[h]:mm[m]:ss[s]:SS[ms]"));
 
         svg.find('.serialization-time-proportion')
             .attr('x', '' + metrics.serializationTimeProportionPos + '%')
             .attr('width', '' + metrics.serializationTimeProportion + '%');
+        e.find('.serialization-time').text(moment.duration(metrics.serializationTime).format("d[d] h[h]:mm[m]:ss[s]:SS[ms]"));
 
         svg.find('.getting-result-time-proportion')
             .attr('x', '' + metrics.gettingResultTimeProportionPos + '%')
             .attr('width', '' + metrics.gettingResultTimeProportion + '%');
+        e.find('.getting-result-time').text(moment.duration(metrics.gettingResultTime).format("d[d] h[h]:mm[m]:ss[s]:SS[ms]"));
     }
 
 }

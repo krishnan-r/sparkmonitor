@@ -146,3 +146,11 @@
     color: white;
     border-radius: 2px;
 }
+
+.taskdetails .legend-area table td:nth-of-type(1) {
+    width: 20px;
+}
+
+.taskdetails .legend-area svg {
+    height: 15px;
+}
