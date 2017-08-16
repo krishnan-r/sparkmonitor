@@ -238,6 +238,7 @@ Timeline.prototype.create = function () {
     var that = this;
     if (this.cellmonitor.view == 'timeline') {
 
+
         var container1 = this.cellmonitor.displayElement.find('.timelinecontainer1').empty()[0]
         var container2 = this.cellmonitor.displayElement.find('.timelinecontainer2').empty()[0]
         var container3 = this.cellmonitor.displayElement.find('.timelinecontainer3').empty()[0]
@@ -254,6 +255,12 @@ Timeline.prototype.create = function () {
         this.timeline1 = new vis.Timeline(container1, this.timelineData1, this.timelineGroups1, this.timelineOptions1);
         this.timeline2 = new vis.Timeline(container2, this.timelineData2, this.timelineGroups2, this.timelineOptions2);
         this.timeline3 = new vis.Timeline(container3, this.timelineData3, this.timelineGroups3, this.timelineOptions3);
+        var checkbox = this.cellmonitor.displayElement.find('.timecheckbox');
+
+        checkbox.click(function () {
+            that.cellmonitor.displayElement.find('.timelinewrapper').toggleClass('showphases').toggleClass('hidephases');
+            console.log('clicked');
+        })
 
         //Make dragging one timeline drag all timelines
         this.timeline1.on('rangechange', function (properties) {
@@ -351,7 +358,7 @@ Timeline.prototype.onSparkJobStart = function (data) {
         id: data.jobId,
         start: new Date(data.submissionTime),
         end: new Date(),
-        content: ''+data.jobId+':' + name,
+        content: '' + data.jobId + ':' + name,
         // title: data.jobId + ': ' + data.name + ' ',
         group: 'jobs',
         className: 'itemrunning job',
@@ -380,7 +387,7 @@ Timeline.prototype.onSparkStageSubmitted = function (data) {
     this.timelineData2.update({
         id: data.stageId,
         start: submissionDate,
-        content: ''+data.stageId+":" + name,
+        content: '' + data.stageId + ":" + name,
         group: 'stages',
         // title: 'Stage: ' + data.stageId + ' ' + name,
         end: new Date(),
@@ -459,7 +466,7 @@ Timeline.prototype.createTaskBar = function (data) {
         '<rect class="serialization-time-proportion" x="60%" y="0px" height="100%" width="20%"></rect>' +
         '<rect class="getting-result-time-proportion" x="80%" y="0px" height="100%" width="20%"></rect>' +
         '</svg>'
-    var element = $('<div></div>').html(html).addClass('taskbardiv');
+    var element = $('<div></div>').html(html).addClass('taskbardiv').attr('data-taskid', data.taskId);
     var metrics = data.metrics;
     var svg = element.find('.taskbarsvg');
     svg.find('.scheduler-delay-proportion')

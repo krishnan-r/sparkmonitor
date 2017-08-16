@@ -1,6 +1,7 @@
 .pm .timelinewrapper {
   max-height: 400px;
   overflow-y: auto;
+  clear: both;
 }
 
 .pm .vis-timeline {
@@ -83,37 +84,53 @@
   border: 0;
 }
 
-.pm .taskbarsvg rect.scheduler-delay-proportion {
+.pm .hidephases .taskbarsvg rect {
+  stroke: none;
+  fill: none;
+}
+
+.pm .hidephases .taskbarsvg {
+  display: none;
+}
+
+.pm .hidephases .taskbardiv:before {
+  content: attr(data-taskid);
+  padding: 0px 2px;
+  text-align: center;
+  width: 100%;
+}
+
+.pm .showphases .taskbarsvg rect.scheduler-delay-proportion {
   fill: #80B1D3;
   stroke: #6B94B0;
 }
 
-.pm .taskbarsvg rect.deserialization-time-proportion {
+.pm .showphases .taskbarsvg rect.deserialization-time-proportion {
   fill: #FB8072;
   stroke: #D26B5F;
 }
 
-.pm .taskbarsvg rect.shuffle-read-time-proportion {
+.pm .showphases .taskbarsvg rect.shuffle-read-time-proportion {
   fill: #FDB462;
   stroke: #D39651;
 }
 
-.pm .taskbarsvg rect.executor-runtime-proportion {
+.pm .showphases .taskbarsvg rect.executor-runtime-proportion {
   fill: #B3DE69;
   stroke: #95B957;
 }
 
-.pm .taskbarsvg rect.shuffle-write-time-proportion {
+.pm .showphases .taskbarsvg rect.shuffle-write-time-proportion {
   fill: #FFED6F;
   stroke: #D5C65C;
 }
 
-.pm .taskbarsvg rect.serialization-time-proportion {
+.pm .showphases .taskbarsvg rect.serialization-time-proportion {
   fill: #BC80BD;
   stroke: #9D6B9E;
 }
 
-.pm .taskbarsvg rect.getting-result-time-proportion {
+.pm .showphases .taskbarsvg rect.getting-result-time-proportion {
   fill: #8DD3C7;
   stroke: #75B0A6;
 }
@@ -161,9 +178,21 @@
 .pm .taskbarsvg {
   width: 100%;
   height: 20px;
+  vertical-align: top;
 }
 
 .pm taskbardiv {
   width: 100%;
   height: 100%;
+}
+
+.timelinetoolbar {
+  padding: 0px 8px;
+  color: #444444;
+  font-size: small;
+}
+
+.timecheckboxspan {
+  margin: 0px 5px;
+  float: right;
 }
