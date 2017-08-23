@@ -595,7 +595,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 					("time" -> executorAdded.time) ~
 					("host" -> executorAdded.executorInfo.executorHost) ~
 					("numCores" -> executorAdded.executorInfo.totalCores) ~
-					("totalCores" -> totalCores)
+					("totalCores" -> totalCores) // Sending this as browser data can be lost during reloads
 
  		println("SPARKLISTENER Executor Added: \n"+ pretty(render(json)) + "\n")
 		send(pretty(render(json)))
@@ -607,7 +607,7 @@ class PythonNotifyListener(conf: SparkConf) extends SparkListener {
 		val json=  	("msgtype" -> "sparkExecutorRemoved") ~
 					("executorId" ->executorRemoved.executorId) ~
 					("time" -> executorRemoved.time) ~
-					("totalCores" -> totalCores)
+					("totalCores" -> totalCores) // Sending this as browser data can be lost during reloads
 
  		println("SPARKLISTENER Executor Removed: \n"+ pretty(render(json)) + "\n")
 		send(pretty(render(json)))
@@ -623,6 +623,7 @@ object PythonNotifyListener {
 }
 
 	//---------------------Data Structures for storing Data----------------
+	// These are private in Spark, so defining them again.
 object UIData {
 
   class JobUIData(

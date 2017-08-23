@@ -1,4 +1,4 @@
-import Plotly from 'plotly.js/lib/core'
+import Plotly from 'plotly.js/lib/core' // The plotting library
 
 function TaskChart(cellmonitor) {
     var that = this;

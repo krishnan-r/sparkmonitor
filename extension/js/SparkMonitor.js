@@ -1,21 +1,24 @@
-import Jupyter from 'base/js/namespace';
-import events from 'base/js/events';
-import $ from 'jquery';
-import CellMonitor from './CellMonitor'
-import currentcell from './currentcell'
+// SparkMonitor is the main singleton class that is responsible for managing CellMonitor instances for cells that run spark jobs
+// It also delegates spark lifecycle events from the backend to corresponding CellMonitors
+
+import Jupyter from 'base/js/namespace';  // The main Jupyter object for all frontend APIs of the notebook
+import events from 'base/js/events';	  // Jupyter events module to listen for notebook page events
+import $ from 'jquery';					  // Used for certain utility function in this module
+import CellMonitor from './CellMonitor'   // CellMonitor object constructor
+import currentcell from './currentcell'   // Module to detect currently running cell
 
 
 function SparkMonitor() {
 	var that = this;
-	this.cellmonitors = {};
-	this.comm = null;
+	this.cellmonitors = {}; //dictionary of cellmonitors with keys as cell_id
+	this.comm = null; //Communication object with the kernel
 
 	//Fixes Reloading the browser
 	this.startComm();
 	//Fixes Restarting the Kernel
 	events.on('kernel_connected.Kernel', $.proxy(this.startComm, this));//Make sure there is a comm always.
 
-	this.data = {};
+	this.data = {}; //data mapping jobs to cells and stages to jobs for delegating further lifecycle events of a job.
 	this.appName = "NULL";
 	this.appId = "NULL";
 	this.app = "NULL";
@@ -24,7 +27,7 @@ function SparkMonitor() {
 
 	this.display_mode = "shown"; // "shown" || "hidden"
 
-	events.on('clear_output.CodeCell', function (event, data) {
+	events.on('clear_output.CodeCell', function (event, data) { //Removing display when output area is cleared
 		var cellmonitor = that.getCellMonitor(data.cell.cell_id)
 		if (cellmonitor) {
 			cellmonitor.removeDisplay();
@@ -92,6 +95,7 @@ SparkMonitor.prototype.createButtons = function () {
 	Jupyter.toolbar.add_buttons_group([full_action_name]);
 }
 
+//-----Functions to show/hide all displays
 
 SparkMonitor.prototype.toggleAll = function () {
 	if (this.display_mode == "hidden") this.showAll();
@@ -116,6 +120,7 @@ SparkMonitor.prototype.hideAll = function () {
 	this.display_mode = "hidden";
 }
 
+//------Functions to communicate with kernel
 
 SparkMonitor.prototype.on_comm_msg = function (msg) {
 	//console.log('SparkMonitor: Comm Message:', msg.content.data);
@@ -157,7 +162,6 @@ SparkMonitor.prototype.onSparkJobStart = function (data) {
 	if (cell == null) {
 		console.error('SparkMonitor: Job started with no running cell.');
 		return;
-		//TODO
 	}
 	console.log('SparkMonitor: Job Start at cell: ', cell.cell_id, data);
 	var cellmonitor = this.getCellMonitor(cell.cell_id)

@@ -1,11 +1,13 @@
-import vis from 'vis/index-timeline-graph2d';
-import 'vis/dist/vis-timeline-graph2d.min.css';
-import './timeline.css';
-import taskUI from './taskdetails'
+import vis from 'vis/index-timeline-graph2d';   // The timeline library
+import 'vis/dist/vis-timeline-graph2d.min.css'; // Styles for timeline library
+import './timeline.css';                        // Custom Styles
+import taskUI from './taskdetails'              // Module for displaying popup when clicking on a task
+
+
 
 function Timeline(cellmonitor) {
 
-    this.cellmonitor = cellmonitor;
+    this.cellmonitor = cellmonitor;  // The parent cell monitor object
     this.timelineGroups1 = new vis.DataSet([
         {
             id: 'jobs',
@@ -17,9 +19,9 @@ function Timeline(cellmonitor) {
         { id: 'stages', content: 'Stages:', },
     ]);
     this.timelineGroups3 = new vis.DataSet([]);
-    this.timelineData1 = new vis.DataSet({ queue: true });
-    this.timelineData2 = new vis.DataSet({ queue: true });
-    this.timelineData3 = new vis.DataSet({ queue: true });
+    this.timelineData1 = new vis.DataSet({ queue: true }); // Jobs timeline
+    this.timelineData2 = new vis.DataSet({ queue: true }); // Stages timeline
+    this.timelineData3 = new vis.DataSet({ queue: true }); // Tasks timeline
 
     this.runningItems1 = new vis.DataSet();
     this.runningItems2 = new vis.DataSet();
@@ -110,6 +112,7 @@ function Timeline(cellmonitor) {
     this.latestTime = new Date();
 }
 
+
 Timeline.prototype.registerRefresher = function () {
     var that = this;
     that.i = 0;
@@ -117,6 +120,8 @@ Timeline.prototype.registerRefresher = function () {
     this.flushInterval = setInterval(function () { that.refreshTimeline(); }, 1000);
 }
 
+// Refreshes the timeline every second
+// For running ongoing items the end times are updated to be the current time 
 Timeline.prototype.refreshTimeline = function (redraw) {
     var that = this;
     console.log("SparkMonitor-Timeline: Updating Timeline")
@@ -171,6 +176,8 @@ Timeline.prototype.addLinetoTimeline = function (time, id, title) {
     }
 }
 
+// Sets the window min, max values and current range.
+// 
 Timeline.prototype.setRanges = function (start, end, setminmax, moveWindow, hidecurrenttime) {
     var b = end.getTime();
     var a = start.getTime();
@@ -242,7 +249,7 @@ Timeline.prototype.create = function () {
             console.log('clicked', this);
         })
 
-        //Make dragging one timeline drag all timelines
+        //Make dragging one timeline drag all timelines - ie jobs, stages and tasks should move together
         this.timeline1.on('rangechange', function (properties) {
             if (properties.byUser) that.timeline2.setWindow(properties.start, properties.end, { animation: false });
             if (properties.byUser) that.timeline3.setWindow(properties.start, properties.end, { animation: false });
@@ -279,7 +286,7 @@ Timeline.prototype.create = function () {
         this.timeline3.on('rangechanged', onuserdrag);
 
 
-
+        // Display corresponding popups when clicking on a job/stage/task
         if (!this.cellmonitor.allcompleted) this.registerRefresher();
         this.timeline3.on('select', function (properties) {
             if (properties.items.length) {
@@ -319,10 +326,11 @@ Timeline.prototype.hide = function () {
         this.timeline2 = null;
         this.timeline3 = null;
     }
-    catch (err) { "SparkMonitor-Timeline: Error destroying timeline, ", console.log(err) }
+    catch (err) { "SparkMonitor-Timeline: Error destroying timeline, ", console.log(err) } //Throws some null error sometimes.
     this.clearRefresher();
 }
 
+// Called when the cell has finished executing as well as all jobs in it have completed.
 Timeline.prototype.onAllCompleted = function () {
     this.setRanges(this.firstJobStart, this.latestTime, true, false, true);
     this.clearRefresher();
@@ -339,7 +347,7 @@ Timeline.prototype.onSparkJobStart = function (data) {
         start: new Date(data.submissionTime),
         end: new Date(),
         content: '' + data.jobId + ':' + name,
-        // title: data.jobId + ': ' + data.name + ' ',
+        // title: data.jobId + ': ' + data.name + ' ',//Tooltip
         group: 'jobs',
         className: 'itemrunning job',
         mode: "ongoing",

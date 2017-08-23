@@ -1,17 +1,20 @@
-import Jupyter from 'base/js/namespace';
-import events from 'base/js/events';
-import requirejs from 'require'
-import $ from 'jquery';
-import livestamp from 'kuende-livestamp';
-import WidgetHTML from './cellmonitor.html'
-import './styles.css'
-import './jobtable.css'
-import spinner from './images/spinner.gif'
-import moment from 'moment'
-import 'moment-duration-format';
+import Jupyter from 'base/js/namespace';    // The main Jupyter object for all frontend APIs of the notebook
+import events from 'base/js/events';        // Jupyter events module to listen for notebook page events
+import requirejs from 'require'             // Used to asynchronously load other modules - Timeline and TaskChart  
+import $ from 'jquery';                     // For manipulating the DOM
+import livestamp from 'kuende-livestamp';   // Used for displaying auto-updating timestamps like '5 mins ago'
+import WidgetHTML from './cellmonitor.html' // Template HTML for the display
+import './styles.css'                       // CSS styles
+import './jobtable.css'                     // CSS specific to job table
+import spinner from './images/spinner.gif'  // loading animation for spark-ui proxy
+import moment from 'moment'                 // For handling durations
+import 'moment-duration-format';            // Plugin for moment to format durations to strings
 
+//Asynchronously loaded constructors for Timeline and TaskChart
 var Timeline = null;
 var TaskChart = null;
+
+//Loading modules asynchronously
 requirejs(['./timeline'], function (timeline) {
     Timeline = timeline;
     console.log("SparkMonitor: Timeline module loaded", [timeline]);
@@ -33,17 +36,18 @@ function CellMonitor(monitor, cell) {
     this.initialDisplayCreated = false; //Used by jobstart event to show display first time
     this.displayVisible = false; //Used to toggle display
 
-    this.cellcompleted = false;
-    this.allcompleted = false;
+    this.cellcompleted = false; //Cell has finished executing
+    this.allcompleted = false;  //All job end messages have arrived for cell.
 
-    this.displayElement = null;
+    this.displayElement = null; //HTML DOM element of the monitor
 
     this.cellStartTime = new Date(); //This is only from the frontend
     this.cellEndTime = -1;
 
-    this.badgesmodified = false;
-    this.badgeInterval = null;
-    this.numActiveJobs = 0;
+    this.badgesmodified = false;  // Used to refresh counts only if changed.
+    this.badgeInterval = null;    // The return value of setInterval
+    // Values for badge counters in the title of display
+    this.numActiveJobs = 0;      
     this.numCompletedJobs = 0;
     this.numFailedJobs = 0;
 
@@ -55,9 +59,11 @@ function CellMonitor(monitor, cell) {
     this.stageData = {};
     this.stageIdtoJobId = {};
 
+    // Timeline and TaskChart module instances
     this.timeline = null;
     this.taskchart = null;
 
+    // Only if the load successfully create these views.
     if (Timeline) this.timeline = new Timeline(this);
     if (TaskChart) this.taskchart = new TaskChart(this);
 }
@@ -121,13 +127,17 @@ CellMonitor.prototype.removeDisplay = function () {
     this.displayElement.remove();
 }
 
+// Stopping Jobs does not work at the moment
+// This interrupts the kernel currently
+// Issue with jupyter comm messaging while kernel is busy
 CellMonitor.prototype.stopJobs = function () {
-    Jupyter.notebook.kernel.interrupt();
+    Jupyter.notebook.kernel.interrupt(); // This does not stop the job..does not work as expected.
     this.monitor.send({
         msgtype: 'sparkStopJobs',
     });
 }
 
+// Opens the Spark UI in an IFrame
 CellMonitor.prototype.openSparkUI = function (url) {
     if (!url) url = '';
     var iframe = $('\
@@ -151,6 +161,7 @@ CellMonitor.prototype.openSparkUI = function (url) {
     });
 }
 
+// Draws the view specified - jobs, timeline, tasks or hidden (display collapsed)
 CellMonitor.prototype.showView = function (view) {
     var that = this;
     var element = this.displayElement;
@@ -208,6 +219,7 @@ CellMonitor.prototype.hideView = function (view) {
     }
 }
 
+// Updates the counters on the title
 CellMonitor.prototype.setBadges = function (redraw = false) {
     if (this.badgesmodified || redraw) {
 
@@ -232,6 +244,7 @@ CellMonitor.prototype.setBadges = function (redraw = false) {
         else this.displayElement.find('.badgefailed').hide(500)
     }
 }
+
 
 CellMonitor.prototype.onCellExecutionCompleted = function () {
     console.log("SparkMonitor: Cell Execution Completed");

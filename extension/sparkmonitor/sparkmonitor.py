@@ -17,12 +17,13 @@ import os
 
 
 class ScalaMonitor:
+    # Main singleton object for the kernel extension
     def __init__(self, ipython):
         self.ipython = ipython
 
     def start(self):
-        self.scalaSocket = SocketThread()
-        return self.scalaSocket.startSocket()
+        self.scalaSocket = SocketThread() 
+        return self.scalaSocket.startSocket() # returns the port
 
     def getPort(self):
         return self.scalaSocket.port
@@ -31,13 +32,16 @@ class ScalaMonitor:
         self.comm.send(msg)
 
     def handle_comm_message(self, msg):
+        # Handle message recieved from frontend - do nothing for now as this only works if kernel is not busy
         logger.info('COMM MESSAGE:  \n %s', str(msg))
 
     def register_comm(self):
+        # Register a comm_target which will be used by frontend to start communications.
         self.ipython.kernel.comm_manager.register_target(
             'SparkMonitor', self.target_func)
 
     def target_func(self, comm, msg):
+        # On frontend comm opened
         logger.info("COMM OPENED MESSAGE: \n %s \n", str(msg))
         self.comm = comm
 
@@ -48,11 +52,12 @@ class ScalaMonitor:
 
 
 class SocketThread(Thread):
-
+    # Class to manage a socket in a background thread to talk to the scala listener
     def __init__(self):
         self.port = 0
         Thread.__init__(self)
 
+    # Starts a socket on a random port and starts listening for connections
     def startSocket(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind(("localhost", self.port))
@@ -74,7 +79,7 @@ class SocketThread(Thread):
                     logger.info("Scala socket closed - empty data")
                     break
                 totalMessage += messagePart.decode()
-                pieces = totalMessage.split(";EOD:")
+                pieces = totalMessage.split(";EOD:") #Messages are ended with ;EOD: 
                 totalMessage = pieces[-1]
                 messages = pieces[:-1]
                 for msg in messages:
@@ -90,6 +95,7 @@ class SocketThread(Thread):
     def sendToScala(self, msg):
         return self.socket.send(msg)
 
+    # Forwards all messages to the frontend
     def onrecv(self, msg):
         sendToFrontEnd({
             'msgtype': "fromscala",
@@ -138,7 +144,7 @@ def load_ipython_extension(ipython):
 
     # Injecting conf into users namespace
     if(spark_imported):
-        conf = ipython.user_ns.get('conf')
+        conf = ipython.user_ns.get('conf') # Get conf if user already has a conf for appending
         
         if(conf):
             logger.info("Conf: "+conf.toDebugString())
@@ -148,24 +154,26 @@ def load_ipython_extension(ipython):
                 # If conf already exists and is not SparkConf then do nothing.
                 pass
         else:
-            #
+            # Create a new conf if one does not exist
             conf = SparkConf()
             configure(conf)
             ipython.push({
                 "conf": conf
-            })
+            }) # Add to users namespace
     else:
         # There is no pySpark module. do nothing
         pass
 
 
 def unload_ipython_extension(ipython):
-    # Called when extension is unloaded TODO
+    # Called when extension is unloaded TODO if any
     logger.info("Extension UNLOADED")
     pass
 
 
 def configure(conf):
+    # Configures the provided conf object with the Java Classpath as well as JAR file path
+    # Also sets environment variable for ports for communication with scala listener
     global monitor
     port = monitor.getPort()
     print("SparkConf Configured, Starting to listen on port:", str(port))
@@ -188,5 +196,6 @@ def configure(conf):
 
 
 def sendToFrontEnd(msg):
+    # Send a message to the frontend through the singleton monitor object
     global monitor
     monitor.send(msg)

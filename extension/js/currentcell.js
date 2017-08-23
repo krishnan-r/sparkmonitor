@@ -7,7 +7,7 @@ import $ from 'jquery'
 //The notebook sends execution requests, and they queue up on the message channel.
 //There is no straight forward way to detect the currently running cell.
 //Here we use a queue to store execution requests and dequeue elements as the kernel becomes idle after the requests
-//TODO take care of corner cases.
+//TODO take care of any corner cases.
 
 
 var CodeCell = codecell.CodeCell;
