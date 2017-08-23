@@ -11,6 +11,7 @@ import json
 
 import re
 import os
+import logging
 
 from traitlets.config import LoggingConfigurable
 from traitlets.traitlets import Unicode
@@ -25,6 +26,7 @@ class SparkMonitorHandler(IPythonHandler):
     @tornado.web.asynchronous
     def get(self):
         print("SPARKMONITOR_SERVER: Handler GET")
+        
         http = httpclient.AsyncHTTPClient()
         baseurl=os.environ.get("SPARKMONITOR_UI_HOST","127.0.0.1") # Without protocol and trailing slash
         port=os.environ.get("SPARKMONITOR_UI_PORT","4040")
@@ -37,12 +39,13 @@ class SparkMonitorHandler(IPythonHandler):
         print("SPARKMONITOR_SERVER: Request URI" + self.request.uri)
         print("SPARKMONITOR_SERVER: Getting from " + url)
 
-        request_path = self.request.uri[len(proxy_root):]
+        request_path = self.request.uri[(self.request.uri.index(proxy_root)+len(proxy_root)+1):]
+        print("SPARKMONITOR_SERVER: Request_path " + request_path)
         backendurl = url_path_join(url, request_path)
 
         self.debug_url=url
         self.backendurl=backendurl
-
+        logger.info('GET: \n Request uri:%s \n Port: %s \n Host: %s \n request_path: %s ',self.request.uri,os.environ.get("SPARKMONITOR_UI_PORT","4040"),os.environ.get("SPARKMONITOR_UI_HOST","127.0.0.1"),request_path)
         http.fetch(backendurl, self.handle_response)
 
     def handle_response(self, response):
@@ -73,6 +76,25 @@ def load_jupyter_server_extension(nb_server_app):
     Args:
         nb_server_app (NotebookWebApplication): handle to the Notebook webserver instance.
     """
+
+
+    #-----Configure logging for the extension, currently writing to a file in same directory as notebook.
+
+    global logger
+    logger = logging.getLogger('sparkscalamonitor')
+    logger.setLevel(logging.DEBUG)
+    logger.propagate = False
+    # For debugging this module - Writes logs to a file
+    fh = logging.FileHandler('sparkmonitor_serverextension.log',mode='w')
+    fh.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        '%(levelname)s:  %(asctime)s - %(name)s - %(process)d - %(processName)s - \
+        %(thread)d - %(threadName)s\n %(message)s \n')
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+
+    #-------------------------------------------------------------------------
+
     print("SPARKMONITOR_SERVER: Loading Server Extension")
     web_app = nb_server_app.web_app
     host_pattern = '.*$'
