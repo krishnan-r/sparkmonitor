@@ -52,3 +52,4 @@ sbt package
 cd sparkmonitor/extension/
 pip install -e .
 # The sparkmonitor python package is now installed. Configure with jupyter as above.
+```
