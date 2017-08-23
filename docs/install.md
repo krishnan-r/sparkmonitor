@@ -36,6 +36,9 @@ ipython profile create
 ```bash
 echo "c.InteractiveShellApp.extensions.append('sparkmonitor')" >>  $(ipython profile locate default)/ipython_kernel_config.py
 ```
+## Configuration
+- Setting the environment variable `SPARKMONITOR_UI_HOST` and `SPARKMONITOR_UI_PORT` overrides the default Spark UI hostname 127.0.0.1 and port 4040 used by the Spark UI proxy 
+
 ## Build from Source
 ```bash
 git clone https://github.com/krishnan-r/sparkmonitor

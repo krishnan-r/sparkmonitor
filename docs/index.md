@@ -20,7 +20,7 @@ This goal of this project was to make a Big Data tool like Apache Spark easier t
 - Interface for easier configuration of Spark Applications
 
 ### Deployment of Work Done
-The 'SparkMonitor' extension is packaged as a python pip package. It is availbale for download from [Github Releases](https://github.com/krishnan-r/sparkmonitor/releases).
+The 'SparkMonitor' extension is packaged as a python pip package. It is available for download from [Github Releases](https://github.com/krishnan-r/sparkmonitor/releases).
 
 #### Integration with CERN IT Infrastructure
 - The extension has been successfully integrated with a beta version of SWAN, a cloud version of JupyterHub that runs at CERN, based on docker containers.
