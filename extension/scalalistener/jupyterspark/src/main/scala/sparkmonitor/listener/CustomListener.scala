@@ -604,7 +604,7 @@ object UIData {
 		var numCompletedTasks: Int = 0,
 		var numSkippedTasks: Int = 0,
 		var numFailedTasks: Int = 0,
-
+		var reasonToNumKilled: Map[String, Int] = Map.empty,
 		var numActiveStages: Int = 0,
 		// This needs to be a set instead of a simple count to prevent double-counting of rerun stages:
 		var completedStageIndices: mutable.HashSet[Int] = new mutable.HashSet[Int](),
@@ -616,6 +616,7 @@ object UIData {
 		var numCompleteTasks: Int = _
 		var completedIndices = new HashSet[Int]()
 		var numFailedTasks: Int = _
+		var description: Option[String] = None
 	}
 
 	class ExecutorData {

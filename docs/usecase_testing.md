@@ -1,3 +1,12 @@
+___
+**[Final Report](index.md)** |
+**[Installation](install.md)** |
+**[How it Works](how.md)** |
+**[Use Cases](#common-use-cases-and-tests)** |
+**[Github](https://github.com/krishnan-r/sparkmonitor)** |
+**[License](https://github.com/krishnan-r/sparkmonitor/blob/master/LICENSE.md)**
+___
+
 # A simple example notebook
 
 ## Introduction
