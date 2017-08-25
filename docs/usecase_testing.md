@@ -1,11 +1,11 @@
 # A simple example notebook
 
 ## Introduction
-This notebook tests a majority of Sparks API through pyspark.
+This notebook tests a majority of Sparks API through pySpark.
 It mainly covers most RDD APIs and runs a random job.
 It also simulates some errors in Spark Jobs to test the extension
 
-## Environemnt
+## Environment
 - This notebook was run with Apache Spark in the local machine.
 - It uses python collections to generate some random data.
 - The latest version of Jupyter included in the Anaconda package was used
@@ -29,7 +29,7 @@ It also simulates some errors in Spark Jobs to test the extension
 ![7](https://user-images.githubusercontent.com/6822941/29601995-d632b66a-87fb-11e7-957c-0ddc5dea40f3.png)
 - In the timeline failed jobs are highlighted in red 
 ![8](https://user-images.githubusercontent.com/6822941/29601992-d629a30e-87fb-11e7-819b-3526ae1fdab4.png)
-- Clicking on a failed task shows the failiure reason with the stack trace 
+- Clicking on a failed task shows the failure reason with the stack trace 
 ![9](https://user-images.githubusercontent.com/6822941/29601994-d62f76bc-87fb-11e7-9b73-dbcb29f29717.png)
 
 ## Too many cells with Spark

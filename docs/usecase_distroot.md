@@ -6,11 +6,11 @@ This example use case for the SparkMonitor extension, uses the DistROOT module t
 
 # Environment
 - This use case was tested on a 4 node spark cluster running on the CERN IT Infrastructure.
-- A beta version of SWAN - a jupyterhub based notebook service was used with the SparkMonitor extension installed
+- A beta version of SWAN - a JupyterHub based notebook service was used with the SparkMonitor extension installed
 - The data was uploaded to a central storage service and accessed from the cluster.
 
 # Notebooks 
-- The DistROOT example notebook can be found [here](DistROOT.ipynb)
+- The DistROOT example notebook can be found [here](https://github.com/krishnan-r/sparkmonitor/blob/master/notebooks/DistROOT.ipynb)
 
 # Monitoring
 TODO

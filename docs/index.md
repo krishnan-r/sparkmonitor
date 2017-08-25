@@ -1,3 +1,11 @@
+___
+**[Final Report](index.md)** |
+**[Installation](install.md)** |
+**[How it Works](how.md)** |
+**[Use Cases](#common-use-cases-and-tests)** |
+**[License](https://github.com/krishnan-r/sparkmonitor/blob/master/LICENSE.md)**
+___
+
 # Google Summer of Code 2017 Final Report
 # Big Data Tools for Physics Analysis
 ## The SparkMonitor Extension
@@ -7,8 +15,8 @@ This goal of this project was to make a Big Data tool like Apache Spark easier t
 
 ## Work Done
 - The extension 'SparkMonitor' has been built for Jupyter Notebook to monitor Apache Spark running through pySpark.
-- The extension integrates with Jupyter seamlessly, providing realtime monitoring for jobs running in clusters.
-- The extension has been integrated with a beta version of SWAN - a cloud multi user jupyter notebook deployment based on JupyterHub running on CERN IT infrastructure.
+- The extension integrates with Jupyter seamlessly, providing real time monitoring for jobs running in clusters.
+- The extension has been integrated with a beta version of SWAN - a cloud multi user Jupyter notebook deployment based on JupyterHub running on CERN IT infrastructure.
 - Various tests have been done with real world use cases.
 
 
@@ -24,9 +32,9 @@ The 'SparkMonitor' extension is packaged as a python pip package. It is availabl
 
 #### Integration with CERN IT Infrastructure
 - The extension has been successfully integrated with a beta version of SWAN, a cloud version of JupyterHub that runs at CERN, based on docker containers.
-- The integration is made possible through customizations to the docker container image spawned by jupyterhub
+- The integration is made possible through customizations to the docker container image spawned by JupyterHub
 - The extension is loaded to Jupyter whenever the user attaches a Spark Cluster to the notebook environment.
-- The custom docker spawner image can be found [here](https://hub.docker.com/r/krishnanr/sparkmonitorhub/)
+- The custom docker spawner image files can be found [here](https://github.com/krishnan-r/sparkmonitorhub)
 
 
 
@@ -44,8 +52,7 @@ Here is a list of test cases that have been run.
 - A detailed explanation of how different components in the extension work together can be found [here](how.md)
 
 ### Code Documentation
-- All the documentation for the code in Python, Javascript and Scala is available within the [source files](https://github.com/krishnan-r/sparkmonitor) itself.
-
+- All the documentation for the code in Python, JavaScript and Scala is available within the [source files](https://github.com/krishnan-r/sparkmonitor) itself.
 
 ### Installation 
 - The extension is available as a pip python package through [Github Releases](https://github.com/krishnan-r/sparkmonitor/releases).
@@ -58,11 +65,8 @@ Here is a list of test cases that have been run.
 - [SparkMonitor](https://github.com/krishnan-r/sparkmonitor) Github Repository
 - [SparkMonitorHub](https://github.com/krishnan-r/sparkmonitorhub) - An integration for SWAN - A multiuser cloud notebook service based on JupyterHub.
 - [Initial Project Proposal](https://docs.google.com/document/d/1J2zIRnEAvey8HcDyqrKZ2DeQJXLvhU5HR2WdxZ9o8Yk/edit?usp=sharing)
-- [Initial Idea Page of Organisation](http://hepsoftwarefoundation.org/gsoc/proposal_ROOTspark.html)
+- [Initial Idea Page of Organization](http://hepsoftwarefoundation.org/gsoc/proposal_ROOTspark.html)
 - [Travis Build for SparkMonitor](https://travis-ci.org/krishnan-r/sparkmonitor)
 - [Docker image](https://hub.docker.com/r/krishnanr/sparkmonitor/) for testing locally based on Scientific Linux CERN 6
 - [Docker image](https://hub.docker.com/r/krishnanr/sparkmonitorhub/) for SWAN
 - [SparkMonitor Python Package](https://github.com/krishnan-r/sparkmonitor/releases) - Github Release
-
-
-

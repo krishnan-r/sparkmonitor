@@ -1,129 +1,127 @@
-# SparkMonitor Jupyter Server Extension
-# This module adds a request handler to jupyter webserver. It proxies the spark UI by default running at 127.0.0.1:4040 
-# to the endpoint [notebook rooturl]/sparkmonitor
-# TODO Create unique endpoints for different kernels or spark applications.
+"""SparkMonitor Jupyter Web Server Extension
+
+This module adds a custom request handler to Jupyter web server. 
+It proxies the Spark Web UI by default running at 127.0.0.1:4040 
+to the endpoint notebook_base_url/sparkmonitor
+
+TODO Create unique endpoints for different kernels or spark applications.
+"""
 
 from notebook.base.handlers import IPythonHandler
-
 import tornado.web
 from tornado import httpclient
 import json
-
 import re
 import os
 import logging
-
 from traitlets.config import LoggingConfigurable
 from traitlets.traitlets import Unicode
-
 from bs4 import BeautifulSoup
 
 proxy_root = "/sparkmonitor"
 
 
 class SparkMonitorHandler(IPythonHandler):
+    """A custom tornado request handler to proxy Spark Web UI requests."""
 
     @tornado.web.asynchronous
     def get(self):
-        print("SPARKMONITOR_SERVER: Handler GET")
-        
+        """Handles get requests to the Spark UI
+
+        Fetches the Spark Web UI from the configured ports
+        """
+        #print("SPARKMONITOR_SERVER: Handler GET")
         http = httpclient.AsyncHTTPClient()
-        baseurl=os.environ.get("SPARKMONITOR_UI_HOST","127.0.0.1") # Without protocol and trailing slash
-        port=os.environ.get("SPARKMONITOR_UI_PORT","4040")
-
-        #TODO option to get url from user.
-        url='http://'+baseurl+":"+port
-        
-        
-
-        print("SPARKMONITOR_SERVER: Request URI" + self.request.uri)
-        print("SPARKMONITOR_SERVER: Getting from " + url)
-
-        request_path = self.request.uri[(self.request.uri.index(proxy_root)+len(proxy_root)+1):]
-        print("SPARKMONITOR_SERVER: Request_path " + request_path)
+        # Without protocol and trailing slash
+        baseurl = os.environ.get("SPARKMONITOR_UI_HOST", "127.0.0.1")
+        port = os.environ.get("SPARKMONITOR_UI_PORT", "4040")
+        url = "http://" + baseurl + ":" + port
+        #print("SPARKMONITOR_SERVER: Request URI" + self.request.uri)
+        #print("SPARKMONITOR_SERVER: Getting from " + url)
+        request_path = self.request.uri[(
+            self.request.uri.index(proxy_root) + len(proxy_root) + 1):]
+        #print("SPARKMONITOR_SERVER: Request_path " + request_path)
         backendurl = url_path_join(url, request_path)
-
-        self.debug_url=url
-        self.backendurl=backendurl
-        logger.info('GET: \n Request uri:%s \n Port: %s \n Host: %s \n request_path: %s ',self.request.uri,os.environ.get("SPARKMONITOR_UI_PORT","4040"),os.environ.get("SPARKMONITOR_UI_HOST","127.0.0.1"),request_path)
+        self.debug_url = url
+        self.backendurl = backendurl
+        logger.info("GET: \n Request uri:%s \n Port: %s \n Host: %s \n request_path: %s ", self.request.uri, os.environ.get(
+            "SPARKMONITOR_UI_PORT", "4040"), os.environ.get("SPARKMONITOR_UI_HOST", "127.0.0.1"), request_path)
         http.fetch(backendurl, self.handle_response)
 
     def handle_response(self, response):
+        """Sends the fetched page as response to the GET request"""
         if response.error:
-            content_type = 'application/json'
-            content = json.dumps({'error': 'SPARK_UI_NOT_RUNNING','url':self.debug_url,'backendurl':self.backendurl})
-            print('SPARKMONITOR_SERVER: Spark UI not running')
+            content_type = "application/json"
+            content = json.dumps({"error": "SPARK_UI_NOT_RUNNING",
+                                  "url": self.debug_url, "backendurl": self.backendurl})
+            print("SPARKMONITOR_SERVER: Spark UI not running")
         else:
-            content_type = response.headers['Content-Type']
-            #print('SPARKSERVER: CONTENT TYPE: '+ content_type + '\n')
-            if 'text/html' in content_type:
+            content_type = response.headers["Content-Type"]
+            #print("SPARKSERVER: CONTENT TYPE: "+ content_type + "\n")
+            if "text/html" in content_type:
                 content = replace(response.body)
-            elif 'javascript' in content_type:
+            elif "javascript" in content_type:
                 content = response.body.replace(
                     "location.origin", "location.origin +'" + proxy_root + "' ")
             else:
                 # Probably binary response, send it directly.
                 content = response.body
-        self.set_header('Content-Type', content_type)
+        self.set_header("Content-Type", content_type)
         self.write(content)
         self.finish()
 
-# Called when the serverextension is loaded
+
 def load_jupyter_server_extension(nb_server_app):
     """
-    Called when the extension is loaded.
+    Called when the Jupyter server extension is loaded.
 
     Args:
         nb_server_app (NotebookWebApplication): handle to the Notebook webserver instance.
     """
-
-
-    #-----Configure logging for the extension, currently writing to a file in same directory as notebook.
+    print("SPARKMONITOR_SERVER: Loading Server Extension")
+    # Configuring logging for the extension
+    # This is necessary because in some versions of jupyter, print statements are not output to console.
 
     global logger
-    logger = logging.getLogger('sparkscalamonitor')
+    logger = logging.getLogger("sparkmonitorserver")
     logger.setLevel(logging.DEBUG)
     logger.propagate = False
     # For debugging this module - Writes logs to a file
-    fh = logging.FileHandler('sparkmonitor_serverextension.log',mode='w')
+    fh = logging.FileHandler("sparkmonitor_serverextension.log", mode="w")
     fh.setLevel(logging.DEBUG)
     formatter = logging.Formatter(
-        '%(levelname)s:  %(asctime)s - %(name)s - %(process)d - %(processName)s - \
-        %(thread)d - %(threadName)s\n %(message)s \n')
+        "%(levelname)s:  %(asctime)s - %(name)s - %(process)d - %(processName)s - \
+        %(thread)d - %(threadName)s\n %(message)s \n")
     fh.setFormatter(formatter)
     logger.addHandler(fh)
 
-    #-------------------------------------------------------------------------
-
-    print("SPARKMONITOR_SERVER: Loading Server Extension")
     web_app = nb_server_app.web_app
-    host_pattern = '.*$'
+    host_pattern = ".*$"
     route_pattern = url_path_join(
-        web_app.settings['base_url'], proxy_root + '.*')
+        web_app.settings["base_url"], proxy_root + ".*")
     web_app.add_handlers(host_pattern, [(route_pattern, SparkMonitorHandler)])
 
 
 try:
     import lxml
 except ImportError:
-    BEAUTIFULSOUP_BUILDER = 'html.parser'
+    BEAUTIFULSOUP_BUILDER = "html.parser"
 else:
-    BEAUTIFULSOUP_BUILDER = 'lxml'
-
+    BEAUTIFULSOUP_BUILDER = "lxml"
 # a regular expression to match paths against the Spark on EMR proxy paths
-PROXY_PATH_RE = re.compile(r'\/proxy\/application_\d+_\d+\/(.*)')
-
+PROXY_PATH_RE = re.compile(r"\/proxy\/application_\d+_\d+\/(.*)")
 # a tuple of tuples with tag names and their attribute to automatically fix
 PROXY_ATTRIBUTES = (
-    (('a', 'link'), 'href'),
-    (('img', 'script'), 'src'),
+    (("a", "link"), "href"),
+    (("img", "script"), "src"),
 )
 
 
 def replace(content):
-    """
-    Replace all the links with our prefixed handler links, e.g.:
-    /proxy/application_1467283586194_0015/static/styles.css' or
+    """Replace all the links with our prefixed handler links,
+
+     e.g.:
+    /proxy/application_1467283586194_0015/static/styles.css" or
     /static/styles.css
     with
     /spark/static/styles.css
@@ -145,14 +143,14 @@ def url_path_join(*pieces):
     Use to prevent double slash when joining subpath. This will leave the
     initial and final / in place
     """
-    initial = pieces[0].startswith('/')
-    final = pieces[-1].endswith('/')
-    stripped = [s.strip('/') for s in pieces]
-    result = '/'.join(s for s in stripped if s)
+    initial = pieces[0].startswith("/")
+    final = pieces[-1].endswith("/")
+    stripped = [s.strip("/") for s in pieces]
+    result = "/".join(s for s in stripped if s)
     if initial:
-        result = '/' + result
+        result = "/" + result
     if final:
-        result = result + '/'
-    if result == '//':
-        result = '/'
+        result = result + "/"
+    if result == "//":
+        result = "/"
     return result

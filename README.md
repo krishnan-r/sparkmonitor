@@ -17,7 +17,7 @@ SparkMonitor is an extension for Jupyter Notebook that integrates the monitoring
 * A graph showing number of active tasks & executor cores vs time
 * A notebook server extension that proxies the Spark UI and displays it in an iframe popup for more details
 * For a detailed list of features see the use case [notebooks](https://krishnan-r.github.io/sparkmonitor/#common-use-cases-and-tests)
-* [How it Works]()
+* [How it Works](https://krishnan-r.github.io/sparkmonitor/how.html)
 
 ### Quick Installation 
 ```bash 
@@ -26,9 +26,9 @@ pip install https://github.com/krishnan-r/sparkmonitor/releases/download/v0.0.1/
 jupyter nbextension install sparkmonitor --py --user --symlink 
 jupyter nbextension enable sparkmonitor --py --user            
 jupyter serverextension enable --py --user sparkmonitor
-ipython profile create && echo "c.InteractiveShellApp.extensions.append('sparkmonitor')" >>  $(ipython profile locate default)/ipython_kernel_config.py
+ipython profile create && echo "c.InteractiveShellApp.extensions.append('sparkmonitor.kernelextension')" >>  $(ipython profile locate default)/ipython_kernel_config.py
 ```
-#### For more detailed instructions [click here]()
+#### For more detailed instructions [click here](https://krishnan-r.github.io/sparkmonitor/install.html)
 #### To do a quick test of the extension
 ```bash
 docker run -it -p 80:8888 krishnanr/sparkmonitor

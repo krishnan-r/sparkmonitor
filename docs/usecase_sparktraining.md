@@ -25,8 +25,8 @@ They test a wide range of spark APIs including reading data from files
  ![8](https://user-images.githubusercontent.com/6822941/29601776-d919dae4-87fa-11e7-8939-a6c0d0072d90.png)
 
     - The timeline shows various tasks running on each executor as a group
-    - It shows the time spent by the task in various phases. An overall view of this give insight into the nature of the workload - wether I/O bound or CPU bound etc
-    - On clicking on an item on the timeline, the corresponding detials of the item are shown as a popup. For jobs and stages, this shows the Spark Web UI page. For tasks a custom popup is shown with various details
+    - It shows the time spent by the task in various phases. An overall view of this give insight into the nature of the workload - I/O bound or CPU bound.
+    - On clicking on an item on the timeline, the corresponding details of the item are shown as a pop-up. For jobs and stages, this shows the Spark Web UI page. For tasks a custom pop-up is shown with various details
     ![5](https://user-images.githubusercontent.com/6822941/29601773-d8eda6ea-87fa-11e7-905d-9bebd62250ea.png)
 - For more advanced details, the extension provides access to the Spark Web UI through a server proxy. This can used by advanced users for in depth analysis.
 ![1](https://user-images.githubusercontent.com/6822941/29601770-d8ea4734-87fa-11e7-9102-524d2b5193c3.png)

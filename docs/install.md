@@ -10,7 +10,7 @@ ipython profile create && echo "c.InteractiveShellApp.extensions.append('sparkmo
 ```
 ### Details
 
-1. Install the python package in the latest tagged github release. The python package contains the javascript resources and the listener jar file.
+1. Install the python package in the latest tagged github release. The python package contains the JavaScript resources and the listener jar file.
 
 ```bash
 pip install https://github.com/krishnan-r/sparkmonitor/releases/download/v0.0.5/sparkmonitor.tar.gz #Use latest version as in github releases
@@ -34,7 +34,7 @@ ipython profile create
 ```
 5. Configure the kernel to load the extension on startup. This is added to the configuration files in users home directory
 ```bash
-echo "c.InteractiveShellApp.extensions.append('sparkmonitor')" >>  $(ipython profile locate default)/ipython_kernel_config.py
+echo "c.InteractiveShellApp.extensions.append('sparkmonitor.kernelextension')" >>  $(ipython profile locate default)/ipython_kernel_config.py
 ```
 ## Configuration
 - Setting the environment variable `SPARKMONITOR_UI_HOST` and `SPARKMONITOR_UI_PORT` overrides the default Spark UI hostname 127.0.0.1 and port 4040 used by the Spark UI proxy 
