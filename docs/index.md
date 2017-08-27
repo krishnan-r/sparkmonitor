@@ -39,11 +39,11 @@ The extension has been tested with a range of Spark applications. [Here](usecase
 
 
 ## Integration in SWAN and CERN IT Infrastructure
-- The extension has been successfully integrated with a test instance of [SWAN](http://swan.web.cern.ch/), a Service for Web based ANalysis at [CERN](https://home.cern/)
+- The extension has been successfully integrated with a test instance of [SWAN](http://swan.web.cern.ch/), a Service for Web based ANalysis at [CERN](https://home.cern/).
 - SWAN allows the submission of Spark Jobs from a notebook interface to Spark clusters deployed at CERN.
 - SWAN encapsulates user sessions in Docker containers. The extension is installed by modifying the docker container image.
 - The extension is loaded to Jupyter whenever the user attaches a Spark Cluster to the notebook environment.
-- The custom docker spawner image files can be found [here](https://github.com/krishnan-r/sparkmonitorhub).
+- The customized docker image for the user environment can be found [here](https://github.com/krishnan-r/sparkmonitorhub).
 - Using this integration, it is now possible to monitor and debug Spark Jobs running on CERN Clusters using the notebook interface.
 
 ## Documentation
