@@ -27,7 +27,7 @@ SparkMonitor is an extension for Jupyter Notebook that enables the live monitori
 
 ***
 
-![jobdisplay](https://user-images.githubusercontent.com/6822941/28491063-1242eb42-6f07-11e7-8a57-abb96819ab0e.gif)
+![jobdisplay](https://user-images.githubusercontent.com/6822941/29753710-ff8849b6-8b94-11e7-8f9c-bdc59bf72143.gif)
 
 ## Features
 * Automatically displays a live monitoring tool below cells that run Spark jobs in a Jupyter notebook
