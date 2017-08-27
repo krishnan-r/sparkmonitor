@@ -67,7 +67,6 @@ SparkMonitor.prototype.startCellMonitor = function (cell) {
 		this.cellmonitors[cell.cell_id].removeDisplay();
 	}
 	events.one('started' + cell.cell_id + 'currentcell', function () {
-		//console.log('started' + cell.cell_id + 'currentcell');
 		var c = cell;
 		that.cellExecutedAgain(c);
 	})
@@ -81,7 +80,6 @@ SparkMonitor.prototype.startCellMonitor = function (cell) {
  * @param {CodeCell} cell - The Jupyter CodeCell instance.
  */
 SparkMonitor.prototype.cellExecutedAgain = function (cell) {
-	console.log('stopping cell' + cell.cell_id);
 	this.stopCellMonitor(cell.cell_id);
 }
 
@@ -102,7 +100,6 @@ SparkMonitor.prototype.stopCellMonitor = function (cell_id) {
 SparkMonitor.prototype.createButtons = function () {
 	var that = this;
 	var handler = function () {
-		console.log("SparkMonitor: Toggling displays");
 		that.toggleAll();
 	};
 
@@ -153,7 +150,6 @@ SparkMonitor.prototype.hideAll = function () {
  * @param {Object} msg - The JSON parsed message object.
  */
 SparkMonitor.prototype.on_comm_msg = function (msg) {
-	//console.log('SparkMonitor: Comm Message:', msg.content.data);
 	this.handleMessage(msg)
 }
 
@@ -173,7 +169,7 @@ SparkMonitor.prototype.startComm = function () {
 	if (this.comm) {
 		this.comm.close()
 	}
-	console.log('SparkMonitor: Starting COMM NOW')
+	console.log('SparkMonitor: Starting Comm with kernel.')
 	var that = this;
 	if (Jupyter.notebook.kernel) {
 		this.comm = Jupyter.notebook.kernel.comm_manager.new_comm('SparkMonitor',
@@ -203,7 +199,6 @@ SparkMonitor.prototype.send = function (msg) {
  * @param {Object} data - The data from the spark listener event.
  */
 SparkMonitor.prototype.onSparkJobStart = function (data) {
-
 	var cell = currentcell.getRunningCell()
 	if (cell == null) {
 		console.error('SparkMonitor: Job started with no running cell.');
@@ -220,7 +215,6 @@ SparkMonitor.prototype.onSparkJobStart = function (data) {
 	//These values are set here as previous messages may be missed if reconnecting from a browser reload.
 	this.totalCores = data.totalCores;
 	this.numExecutors = data.numExecutors;
-
 	if (cellmonitor) cellmonitor.onSparkJobStart(data);
 }
 
@@ -229,7 +223,6 @@ SparkMonitor.prototype.onSparkJobStart = function (data) {
  * @param {Object} data - The data from the spark listener event.
  */
 SparkMonitor.prototype.onSparkJobEnd = function (data) {
-
 	var cell_id = this.data['app' + this.app + 'job' + data.jobId]['cell_id'];
 	if (cell_id) {
 		console.log('SparkMonitor: Job End at cell: ', cell_id, data);
@@ -247,7 +240,6 @@ SparkMonitor.prototype.onSparkJobEnd = function (data) {
  */
 SparkMonitor.prototype.onSparkStageSubmitted = function (data) {
 	console.log('SparkMonitor:Stage Submitted', data);
-	//TODO Get cell from JobId instead of running cell??
 	var cell = currentcell.getRunningCell()
 	if (cell == null) {
 		console.error('SparkMonitor: Stage started with no running cell.');
@@ -308,8 +300,7 @@ SparkMonitor.prototype.onSparkTaskEnd = function (data) {
  */
 
 SparkMonitor.prototype.onSparkApplicationEnd = function (data) {
-	/*@TODO What to do?*/
-
+	// Nothing to do here.
 }
 
 /**
@@ -330,7 +321,6 @@ SparkMonitor.prototype.onSparkApplicationStart = function (data) {
 SparkMonitor.prototype.onSparkExecutorAdded = function (data) {
 	this.totalCores = data.totalCores;
 	this.numExecutors += 1;
-
 	var cell = currentcell.getRunningCell()
 	if (cell != null) {
 		var cellmonitor = this.getCellMonitor(cell.cell_id);
@@ -345,7 +335,6 @@ SparkMonitor.prototype.onSparkExecutorAdded = function (data) {
 SparkMonitor.prototype.onSparkExecutorRemoved = function (data) {
 	this.totalCores = data.totalCores;
 	this.numExecutors -= 1;
-
 	var cell = currentcell.getRunningCell()
 	if (cell != null) {
 		var cellmonitor = this.getCellMonitor(cell.cell_id);
@@ -362,11 +351,8 @@ SparkMonitor.prototype.handleMessage = function (msg) {
 	if (!msg.content.data.msgtype) {
 		console.warn("SparkMonitor: Unknown message");
 	}
-
 	if (msg.content.data.msgtype == "fromscala") {
-
 		var data = JSON.parse(msg.content.data.msg);
-
 		switch (data.msgtype) {
 			case 'sparkJobStart':
 				this.onSparkJobStart(data);

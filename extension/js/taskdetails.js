@@ -42,7 +42,6 @@ function fillData(element, item) {
     element.find('.data-status').html(status);
     var start = $('<time></time>').addClass('timeago').attr('data-livestamp', new Date(data.launchTime)).attr('title', new Date(data.launchTime).toString()).livestamp(new Date(data.launchTime));
     element.find('.data-launchtime').html(start);
-
     if (data.finishTime) {
         var end = $('<time></time>').addClass('timeago').attr('data-livestamp', new Date(data.finishTime)).attr('title', new Date(data.finishTime).toString()).livestamp(new Date(data.finishTime));
         element.find('.finish').show();
@@ -59,41 +58,41 @@ function fillData(element, item) {
         element.find('.metricdata').show();
         var e = element.find('.legend-area');
         var svg = element.find('.taskbarsvg');
-
+        var format = "d[d] h[h]:mm[m]:ss[s]:SS[ms]";
         svg.find('.scheduler-delay-proportion')
             .attr('x', '' + metrics.schedulerDelayProportionPos + '%')
             .attr('width', '' + metrics.schedulerDelayProportion + '%');
-        e.find('.scheduler-delay').text(moment.duration(metrics.schedulerDelay).format("d[d] h[h]:mm[m]:ss[s]:SS[ms]"));
+        e.find('.scheduler-delay').text(moment.duration(metrics.schedulerDelay).format(format));
 
         svg.find('.deserialization-time-proportion')
             .attr('x', '' + metrics.deserializationTimeProportionPos + '%')
             .attr('width', '' + metrics.deserializationTimeProportion + '%');
-        e.find('.deserialization-time').text(moment.duration(metrics.deserializationTime).format("d[d] h[h]:mm[m]:ss[s]:SS[ms]"));
+        e.find('.deserialization-time').text(moment.duration(metrics.deserializationTime).format(format));
 
         svg.find('.shuffle-read-time-proportion')
             .attr('x', '' + metrics.shuffleReadTimeProportionPos + '%')
             .attr('width', '' + metrics.shuffleReadTimeProportion + '%');
-        e.find('.shuffle-read-time').text(moment.duration(metrics.shuffleReadTime).format("d[d] h[h]:mm[m]:ss[s]:SS[ms]"));
+        e.find('.shuffle-read-time').text(moment.duration(metrics.shuffleReadTime).format(format));
 
         svg.find('.executor-runtime-proportion')
             .attr('x', '' + metrics.executorComputingTimeProportionPos + '%')
             .attr('width', '' + metrics.executorComputingTimeProportion + '%');
-        e.find('.executor-runtime').text(moment.duration(metrics.executorComputingTime).format("d[d] h[h]:mm[m]:ss[s]:SS[ms]"));
+        e.find('.executor-runtime').text(moment.duration(metrics.executorComputingTime).format(format));
 
         svg.find('.shuffle-write-time-proportion')
             .attr('x', '' + metrics.shuffleWriteTimeProportionPos + '%')
             .attr('width', '' + metrics.shuffleWriteTimeProportion + '%');
-        e.find('.shuffle-write-time').text(moment.duration(metrics.shuffleWriteTime).format("d[d] h[h]:mm[m]:ss[s]:SS[ms]"));
+        e.find('.shuffle-write-time').text(moment.duration(metrics.shuffleWriteTime).format(format));
 
         svg.find('.serialization-time-proportion')
             .attr('x', '' + metrics.serializationTimeProportionPos + '%')
             .attr('width', '' + metrics.serializationTimeProportion + '%');
-        e.find('.serialization-time').text(moment.duration(metrics.serializationTime).format("d[d] h[h]:mm[m]:ss[s]:SS[ms]"));
+        e.find('.serialization-time').text(moment.duration(metrics.serializationTime).format(format));
 
         svg.find('.getting-result-time-proportion')
             .attr('x', '' + metrics.gettingResultTimeProportionPos + '%')
             .attr('width', '' + metrics.gettingResultTimeProportion + '%');
-        e.find('.getting-result-time').text(moment.duration(metrics.gettingResultTime).format("d[d] h[h]:mm[m]:ss[s]:SS[ms]"));
+        e.find('.getting-result-time').text(moment.duration(metrics.gettingResultTime).format(format));
     }
 }
 

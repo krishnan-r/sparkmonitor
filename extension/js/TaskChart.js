@@ -14,29 +14,23 @@ import Plotly from 'plotly.js/lib/core' // The plotting library
 function TaskChart(cellmonitor) {
     var that = this;
     this.cellmonitor = cellmonitor;
-
     this.taskChart = null;
     this.taskChartDataX = [];
     this.taskChartDataY = [];
     this.executorDataX = [];
     this.executorDataY = [];
-
-
     this.executorDataBufferX = [];
     this.executorDataBufferY = [];
-
     this.jobDataX = [];
     this.jobDataY = [];
     this.jobDataText = [];
     this.jobDataBufferX = [];
     this.jobDataBufferY = [];
     this.jobDataBufferText = [];
-
-
     this.shapes = [];
-
     this.numActiveTasks = 0;
 }
+
 /** Creates and renders the Task Chart */
 TaskChart.prototype.create = function () {
     if (this.cellmonitor.view != 'tasks') {
@@ -54,7 +48,6 @@ TaskChart.prototype.create = function () {
         fillcolor: '#00aedb',
         name: 'Active Tasks'
     };
-
     var executortrace = {
         x: that.executorDataX,
         y: that.executorDataY,
@@ -79,9 +72,6 @@ TaskChart.prototype.create = function () {
             size: 1
         }
     };
-
-
-
     var data = [executortrace, tasktrace, jobtrace];
     var layout = {
         // title: 'Active Tasks and Executors Cores',
@@ -123,9 +113,7 @@ TaskChart.prototype.create = function () {
     that.jobDataBufferX = [];
     that.jobDataBufferY = [];
     that.jobDataBufferText = [];
-
     var options = { displaylogo: false, scrollZoom: true }
-
     Plotly.newPlot(container, data, layout, options);
     this.taskChart = container;
     if (!this.cellmonitor.allcompleted) this.registerRefresher();
@@ -170,7 +158,6 @@ TaskChart.prototype.hide = function () {
         Plotly.purge(this.taskChart);
     }
     catch (err) {
-        console.log("SparkMonitor: Error Hiding taskchart"); //err);
     }
     this.taskChart = null;
 }
@@ -185,7 +172,6 @@ TaskChart.prototype.registerRefresher = function () {
 /** Refreshed the TaskChart. */
 TaskChart.prototype.refreshTaskChart = function () {
     var that = this;
-    console.log('SparkMonitor: Updating Chart');
     if (that.taskcountchanged && that.cellmonitor.view == "tasks") {
         try {
             Plotly.extendTraces(
@@ -210,7 +196,6 @@ TaskChart.prototype.refreshTaskChart = function () {
             Plotly.relayout(that.taskChart, update)
         }
         catch (err) {
-            console.log("SparkMonitor: Exception in updating task graph ", err);
         }
         that.taskChartDataBufferX = [];
         that.taskChartDataBufferY = [];
@@ -276,14 +261,6 @@ TaskChart.prototype.onSparkJobStart = function (data) {
 /** Called when a Spark job ends. */
 TaskChart.prototype.onSparkJobEnd = function (data) {
     this.addJobData(data.jobId, new Date(data.completionTime), "ended");
-}
-
-/** Called when a Spark stage is submitted. */
-TaskChart.prototype.onSparkStageSubmitted = function (data) {
-}
-
-/** Called when a Spark stage is completed. */
-TaskChart.prototype.onSparkStageCompleted = function (data) {
 }
 
 /** Called when a Spark task is started. */

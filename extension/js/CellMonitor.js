@@ -30,7 +30,6 @@ requirejs(['./taskchart'], function (taskchart) {
 
 /**
  * Class that implements a monitoring display for a single cell.
- * 
  * @constructor
  * @param {SparkMonitor} monitor - The parent singleton SparkMonitor instance.
  * @param {CodeCell} cell - The Jupyter CodeCell instance of the cell.
@@ -142,12 +141,10 @@ CellMonitor.prototype.removeDisplay = function () {
 
 /**
  * Stop Running Jobs
- * 
  * Stopping Jobs does not work at the moment.  
  * This interrupts the kernel currently.  
  * Issue with jupyter comm messaging while kernel is busy.  
  */
-
 CellMonitor.prototype.stopJobs = function () {
     Jupyter.notebook.kernel.interrupt(); // This does not stop the job..does not work as expected.
     this.monitor.send({
@@ -157,7 +154,6 @@ CellMonitor.prototype.stopJobs = function () {
 
 /** 
  * Opens the Spark UI in an IFrame.
- * 
  * @param {string} [url=] - A relative url to open within the main domain.
  */
 CellMonitor.prototype.openSparkUI = function (url) {
@@ -168,7 +164,6 @@ CellMonitor.prototype.openSparkUI = function (url) {
                     </iframe>\
                     </div>\
                     ');
-
     iframe.find('.sparkuiframe').css('background-image', 'url("' + requirejs.toUrl('./' + spinner) + '")');
     iframe.find('.sparkuiframe').css('background-repeat', 'no-repeat');
     iframe.find('.sparkuiframe').css('background-position', "50% 50%");
@@ -226,7 +221,6 @@ CellMonitor.prototype.showView = function (view) {
 
 /**
  * Hides the view specified, performing any clean up necessary.
- * 
  * @param {string} view - The view to hide.
  */
 CellMonitor.prototype.hideView = function (view) {
@@ -244,19 +238,15 @@ CellMonitor.prototype.hideView = function (view) {
         }
     }
     catch (err) {
-        console.log("SparkMonitor:Error Hiding View");
     }
 }
 /**
  * Updates the counters on the title of the display.
- * 
  * @param {boolean} [redraw=false] - Forces a redraw regardless of whether data has changed if true.
  */
 CellMonitor.prototype.setBadges = function (redraw = false) {
     if (this.badgesmodified || redraw) {
-
         this.badgesmodified = false;
-
         this.displayElement.find('.badgeexecutorcount').text(this.monitor.numExecutors);
         this.displayElement.find('.badgeexecutorcorescount').text(this.monitor.totalCores);
         if (this.numActiveJobs > 0) {
@@ -279,10 +269,8 @@ CellMonitor.prototype.setBadges = function (redraw = false) {
 
 /** Called when a cells execution is completed, as detected by the currentcell module. */
 CellMonitor.prototype.onCellExecutionCompleted = function () {
-    console.log("SparkMonitor: Cell Execution Completed");
     this.cellEndTime = new Date();
     this.cellcompleted = true;
-
     if (this.numActiveJobs == 0 && !this.allcompleted) {
         this.onAllCompleted();
     }
@@ -297,8 +285,6 @@ CellMonitor.prototype.onAllCompleted = function () {
         this.badgeInterval = null;
     }
     if (this.displayVisible) this.setBadges(true);
-    console.log("SparkMonitor: Cell Execution and Jobs Completed");
-    this.onJobTableAllCompleted();
     if (this.timeline) this.timeline.onAllCompleted();
     if (this.taskchart) this.taskchart.onAllCompleted();
 }
@@ -336,7 +322,6 @@ CellMonitor.prototype.createJobTable = function () {
 }
 /** 
  * Creates HTML element for a single stage item in the table.
- * 
  * @return {jQuery} - The stage row element.
  */
 CellMonitor.prototype.createStageItem = function () {
@@ -368,13 +353,11 @@ CellMonitor.prototype.updateStageItem = function (element, data, redraw = false)
         element.find('.tdstageid').text(data.id);
         var val1 = 0, val2 = 0;
         var text = '' + data.numCompletedTasks + '' + (data.numActiveTasks > 0 ? ' + ' + data.numActiveTasks + ' ' : '') + ' / ' + data.numTasks;
-
         if (data.numTasks > 0) {
             val1 = (data.numCompletedTasks / data.numTasks) * 100;
             val2 = (data.numActiveTasks / data.numTasks) * 100;
             element.find('.tdstageitemprogress .data').text(text);
         }
-
         element.find('.tdstagestatus')
         element.find('.tdstageitemprogress .val1').width(val1 + '%');
         element.find('.tdstageitemprogress .val2').width(val2 + '%');
@@ -395,7 +378,6 @@ CellMonitor.prototype.updateStageItem = function (element, data, redraw = false)
 
 /** 
  * Creates HTML element for a single job item in the table.
- * 
  * @return {jQuery} - The job row element, containing one row item for the job and another for the expandable stages table.
  */
 CellMonitor.prototype.createJobItem = function () {
@@ -418,7 +400,6 @@ CellMonitor.prototype.createJobItem = function () {
         icon.toggleClass('tdstageiconcollapsed');
         fakerow.slideToggle();
     })
-
     var tdjobid = $('<td></td>').addClass('tdjobid');
     var tdjobname = $('<td></td>').addClass('tdjobname');
     var status = $('<span></span>').addClass("pending").text("PENDING").addClass('tditemjobstatus');
@@ -458,7 +439,6 @@ CellMonitor.prototype.updateJobItem = function (element, data, redraw = false) {
                 that.updateStageItem(srow, that.stageData[stageId]);
             }
         });
-
         var val1 = 0, val2 = 0;
         if (data.numTasks > 0) {
             val1 = (data.numCompletedTasks / data.numTasks) * 100;
@@ -470,15 +450,11 @@ CellMonitor.prototype.updateJobItem = function (element, data, redraw = false) {
         }
         element.find('.tdjobid').text(data.id);
         element.find('.tdjobname').text(data.name);
-
         var status = $('<span></span>').addClass(data.status).text(data.status).addClass('tditemjobstatus');
         element.find('.tdjobstatus').html(status);
-
-        element.find('.tdjobstages').text('' + data.numCompletedStages + '/' + data.numStages + '' + (data.numSkippedStages > 0 ? ' (' + data.numSkippedStages + ' skipped)' : '        ') + (data.numActiveStages > 0 ? '(' + data.numActiveStages + ' active) ' : ''))
-
+        element.find('.tdjobstages').text('' + data.numCompletedStages + '/' + data.numStages + '' + (data.numSkippedStages > 0 ? ' (' + data.numSkippedStages + ' skipped)' : '        ') + (data.numActiveStages > 0 ? '(' + data.numActiveStages + ' active) ' : ''));
         var start = $('<time></time>').addClass('timeago').attr('data-livestamp', data.start).attr('title', data.start.toString()).addClass('tdjobstart').livestamp(data.start);
         element.find('.tdjobstarttime').html(start);
-
         if (data.status != "RUNNING") {
             var duration = moment.duration(data.end.getTime() - data.start.getTime());
             element.find('.tdjobduration').text(duration.format("d[d] h[h]:mm[m]:ss[s]"));
@@ -487,7 +463,6 @@ CellMonitor.prototype.updateJobItem = function (element, data, redraw = false) {
 }
 /** Updates the data in the job table */
 CellMonitor.prototype.updateJobTable = function () {
-    console.log('updating table');
     var that = this;
     if (this.view != 'jobs') {
         throw "SparkMonitor: Updating job table when view is not jobs";
@@ -522,10 +497,6 @@ CellMonitor.prototype.clearJobTableRefresher = function () {
 CellMonitor.prototype.hideJobTable = function () {
     this.clearJobTableRefresher();
 }
-/** Called when all jobs have completed and cell execution is also completed. */
-CellMonitor.prototype.onJobTableAllCompleted = function () {
-
-}
 
 //----------Data Handling Functions----------------
 
@@ -536,20 +507,16 @@ CellMonitor.prototype.onSparkJobStart = function (data) {
     this.badgesmodified = true;
     this.appId = data.appId;
     var name = $('<div>').text(data.name).html().split(' ')[0];//Escaping HTML <, > from string
-    //--------------
     this.jobData[data.jobId] = {
-
         id: data.jobId,
         start: new Date(data.submissionTime),
         name: name,
         status: data.status,
         stageIds: data.stageIds,
-
         numTasks: data.numTasks,
         numActiveTasks: 0,
         numCompletedTasks: 0,
         numFailedTasks: 0,
-
         numStages: data.stageIds.length,
         numActiveStages: 0,
         numCompletedStages: 0,
@@ -557,7 +524,6 @@ CellMonitor.prototype.onSparkJobStart = function (data) {
         numSkippedStages: 0,
         modified: true,
     };
-
     data.stageIds.forEach(function (stageid) {
         if (!that.stageIdtoJobId[stageid]) that.stageIdtoJobId[stageid] = [];
         that.stageIdtoJobId[stageid].push(data.jobId);
@@ -573,7 +539,6 @@ CellMonitor.prototype.onSparkJobStart = function (data) {
             numFailedTasks: 0,
             modified: true,
         };
-
     });
     if (name == "null") {
         var laststageid = Math.max.apply(null, data.stageIds);
@@ -583,7 +548,6 @@ CellMonitor.prototype.onSparkJobStart = function (data) {
         this.createDisplay();
         this.initialDisplayCreated = true;
     }
-
     if (this.timeline) this.timeline.onSparkJobStart(data);
     if (this.taskchart) this.taskchart.onSparkJobStart(data);
 }
@@ -601,7 +565,6 @@ CellMonitor.prototype.onSparkJobEnd = function (data) {
             that.jobData[data.jobId]['numTasks'] -= that.stageData[stageid]['numTasks'];
         }
     })
-
     this.numActiveJobs -= 1;
     if (data.status == "SUCCEEDED") {
         this.numCompletedJobs += 1;
@@ -610,15 +573,11 @@ CellMonitor.prototype.onSparkJobEnd = function (data) {
         this.numFailedJobs += 1;
         this.jobData[data.jobId]['status'] = "FAILED"
     }
-
     this.badgesmodified = true;
-
     this.jobData[data.jobId]['end'] = new Date(data.completionTime);
     this.jobData[data.jobId]['modified'] = true;
-
     if (this.timeline) this.timeline.onSparkJobEnd(data);
     if (this.taskchart) this.taskchart.onSparkJobEnd(data);
-
     if (this.numActiveJobs == 0 && this.cellcompleted && !this.allcompleted) {
         this.onAllCompleted();
     }
@@ -631,12 +590,10 @@ CellMonitor.prototype.onSparkStageSubmitted = function (data) {
     var submissionDate;
     if (data.submissionTime == -1) submissionDate = new Date()
     else submissionDate = new Date(data.submissionTime);
-
     this.stageIdtoJobId[data.stageId].forEach(function (jobId) {
         that.jobData[jobId]['numActiveStages'] += 1;
         that.jobData[jobId]['modified'] = true;
     });
-
     this.stageData[data.stageId]['status'] = "RUNNING";
     this.stageData[data.stageId]['name'] = name;
     this.stageData[data.stageId]['start'] = submissionDate;
@@ -644,7 +601,6 @@ CellMonitor.prototype.onSparkStageSubmitted = function (data) {
     this.stageData[data.stageId]['modified'] = true;
 
     if (this.timeline) this.timeline.onSparkStageSubmitted(data);
-    if (this.taskchart) this.taskchart.onSparkStageSubmitted(data);
 }
 
 /** Called when a Spark stage is completed. */
@@ -661,7 +617,6 @@ CellMonitor.prototype.onSparkStageCompleted = function (data) {
         else {
             that.jobData[jobId]['numFailedStages'] += 1;
         }
-
     });
     this.stageData[data.stageId]['status'] = data.status;
     this.stageData[data.stageId]['start'] = new Date(data.submissionTime);
@@ -669,13 +624,11 @@ CellMonitor.prototype.onSparkStageCompleted = function (data) {
     this.stageData[data.stageId]['modified'] = true;
 
     if (this.timeline) this.timeline.onSparkStageCompleted(data);
-    if (this.taskchart) this.taskchart.onSparkStageCompleted(data);
 }
 
 /** Called when a Spark task is started. */
 CellMonitor.prototype.onSparkTaskStart = function (data) {
     var that = this;
-
     this.stageData[data.stageId]['numActiveTasks'] += 1;
     this.stageData[data.stageId]['firsttaskstart'] = new Date(data.launchTime);
     this.stageData[data.stageId]['modified'] = true;
@@ -684,7 +637,6 @@ CellMonitor.prototype.onSparkTaskStart = function (data) {
         that.jobData[jobId]['numActiveTasks'] += 1;
         that.jobData[jobId]['modified'] = true;
     })
-
     if (this.timeline) this.timeline.onSparkTaskStart(data);
     if (this.taskchart) this.taskchart.onSparkTaskStart(data);
 }
@@ -692,17 +644,14 @@ CellMonitor.prototype.onSparkTaskStart = function (data) {
 /** Called when a Spark task is ended. */
 CellMonitor.prototype.onSparkTaskEnd = function (data) {
     var that = this;
-
     this.stageData[data.stageId]['numActiveTasks'] -= 1;
     this.stageData[data.stageId]['modified'] = true;
-
     if (data.status == "SUCCESS") {
         this.stageData[data.stageId]['numCompletedTasks'] += 1;
     }
     else {
         this.stageData[data.stageId]['numFailedTasks'] += 1;
     }
-
     this.stageIdtoJobId[data.stageId].forEach(function (jobId) {
         that.jobData[jobId]['numActiveTasks'] -= 1;
         that.jobData[jobId]['modified'] = true;

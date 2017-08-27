@@ -15,7 +15,6 @@ import taskUI from './taskdetails'              // Module for displaying popup w
  * @param {CellMonitor} cellmonitor - The parent CellMonitor to render in.
  */
 function Timeline(cellmonitor) {
-
     this.cellmonitor = cellmonitor;  // The parent cell monitor object
     this.timelineGroups1 = new vis.DataSet([
         {
@@ -31,14 +30,11 @@ function Timeline(cellmonitor) {
     this.timelineData1 = new vis.DataSet({ queue: true }); // Jobs timeline
     this.timelineData2 = new vis.DataSet({ queue: true }); // Stages timeline
     this.timelineData3 = new vis.DataSet({ queue: true }); // Tasks timeline
-
     this.runningItems1 = new vis.DataSet();
     this.runningItems2 = new vis.DataSet();
     this.runningItems3 = new vis.DataSet();
-
     this.runningItems = {};
     this.userdragged = false;
-
     this.timelineOptions1 = {
         rollingMode: {
             follow: false,
@@ -115,7 +111,6 @@ function Timeline(cellmonitor) {
     this.timeline1 = null; // Jobs
     this.timeline2 = null; // Stages
     this.timeline3 = null; // Tasks
-
     this.firstJobStart = new Date();
     this.firstjobstarted = false;
     this.latestTime = new Date();
@@ -135,10 +130,8 @@ Timeline.prototype.registerRefresher = function () {
  * The queued data updates are flushed in every cycle. 
  * @param {boolean} redraw - Force a refresh of running items.
  */
-
 Timeline.prototype.refreshTimeline = function (redraw) {
     var that = this;
-    console.log("SparkMonitor-Timeline: Updating Timeline")
     that.i++;
     if (that.i >= 2 || redraw) {
         that.i = 0;
@@ -187,7 +180,6 @@ Timeline.prototype.clearRefresher = function () {
  * @todo title is not displayed currently. The pointer events for the line are disabled in CSS to prevent dragging, this hides tooltip also.
  */
 Timeline.prototype.addLinetoTimeline = function (time, id, title) {
-    // console.log('SparkMonitor-Timeline: adding line');
     if (this.cellmonitor.view == "timeline" && this.cellmonitor.displayVisible) {
         this.timeline1.addCustomTime(time, id);
         this.timeline1.setCustomTimeTitle(title, id);
@@ -211,15 +203,12 @@ Timeline.prototype.setRanges = function (start, end, setminmax, moveWindow, hide
     var a = start.getTime();
     var min = new Date(a - ((b - a) / 15));
     var max = new Date(b + ((b - a) / 15));
-
     this.timelineOptions1.start = new Date(min);
     this.timelineOptions2.start = new Date(min);
     this.timelineOptions3.start = new Date(min);
-
     this.timelineOptions1.end = new Date(max);
     this.timelineOptions2.end = new Date(max);
     this.timelineOptions3.end = new Date(max);
-
     if (hidecurrenttime) {
         this.timelineOptions1['showCurrentTime'] = false;
         this.timelineOptions2['showCurrentTime'] = false;
@@ -234,38 +223,28 @@ Timeline.prototype.setRanges = function (start, end, setminmax, moveWindow, hide
         this.timelineOptions2.max = new Date(max);
         this.timelineOptions3.max = new Date(max);
     }
-
     if (moveWindow && this.cellmonitor.view == "timeline" && !this.userdragged && this.cellmonitor.displayVisible) {
         if (this.timeline1) this.timeline1.setWindow(min, max);
         if (this.timeline2) this.timeline2.setWindow(min, max);
         if (this.timeline3) this.timeline3.setWindow(min, max);
-
-        // if (this.timeline1) this.timeline1.setOptions(this.timelineOptions1);
-        // if (this.timeline2) this.timeline2.setOptions(this.timelineOptions2);
-        // if (this.timeline3) this.timeline3.setOptions(this.timelineOptions3);
     }
 }
 /** Creates and renders the timeline from the stored data. */
 Timeline.prototype.create = function () {
     var that = this;
     if (this.cellmonitor.view == 'timeline') {
-
-
         var container1 = this.cellmonitor.displayElement.find('.timelinecontainer1').empty()[0]
         var container2 = this.cellmonitor.displayElement.find('.timelinecontainer2').empty()[0]
         var container3 = this.cellmonitor.displayElement.find('.timelinecontainer3').empty()[0]
         this.userdragged = false;
         this.setRanges(this.firstJobStart, this.latestTime, false, true, false);
-
         this.timelineData1.flush();
         this.timelineData2.flush();
         this.timelineData3.flush();
-
         this.timeline1 = new vis.Timeline(container1, this.timelineData1, this.timelineGroups1, this.timelineOptions1);
         this.timeline2 = new vis.Timeline(container2, this.timelineData2, this.timelineGroups2, this.timelineOptions2);
         this.timeline3 = new vis.Timeline(container3, this.timelineData3, this.timelineGroups3, this.timelineOptions3);
         var checkbox = this.cellmonitor.displayElement.find('.timecheckbox');
-
         checkbox.click(function () {
             if (this.checked) {
                 that.cellmonitor.displayElement.find('.timelinewrapper').addClass('showphases').removeClass('hidephases');
@@ -273,10 +252,7 @@ Timeline.prototype.create = function () {
             else {
                 that.cellmonitor.displayElement.find('.timelinewrapper').addClass('hidephases').removeClass('showphases');
             }
-
-            console.log('clicked', this);
         })
-
         //Make dragging one timeline drag all timelines - ie jobs, stages and tasks should move together
         this.timeline1.on('rangechange', function (properties) {
             if (properties.byUser) that.timeline2.setWindow(properties.start, properties.end, { animation: false });
@@ -290,30 +266,21 @@ Timeline.prototype.create = function () {
             if (properties.byUser) that.timeline1.setWindow(properties.start, properties.end, { animation: false });
             if (properties.byUser) that.timeline2.setWindow(properties.start, properties.end, { animation: false });
         });
-
         this.timeline1.redraw();
         this.timeline2.redraw();
         this.timeline3.redraw();
-
         var onuserclick = function () {
-            //console.log("User Clicked", arguments);
             that.userdragged = true;
         }
-
         var onuserdrag = function (data) {
-            // console.log("User Dragged", arguments);
             if (data.byUser) that.userdragged = true;
         }
-
         this.timeline1.on('click', onuserclick);
         this.timeline2.on('click', onuserclick);
         this.timeline3.on('click', onuserclick);
-
         this.timeline1.on('rangechanged', onuserdrag);
         this.timeline2.on('rangechanged', onuserdrag);
         this.timeline3.on('rangechanged', onuserdrag);
-
-
         // Display corresponding popups when clicking on a job/stage/task
         if (!this.cellmonitor.allcompleted) this.registerRefresher();
         this.timeline3.on('select', function (properties) {
@@ -321,7 +288,6 @@ Timeline.prototype.create = function () {
                 taskUI.show(that.timelineData3.get(properties.items[0]));
             }
         });
-
         this.timeline1.on('select', function (properties) {
             if (properties.items.length) {
                 var name = properties.items[0]
@@ -334,8 +300,6 @@ Timeline.prototype.create = function () {
                 that.cellmonitor.openSparkUI('stages/stage/?id=' + name + '&attempt=0');
             }
         });
-
-
         setTimeout(function () {
             that.timelineData1.forEach(function (item) {
                 that.addLinetoTimeline(item.start, '' + that.cellmonitor.appId + item.id + 'start', "Job Started");
@@ -355,8 +319,9 @@ Timeline.prototype.hide = function () {
         this.timeline2 = null;
         this.timeline3 = null;
     }
-    catch (err) { "SparkMonitor-Timeline: Error destroying timeline, ", console.log(err) } //Throws some null error sometimes.
-    this.clearRefresher();
+    catch (err) {
+        this.clearRefresher();
+    }
 }
 
 /** Called when the cell has finished executing as well as all jobs in it have completed. */
@@ -429,7 +394,6 @@ Timeline.prototype.onSparkJobStart = function (data) {
         start: new Date(data.submissionTime),
         end: new Date(),
         content: '' + data.jobId + ':' + name,
-        // title: data.jobId + ': ' + data.name + ' ',//Tooltip
         group: 'jobs',
         className: 'itemrunning job',
         mode: "ongoing",
@@ -467,7 +431,6 @@ Timeline.prototype.onSparkStageSubmitted = function (data) {
         start: submissionDate,
         content: '' + data.stageId + ":" + name,
         group: 'stages',
-        // title: 'Stage: ' + data.stageId + ' ' + name,
         end: new Date(),
         className: 'itemrunning stage',
         mode: "ongoing",
@@ -484,8 +447,6 @@ Timeline.prototype.onSparkStageCompleted = function (data) {
         group: 'stages',
         end: new Date(data.completionTime),
         className: (data.status == "COMPLETED" ? 'itemfinished stage' : 'itemfailed stage'),
-        // title: 'Stage: ' + data.stageId + ' ' + name,
-        //content: '' + name,
         mode: "done",
     });
     this.runningItems2.remove({ id: data.stageId });
@@ -499,7 +460,6 @@ Timeline.prototype.onSparkTaskStart = function (data) {
             content: 'Tasks:<br>' + data.executorId + '<br>' + data.host
         });
     }
-
     this.timelineData3.update({
         id: data.taskId,
         stage: data.stageId,
@@ -507,7 +467,6 @@ Timeline.prototype.onSparkTaskStart = function (data) {
         end: new Date(),
         content: '' + data.taskId,
         group: data.executorId + '-' + data.host,
-        // title: 'Task: ' + data.taskId + ' from stage ' + data.stageId + ' Launched: ' + Date(data.launchTime),
         className: 'itemrunning task',
         mode: "ongoing",
         align: "center",
@@ -515,7 +474,6 @@ Timeline.prototype.onSparkTaskStart = function (data) {
     });
     this.runningItems3.add({ id: data.taskId });
     this.latestTime = new Date(data.launchTime);
-
 }
 
 /** Called when a Spark task is ended. */
@@ -529,7 +487,6 @@ Timeline.prototype.onSparkTaskEnd = function (data) {
     this.timelineData3.update({
         id: data.taskId,
         end: new Date(data.finishTime),
-        // title: 'Task:' + data.taskId + ' from stage ' + data.stageId + 'Launched' + Date(data.launchTime) + 'Completed: ' + Date(data.finishTime),
         className: (data.status == "SUCCESS" ? 'itemfinished task' : 'itemfailed task'),
         mode: "done",
         content: content,

@@ -13,7 +13,6 @@ function load_ipython_extension() {
 	var monitor = new SparkMonitor();
 	window.sm = monitor;
 	currentcell.register();
-	console.log('SparkMonitor: Finished loading module.js');
 }
 
 export { load_ipython_extension }

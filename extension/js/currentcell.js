@@ -23,7 +23,6 @@ var registered = false;
 function cell_execute_called(event, data) {
 
     var cell = data.cell
-    console.log('SparkMonitor: Cell Execution CALLED: ', data)
     if (cell instanceof CodeCell) {
         if (cell_queue.length <= 0) {
             events.trigger('started.currentcell', cell)
@@ -36,7 +35,6 @@ function cell_execute_called(event, data) {
 
 /** Called when the kernel becomes idle. This means that a cell finished executing. */
 function cell_execute_finished() {
-    //  console.log('SparkMonitor: Cell execution FINISHED')
     if (current_cell != null) {
         events.trigger('finished.currentcell', current_cell);
         events.trigger('finished' + current_cell.cell_id + 'currentcell', current_cell);
@@ -65,11 +63,9 @@ function getLastCell() {
  * @param {data} data - data of the event, contains the cell
  */
 function cell_deleted(event, data) {
-    // console.log("SparkMonitor: DELETING CELL")
     var cell = data.cell;
     var i = cell_queue.indexOf(cell);
     if (i >= -1) { cell_queue.splice(i, 1); }
-    // console.log("SparkMonitor: DELETING CELL",i,cell);
 }
 
 /** Register event listeners for detecting running cells. */
