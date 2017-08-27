@@ -5,9 +5,7 @@
   margin: 5px 0px;
 }
 
-
 /*--------------Title Bar--------------------*/
-
 .pm .title {
   background-color: #F37600;
   overflow: hidden;
@@ -180,9 +178,7 @@
   border: 0;
 }
 
-
 /*--------------Content--------------------*/
-
 .pm .content {
   /*padding: 5px;*/
   /*resize: vertical;*/
@@ -211,9 +207,7 @@
   background-position: center center;
 }
 
-
 /*-------------Tooltip Popup---------------*/
-
 .ui-tooltip {
   background: #666;
   color: white;

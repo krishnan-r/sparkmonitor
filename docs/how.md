@@ -3,7 +3,7 @@ ___
 **[Installation](install.md)** |
 **[How it Works](how.md)** |
 **[Use Cases](#common-use-cases-and-tests)** |
-**[Github](https://github.com/krishnan-r/sparkmonitor)** |
+**[Code](https://github.com/krishnan-r/sparkmonitor)** |
 **[License](https://github.com/krishnan-r/sparkmonitor/blob/master/LICENSE.md)**
 ___
 
@@ -34,7 +34,7 @@ The SparkMonitor extension for Jupyter Notebook has 4 components.
 - The extension acts as a bridge between the frontend and the SparkListener callback interface
 - To communicate with the SparkListener the extension opens a socket and waits for connections
 - The port of the socket is exported as an environment variable. When a spark application starts, the custom SparkListener connects to this port and forwards data.
-- To communicate with the frontend the extension uses the ipython comm api provided by jupyter. 
+- To communicate with the frontend the extension uses the IPython comm api provided by jupyter. 
 - The extension also adds to the users namespace a SparkConf instance named as `conf`. This object is configured with the spark properties that makes spark load the custom SparkListener as well as adds the necessary JAR file paths to the Java Classpath
 
 

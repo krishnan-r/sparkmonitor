@@ -1,10 +1,19 @@
+/**
+ * Definitions for the Timeline object.
+ * This file and its imports are packaged as a separate AMD module, which is loaded asynchronously.
+ * @module Timeline
+ */
+
 import vis from 'vis/index-timeline-graph2d';   // The timeline library
 import 'vis/dist/vis-timeline-graph2d.min.css'; // Styles for timeline library
 import './timeline.css';                        // Custom Styles
 import taskUI from './taskdetails'              // Module for displaying popup when clicking on a task
 
-
-
+/** 
+ * Adds an event timeline to the monitoring display.
+ * @constructor
+ * @param {CellMonitor} cellmonitor - The parent CellMonitor to render in.
+ */
 function Timeline(cellmonitor) {
 
     this.cellmonitor = cellmonitor;  // The parent cell monitor object
@@ -112,7 +121,7 @@ function Timeline(cellmonitor) {
     this.latestTime = new Date();
 }
 
-
+/** Registers a refresher to update the timeline. */
 Timeline.prototype.registerRefresher = function () {
     var that = this;
     that.i = 0;
@@ -120,8 +129,13 @@ Timeline.prototype.registerRefresher = function () {
     this.flushInterval = setInterval(function () { that.refreshTimeline(); }, 1000);
 }
 
-// Refreshes the timeline every second
-// For running ongoing items the end times are updated to be the current time 
+/**
+ * Refreshes the timeline.  
+ * Running items are updated with "end" as the current time once in every three refresh cycles. 
+ * The queued data updates are flushed in every cycle. 
+ * @param {boolean} redraw - Force a refresh of running items.
+ */
+
 Timeline.prototype.refreshTimeline = function (redraw) {
     var that = this;
     console.log("SparkMonitor-Timeline: Updating Timeline")
@@ -157,6 +171,7 @@ Timeline.prototype.refreshTimeline = function (redraw) {
     that.timelineData3.flush()
 }
 
+/** Remove the refresher to update the timeline */
 Timeline.prototype.clearRefresher = function () {
     if (this.flushInterval) {
         clearInterval(this.flushInterval);
@@ -164,6 +179,13 @@ Timeline.prototype.clearRefresher = function () {
     }
 }
 
+/** 
+ * Adds a line to the timeline
+ * @param {Date} time - The time
+ * @param {string} id - A unique string to identify the line. (Duplicates throw errors).
+ * @param {string} title - The tooltip for the line.
+ * @todo title is not displayed currently. The pointer events for the line are disabled in CSS to prevent dragging, this hides tooltip also.
+ */
 Timeline.prototype.addLinetoTimeline = function (time, id, title) {
     // console.log('SparkMonitor-Timeline: adding line');
     if (this.cellmonitor.view == "timeline" && this.cellmonitor.displayVisible) {
@@ -176,8 +198,14 @@ Timeline.prototype.addLinetoTimeline = function (time, id, title) {
     }
 }
 
-// Sets the window min, max values and current range.
-// 
+/**
+ * Sets the timeline range, and visible window range.
+ * @param {Date} start - The minimum date.
+ * @param {Date} end - The maximum date.
+ * @param {boolean} setminmax - Set the maximum/minimum scrollable date also.
+ * @param {boolean} moveWindow - Move the current displayed timeline also.
+ * @param {boolean} hidecurrenttime - Hide the red line  showing current time.
+ */
 Timeline.prototype.setRanges = function (start, end, setminmax, moveWindow, hidecurrenttime) {
     var b = end.getTime();
     var a = start.getTime();
@@ -217,7 +245,7 @@ Timeline.prototype.setRanges = function (start, end, setminmax, moveWindow, hide
         // if (this.timeline3) this.timeline3.setOptions(this.timelineOptions3);
     }
 }
-
+/** Creates and renders the timeline from the stored data. */
 Timeline.prototype.create = function () {
     var that = this;
     if (this.cellmonitor.view == 'timeline') {
@@ -317,6 +345,7 @@ Timeline.prototype.create = function () {
     }
 }
 
+/** Hide the timeline. */
 Timeline.prototype.hide = function () {
     try {
         if (this.timeline1) this.timeline1.destroy()
@@ -330,7 +359,7 @@ Timeline.prototype.hide = function () {
     this.clearRefresher();
 }
 
-// Called when the cell has finished executing as well as all jobs in it have completed.
+/** Called when the cell has finished executing as well as all jobs in it have completed. */
 Timeline.prototype.onAllCompleted = function () {
     this.setRanges(this.firstJobStart, this.latestTime, true, false, true);
     this.clearRefresher();
@@ -338,121 +367,14 @@ Timeline.prototype.onAllCompleted = function () {
         this.refreshTimeline(true);
     }
 }
-//----------Data Handling Functions----------------
 
-Timeline.prototype.onSparkJobStart = function (data) {
-    var name = $('<div>').text(data.name).html().split(' ')[0];//Escaping HTML <, > from string
-    this.timelineData1.update({
-        id: data.jobId,
-        start: new Date(data.submissionTime),
-        end: new Date(),
-        content: '' + data.jobId + ':' + name,
-        // title: data.jobId + ': ' + data.name + ' ',//Tooltip
-        group: 'jobs',
-        className: 'itemrunning job',
-        mode: "ongoing",
-    });
-    this.runningItems1.add({ id: data.jobId });
-    if (!this.firstjobstarted) {
-        this.firstJobStart = new Date(data.submissionTime);
-        this.firstjobstarted = true;
-    }
-    this.latestTime = new Date(data.submissionTime);
-}
-
-Timeline.prototype.onSparkJobEnd = function (data) {
-    this.timelineData1.update({
-        id: data.jobId,
-        end: new Date(data.completionTime),
-        className: (data.status == "SUCCEEDED" ? 'itemfinished job' : 'itemfailed job'),
-        mode: "done",
-    });
-    this.runningItems1.remove({ id: data.jobId });
-    this.addLinetoTimeline(new Date(data.completionTime), 'job' + data.jobId + 'end', 'Job ' + data.jobId + 'Ended');
-    this.latestTime = new Date(data.completionTime);
-}
-
-Timeline.prototype.onSparkStageSubmitted = function (data) {
-    var name = $('<div>').text(data.name).html().split(' ')[0];//Hack for escaping HTML <, > from string.
-    var submissionDate;
-    if (data.submissionTime == -1) submissionDate = new Date()
-    else submissionDate = new Date(data.submissionTime);
-
-    this.timelineData2.update({
-        id: data.stageId,
-        start: submissionDate,
-        content: '' + data.stageId + ":" + name,
-        group: 'stages',
-        // title: 'Stage: ' + data.stageId + ' ' + name,
-        end: new Date(),
-        className: 'itemrunning stage',
-        mode: "ongoing",
-    });
-    this.runningItems2.add({ id: data.stageId });
-}
-
-Timeline.prototype.onSparkStageCompleted = function (data) {
-    var name = $('<div>').text(data.name).html().split(' ')[0];//Hack for escaping HTML <, > from string.
-    this.timelineData2.update({
-        id: data.stageId,
-        start: new Date(data.submissionTime),
-        group: 'stages',
-        end: new Date(data.completionTime),
-        className: (data.status == "COMPLETED" ? 'itemfinished stage' : 'itemfailed stage'),
-        // title: 'Stage: ' + data.stageId + ' ' + name,
-        //content: '' + name,
-        mode: "done",
-    });
-    this.runningItems2.remove({ id: data.stageId });
-}
-
-Timeline.prototype.onSparkTaskStart = function (data) {
-    if (!this.timelineGroups3.get(data.executorId + '-' + data.host)) {
-        this.timelineGroups3.update({
-            id: data.executorId + '-' + data.host,
-            content: 'Tasks:<br>' + data.executorId + '<br>' + data.host
-        });
-    }
-
-    this.timelineData3.update({
-        id: data.taskId,
-        stage: data.stageId,
-        start: new Date(data.launchTime),
-        end: new Date(),
-        content: '' + data.taskId,
-        group: data.executorId + '-' + data.host,
-        // title: 'Task: ' + data.taskId + ' from stage ' + data.stageId + ' Launched: ' + Date(data.launchTime),
-        className: 'itemrunning task',
-        mode: "ongoing",
-        align: "center",
-        data: data
-    });
-    this.runningItems3.add({ id: data.taskId });
-    this.latestTime = new Date(data.launchTime);
-
-}
-
-Timeline.prototype.onSparkTaskEnd = function (data) {
-    var that = this;
-    var content;
-    if (data.status == "SUCCESS") {
-        content = this.createTaskBar(data);
-    }
-    else content = "" + data.taskId;
-    this.timelineData3.update({
-        id: data.taskId,
-        end: new Date(data.finishTime),
-        // title: 'Task:' + data.taskId + ' from stage ' + data.stageId + 'Launched' + Date(data.launchTime) + 'Completed: ' + Date(data.finishTime),
-        className: (data.status == "SUCCESS" ? 'itemfinished task' : 'itemfailed task'),
-        mode: "done",
-        content: content,
-        align: (data.status == "SUCCESS" ? "left" : "center"),
-        data: data
-    });
-    this.runningItems3.remove({ id: data.taskId });
-    this.latestTime = new Date(data.finishTime);
-}
-
+/** 
+ * Creates the HTML element for a task item.
+ * The different phases are rendered in svg.
+ * When phases are hidden, all phases are made transparent.
+ * @param {Object} data - The task data.
+ * @return {string} - The HTML string for the element.
+ */
 Timeline.prototype.createTaskBar = function (data) {
     var html = '<svg class="taskbarsvg">' +
         '<rect class="scheduler-delay-proportion" x="0%" y="0px" height="100%" width="10%"></rect>' +
@@ -496,35 +418,126 @@ Timeline.prototype.createTaskBar = function (data) {
 
     return element.prop('outerHTML')
 }
-Timeline.prototype.createTaskBarData = function (data) {
-    var totaltime = data.finishTime - data.launchTime;
-    var metrics = data.metrics;
 
-    var proportion = {
-        "scheduler-delay-proportion": 0,
-        "deserialization-time-proportion": metrics.executorDeserializeTime ? metrics.executorDeserializeTime / totaltime : 0,
-        "shuffle-read-time-proportion": metrics.shuffleReadTime ? metrics.shuffleReadTime / totaltime : 0,
-        "executor-runtime-proportion": 0,
-        "shuffle-write-time-proportion": metrics.shuffleWriteTime ? metrics.shuffleWriteTime / totaltime : 0,
-        "serialization-time-proportion": metrics.resultSerializationTime ? metrics.resultSerializationTime / totaltime : 0,
-        "getting-result-time-proportion": 0,
+//----------Data Handling Functions----------------
+
+/** Called when a Spark job starts. */
+Timeline.prototype.onSparkJobStart = function (data) {
+    var name = $('<div>').text(data.name).html().split(' ')[0];//Escaping HTML <, > from string
+    this.timelineData1.update({
+        id: data.jobId,
+        start: new Date(data.submissionTime),
+        end: new Date(),
+        content: '' + data.jobId + ':' + name,
+        // title: data.jobId + ': ' + data.name + ' ',//Tooltip
+        group: 'jobs',
+        className: 'itemrunning job',
+        mode: "ongoing",
+    });
+    this.runningItems1.add({ id: data.jobId });
+    if (!this.firstjobstarted) {
+        this.firstJobStart = new Date(data.submissionTime);
+        this.firstjobstarted = true;
     }
-    var pos = {
-        "scheduler-delay-pos": 0,
-        "deserialization-time-pos": 0,
-        "shuffle-read-time-pos": 0,
-        "executor-runtime-pos": 0,
-        "shuffle-write-time-pos": 0,
-        "serialization-time-pos": 0,
-        "getting-result-time-pos": 0,
+    this.latestTime = new Date(data.submissionTime);
+}
+
+/** Called when a Spark job ends. */
+Timeline.prototype.onSparkJobEnd = function (data) {
+    this.timelineData1.update({
+        id: data.jobId,
+        end: new Date(data.completionTime),
+        className: (data.status == "SUCCEEDED" ? 'itemfinished job' : 'itemfailed job'),
+        mode: "done",
+    });
+    this.runningItems1.remove({ id: data.jobId });
+    this.addLinetoTimeline(new Date(data.completionTime), 'job' + data.jobId + 'end', 'Job ' + data.jobId + 'Ended');
+    this.latestTime = new Date(data.completionTime);
+}
+
+/** Called when a Spark stage is submitted. */
+Timeline.prototype.onSparkStageSubmitted = function (data) {
+    var name = $('<div>').text(data.name).html().split(' ')[0];//Hack for escaping HTML <, > from string.
+    var submissionDate;
+    if (data.submissionTime == -1) submissionDate = new Date()
+    else submissionDate = new Date(data.submissionTime);
+
+    this.timelineData2.update({
+        id: data.stageId,
+        start: submissionDate,
+        content: '' + data.stageId + ":" + name,
+        group: 'stages',
+        // title: 'Stage: ' + data.stageId + ' ' + name,
+        end: new Date(),
+        className: 'itemrunning stage',
+        mode: "ongoing",
+    });
+    this.runningItems2.add({ id: data.stageId });
+}
+
+/** Called when a Spark stage is completed. */
+Timeline.prototype.onSparkStageCompleted = function (data) {
+    var name = $('<div>').text(data.name).html().split(' ')[0];//Hack for escaping HTML <, > from string.
+    this.timelineData2.update({
+        id: data.stageId,
+        start: new Date(data.submissionTime),
+        group: 'stages',
+        end: new Date(data.completionTime),
+        className: (data.status == "COMPLETED" ? 'itemfinished stage' : 'itemfailed stage'),
+        // title: 'Stage: ' + data.stageId + ' ' + name,
+        //content: '' + name,
+        mode: "done",
+    });
+    this.runningItems2.remove({ id: data.stageId });
+}
+
+/** Called when a Spark task is started. */
+Timeline.prototype.onSparkTaskStart = function (data) {
+    if (!this.timelineGroups3.get(data.executorId + '-' + data.host)) {
+        this.timelineGroups3.update({
+            id: data.executorId + '-' + data.host,
+            content: 'Tasks:<br>' + data.executorId + '<br>' + data.host
+        });
     }
-    return {
-        proportion: proportion,
-        pos: pos,
-    }
+
+    this.timelineData3.update({
+        id: data.taskId,
+        stage: data.stageId,
+        start: new Date(data.launchTime),
+        end: new Date(),
+        content: '' + data.taskId,
+        group: data.executorId + '-' + data.host,
+        // title: 'Task: ' + data.taskId + ' from stage ' + data.stageId + ' Launched: ' + Date(data.launchTime),
+        className: 'itemrunning task',
+        mode: "ongoing",
+        align: "center",
+        data: data
+    });
+    this.runningItems3.add({ id: data.taskId });
+    this.latestTime = new Date(data.launchTime);
 
 }
 
-
+/** Called when a Spark task is ended. */
+Timeline.prototype.onSparkTaskEnd = function (data) {
+    var that = this;
+    var content;
+    if (data.status == "SUCCESS") {
+        content = this.createTaskBar(data);
+    }
+    else content = "" + data.taskId;
+    this.timelineData3.update({
+        id: data.taskId,
+        end: new Date(data.finishTime),
+        // title: 'Task:' + data.taskId + ' from stage ' + data.stageId + 'Launched' + Date(data.launchTime) + 'Completed: ' + Date(data.finishTime),
+        className: (data.status == "SUCCESS" ? 'itemfinished task' : 'itemfailed task'),
+        mode: "done",
+        content: content,
+        align: (data.status == "SUCCESS" ? "left" : "center"),
+        data: data
+    });
+    this.runningItems3.remove({ id: data.taskId });
+    this.latestTime = new Date(data.finishTime);
+}
 
 export default Timeline;

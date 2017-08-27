@@ -1,17 +1,20 @@
-import './taskdetails.css'
-import taskHTML from './taskdetails.html'
+/**
+ * Module to display a popup with details of a task.
+ * @module taskdetails
+ */
 
-import $ from 'jquery';
-import moment from 'moment'
+import './taskdetails.css'                      // CSS styles
+import taskHTML from './taskdetails.html'       // Template HTML
+import $ from 'jquery';                         // jQuery to manipulate the DOM
+import moment from 'moment'                     // moment to format date objects
 
-
-
+/**
+ * Shows a popup dialog with details of a task.
+ * @param {Object} item - data about the task.
+ */
 function showTaskDetails(item) {
-    //console.log("Popup data: ", item);
-
     var div = $('<div></div>').html(taskHTML);
     fillData(div, item);
-
     var options = {
         dialogClass: 'noTitleStuff',
         title: "Task Details",
@@ -21,14 +24,16 @@ function showTaskDetails(item) {
         dialogClass: "task-dialog",
         position: { my: "right", at: "right", of: window },
     }
-
     div.dialog(options);
-
 }
 
+/**
+ * Fills data in the template HTML element.
+ * @param {Object} element - the HTML element
+ * @param {Object} item - data about the task.
+ */
 function fillData(element, item) {
     var data = item.data;
-
     element.find('.data-taskid').text(data.taskId);
     element.find('.data-stageid').text(data.stageId);
     element.find('.data-host').text(data.host);
@@ -45,12 +50,10 @@ function fillData(element, item) {
         var duration = moment.duration(new Date(data.finishTime).getTime() - new Date(data.launchTime).getTime());
         element.find('.data-duration').text(duration.format("d[d] h[h]:mm[m]:ss[s]:SS[ms]"));
     }
-
     if (data.status == "FAILED" || data.status == "KILLED") {
         element.find('.error').show();
         element.find('.data-error').text(data.errorMessage);
     }
-
     if (data.status == "SUCCESS" || data.status == "FAILED" || data.status == "KILLED") {
         var metrics = data.metrics;
         element.find('.metricdata').show();
@@ -92,13 +95,8 @@ function fillData(element, item) {
             .attr('width', '' + metrics.gettingResultTimeProportion + '%');
         e.find('.getting-result-time').text(moment.duration(metrics.gettingResultTime).format("d[d] h[h]:mm[m]:ss[s]:SS[ms]"));
     }
-
 }
-
-
-
 
 export default {
     'show': showTaskDetails,
-
 } 

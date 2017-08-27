@@ -4,11 +4,6 @@
   clear: both;
 }
 
-.pm .vis-timeline {
-  /* border-top: 0;
-  border-bottom: 1px; */
-}
-
 .pm .vis-labelset .vis-label .vis-inner {
   width: 100px;
 }
@@ -16,19 +11,12 @@
 .pm .vis-item {
   border-radius: 0;
   font-size: smaller;
-  /* transition: width 200ms; */
 }
 
 .pm .vis-item .vis-item-content {
   padding: 0;
-  width:100%;
+  width: 100%;
 }
-
-
-/* .pm timelinecontainer3 .vis-item {
-  line-height: 0;
-  font-size: 0;
-} */
 
 .pm .vis-time-axis {
   font-size: smaller;
@@ -47,12 +35,6 @@
   pointer-events: none;
   background-color: #42A5F5;
 }
-
-.pm .visjobgroup {
-  /*background-color: ;*/
-}
-
-.pm .vis-item.itemrunning {}
 
 .pm .vis-item.itemfinished {
   /* :not(.vis-selected) { */
@@ -136,46 +118,6 @@
   stroke: #75B0A6;
 }
 
-
-/* .pm .taskbarsvg rect {
-  fill: "none";
-}
-
-.pm .taskbarsvg:hover rect.scheduler-delay-proportion {
-  fill: #80B1D3;
-  stroke: #6B94B0;
-}
-
-.pm .taskbarsvg:hover rect.deserialization-time-proportion {
-  fill: #FB8072;
-  stroke: #D26B5F;
-}
-
-.pm .taskbarsvg:hover rect.shuffle-read-time-proportion {
-  fill: #FDB462;
-  stroke: #D39651;
-}
-
-.pm .taskbarsvg:hover rect.executor-runtime-proportion {
-  fill: #B3DE69;
-  stroke: #95B957;
-}
-
-.pm .taskbarsvg:hover rect.shuffle-write-time-proportion {
-  fill: #FFED6F;
-  stroke: #D5C65C;
-}
-
-.pm .taskbarsvg:hover rect.serialization-time-proportion {
-  fill: #BC80BD;
-  stroke: #9D6B9E;
-}
-
-.pm .taskbarsvg:hover rect.getting-result-time-proportion {
-  fill: #8DD3C7;
-  stroke: #75B0A6;
-} */
-
 .pm .taskbarsvg {
   width: 100%;
   height: 20px;
@@ -187,13 +129,13 @@
   height: 100%;
 }
 
-.timelinetoolbar {
+.pm .timelinetoolbar {
   padding: 0px 8px;
   color: #444444;
   font-size: small;
 }
 
-.timecheckboxspan {
+.pm .timecheckboxspan {
   margin: 0px 5px;
   float: right;
 }

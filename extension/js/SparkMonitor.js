@@ -1,5 +1,7 @@
-// SparkMonitor is the main singleton class that is responsible for managing CellMonitor instances for cells that run spark jobs
-// It also delegates spark lifecycle events from the backend to corresponding CellMonitors
+/**
+ * Definitions for the SparkMonitor singleton object.
+ * @module SparkMonitor
+ */
 
 import Jupyter from 'base/js/namespace';  // The main Jupyter object for all frontend APIs of the notebook
 import events from 'base/js/events';	  // Jupyter events module to listen for notebook page events
@@ -7,18 +9,25 @@ import $ from 'jquery';					  // Used for certain utility function in this modul
 import CellMonitor from './CellMonitor'   // CellMonitor object constructor
 import currentcell from './currentcell'   // Module to detect currently running cell
 
-
+/** 
+ * SparkMonitor is the main singleton class that is responsible for managing CellMonitor instances for cells that run spark jobs.
+ * It also delegates spark lifecycle events from the backend to corresponding CellMonitor.
+ * @constructor
+ */
 function SparkMonitor() {
 	var that = this;
-	this.cellmonitors = {}; //dictionary of cellmonitors with keys as cell_id
-	this.comm = null; //Communication object with the kernel
+	/** Dictionary of CellMonitor objects with cell_id as keys. */
+	this.cellmonitors = {};
+	/** Communication object with the kernel. */
+	this.comm = null;
 
 	//Fixes Reloading the browser
 	this.startComm();
 	//Fixes Restarting the Kernel
 	events.on('kernel_connected.Kernel', $.proxy(this.startComm, this));//Make sure there is a comm always.
 
-	this.data = {}; //data mapping jobs to cells and stages to jobs for delegating further lifecycle events of a job.
+	/** Data mapping jobs to cells for delegating further lifecycle events of a job. */
+	this.data = {};
 	this.appName = "NULL";
 	this.appId = "NULL";
 	this.app = "NULL";
@@ -38,34 +47,48 @@ function SparkMonitor() {
 	this.createButtons();
 }
 
-
+/**
+ * Returns the CellMonitor given a cell_id
+ * @param {string} cell_id - The Jupyter cell_id
+ * @return {CellMonitor} The CellMonitor object for the cell
+ */
 SparkMonitor.prototype.getCellMonitor = function (cell_id) {
 	return this.cellmonitors[cell_id];
 }
 
+/**
+ * Start a CellMonitor for a cell.
+ * @param {CodeCell} cell - The Jupyter CodeCell instance
+ * @return {CellMonitor} The CellMonitor object for the cell
+ */
 SparkMonitor.prototype.startCellMonitor = function (cell) {
 	var that = this;
 	if (this.cellmonitors[cell.cell_id] != null) {
 		this.cellmonitors[cell.cell_id].removeDisplay();
 	}
-
 	events.one('started' + cell.cell_id + 'currentcell', function () {
-		console.log('started' + cell.cell_id + 'currentcell');
+		//console.log('started' + cell.cell_id + 'currentcell');
 		var c = cell;
 		that.cellExecutedAgain(c);
 	})
-
 	this.cellmonitors[cell.cell_id] = new CellMonitor(this, cell);
-
 	this.display_mode = "shown";
 	return this.cellmonitors[cell.cell_id];
 }
 
+/**
+ * Callback called when a cell is executed again.
+ * @param {CodeCell} cell - The Jupyter CodeCell instance.
+ */
 SparkMonitor.prototype.cellExecutedAgain = function (cell) {
 	console.log('stopping cell' + cell.cell_id);
 	this.stopCellMonitor(cell.cell_id);
 }
 
+/**
+ * Stop the CellMonitor for a cell.
+ * @param {CodeCell} cell - The Jupyter CodeCell instance
+ */
 SparkMonitor.prototype.stopCellMonitor = function (cell_id) {
 
 	if (this.cellmonitors[cell_id] != null) {
@@ -75,6 +98,7 @@ SparkMonitor.prototype.stopCellMonitor = function (cell_id) {
 	}
 }
 
+/** Adds a button to the toolbar for toggling all monitoring dispalys. */
 SparkMonitor.prototype.createButtons = function () {
 	var that = this;
 	var handler = function () {
@@ -96,12 +120,13 @@ SparkMonitor.prototype.createButtons = function () {
 }
 
 //-----Functions to show/hide all displays
-
+/** Toggle all displays. */
 SparkMonitor.prototype.toggleAll = function () {
 	if (this.display_mode == "hidden") this.showAll();
 	else if (this.display_mode == "shown") this.hideAll();
 }
 
+/** Show all displays. */
 SparkMonitor.prototype.showAll = function () {
 	for (var cell_id in this.cellmonitors) {
 		if (this.cellmonitors.hasOwnProperty(cell_id) && this.cellmonitors[cell_id].displayVisible == false) {
@@ -111,6 +136,7 @@ SparkMonitor.prototype.showAll = function () {
 	this.display_mode = "shown";
 }
 
+/** Hide all displays. */
 SparkMonitor.prototype.hideAll = function () {
 	for (var cell_id in this.cellmonitors) {
 		if (this.cellmonitors.hasOwnProperty(cell_id) && this.cellmonitors[cell_id].displayVisible == true) {
@@ -122,15 +148,27 @@ SparkMonitor.prototype.hideAll = function () {
 
 //------Functions to communicate with kernel
 
+/**
+ * Called when a comm message is received from the kernel
+ * @param {Object} msg - The JSON parsed message object.
+ */
 SparkMonitor.prototype.on_comm_msg = function (msg) {
 	//console.log('SparkMonitor: Comm Message:', msg.content.data);
 	this.handleMessage(msg)
 }
 
+/**
+ * Called when comm to kernel is closed.
+ * @param {Object} msg - The JSON parsed close message object.
+ */
 SparkMonitor.prototype.on_comm_close = function (msg) {
-	console.log('SparkMonitor: Comm CLOSE Message:', msg);
+	console.log('SparkMonitor: Comm Close Message:', msg);
 }
 
+/**
+ * Starts communication with the kernel.
+ * Closes any existing communication.
+ */
 SparkMonitor.prototype.startComm = function () {
 	if (this.comm) {
 		this.comm.close()
@@ -149,6 +187,10 @@ SparkMonitor.prototype.startComm = function () {
 	}
 }
 
+/**
+ * Send a message to the kernel.
+ * @param {Object} msg - The message object.
+ */
 SparkMonitor.prototype.send = function (msg) {
 	this.comm.send(msg);
 }
@@ -156,6 +198,10 @@ SparkMonitor.prototype.send = function (msg) {
 
 //------------Message Handling Functions that update the data and delegate to corresponding cell monitors--------------------------------
 
+/**
+ * Called when a Spark job is started. 
+ * @param {Object} data - The data from the spark listener event.
+ */
 SparkMonitor.prototype.onSparkJobStart = function (data) {
 
 	var cell = currentcell.getRunningCell()
@@ -178,6 +224,10 @@ SparkMonitor.prototype.onSparkJobStart = function (data) {
 	if (cellmonitor) cellmonitor.onSparkJobStart(data);
 }
 
+/**
+ * Called when a Spark job is ended. 
+ * @param {Object} data - The data from the spark listener event.
+ */
 SparkMonitor.prototype.onSparkJobEnd = function (data) {
 
 	var cell_id = this.data['app' + this.app + 'job' + data.jobId]['cell_id'];
@@ -191,6 +241,10 @@ SparkMonitor.prototype.onSparkJobEnd = function (data) {
 
 }
 
+/**
+ * Called when a Spark stage is submitted. 
+ * @param {Object} data - The data from the spark listener event.
+ */
 SparkMonitor.prototype.onSparkStageSubmitted = function (data) {
 	console.log('SparkMonitor:Stage Submitted', data);
 	//TODO Get cell from JobId instead of running cell??
@@ -206,6 +260,10 @@ SparkMonitor.prototype.onSparkStageSubmitted = function (data) {
 	if (cellmonitor) cellmonitor.onSparkStageSubmitted(data);
 }
 
+/**
+ * Called when a Spark stage is completed. 
+ * @param {Object} data - The data from the spark listener event.
+ */
 SparkMonitor.prototype.onSparkStageCompleted = function (data) {
 	console.log('SparkMonitor:Stage Completed', data);
 	var cell_id = this.data['app' + this.app + 'stage' + data.stageId]['cell_id'];
@@ -216,7 +274,10 @@ SparkMonitor.prototype.onSparkStageCompleted = function (data) {
 	else console.error('SparkMonitor:ERROR no cellId for completed stage');
 }
 
-
+/**
+ * Called when a Spark task is started. 
+ * @param {Object} data - The data from the spark listener event.
+ */
 SparkMonitor.prototype.onSparkTaskStart = function (data) {
 	var cell_id = this.data['app' + this.app + 'stage' + data.stageId]['cell_id'];
 	if (cell_id) {
@@ -227,6 +288,10 @@ SparkMonitor.prototype.onSparkTaskStart = function (data) {
 	else console.error('SparkMonitor:ERROR no cellID for task start');
 }
 
+/**
+ * Called when a Spark task is ended. 
+ * @param {Object} data - The data from the spark listener event.
+ */
 SparkMonitor.prototype.onSparkTaskEnd = function (data) {
 	var cell_id = this.data['app' + this.app + 'stage' + data.stageId]['cell_id'];
 	if (cell_id) {
@@ -237,11 +302,20 @@ SparkMonitor.prototype.onSparkTaskEnd = function (data) {
 	else console.error('SparkMonitor:ERROR no cellID for task end');
 }
 
+/**
+ * Called when a Spark Application is ended. 
+ * @param {Object} data - The data from the spark listener event.
+ */
+
 SparkMonitor.prototype.onSparkApplicationEnd = function (data) {
-	//TODO What to do?
+	/*@TODO What to do?*/
 
 }
 
+/**
+ * Called when a Spark Application is started. 
+ * @param {Object} data - The data from the spark listener event.
+ */
 SparkMonitor.prototype.onSparkApplicationStart = function (data) {
 	this.appId = data.appId;
 	this.appName = data.appName;
@@ -249,6 +323,10 @@ SparkMonitor.prototype.onSparkApplicationStart = function (data) {
 	this.app = this.appId + '_' + this.appAttemptId;
 }
 
+/**
+ * Called when an executor is added.
+ * @param {Object} data - The data from the spark listener event.
+ */
 SparkMonitor.prototype.onSparkExecutorAdded = function (data) {
 	this.totalCores = data.totalCores;
 	this.numExecutors += 1;
@@ -260,6 +338,10 @@ SparkMonitor.prototype.onSparkExecutorAdded = function (data) {
 	}
 }
 
+/**
+ * Called when a Spark executor is removed. 
+ * @param {Object} data - The data from the spark listener event.
+ */
 SparkMonitor.prototype.onSparkExecutorRemoved = function (data) {
 	this.totalCores = data.totalCores;
 	this.numExecutors -= 1;
@@ -271,6 +353,11 @@ SparkMonitor.prototype.onSparkExecutorRemoved = function (data) {
 	}
 }
 
+/**
+ * Delegates a received message to corresponding function.
+ * 
+ * @param {Object} msg - The JSON parsed message object.
+ */
 SparkMonitor.prototype.handleMessage = function (msg) {
 	if (!msg.content.data.msgtype) {
 		console.warn("SparkMonitor: Unknown message");

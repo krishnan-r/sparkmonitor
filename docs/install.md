@@ -3,11 +3,13 @@ ___
 **[Installation](install.md)** |
 **[How it Works](how.md)** |
 **[Use Cases](#common-use-cases-and-tests)** |
-**[Github](https://github.com/krishnan-r/sparkmonitor)** |
+**[Code](https://github.com/krishnan-r/sparkmonitor)** |
 **[License](https://github.com/krishnan-r/sparkmonitor/blob/master/LICENSE.md)**
 ___
 
 ## Installation
+### Prerequisites
+
 ### Quick Install 
 ```bash 
 pip install https://github.com/krishnan-r/sparkmonitor/releases/download/v0.0.1/sparkmonitor.tar.gz #Use latest version as in github releases

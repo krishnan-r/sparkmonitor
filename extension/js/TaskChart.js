@@ -1,5 +1,16 @@
+/**
+ * Definitions for the TaskChart object.
+ * This file and its imports are packaged as a separate AMD module, which is loaded asynchronously.
+ * @module TaskChart
+ */
+
 import Plotly from 'plotly.js/lib/core' // The plotting library
 
+/** 
+ * Adds a chart with number of active tasks and executor cores to the monitoring display
+ * @constructor
+ * @param {CellMonitor} cellmonitor - The parent CellMonitor to render in.
+ */
 function TaskChart(cellmonitor) {
     var that = this;
     this.cellmonitor = cellmonitor;
@@ -26,7 +37,7 @@ function TaskChart(cellmonitor) {
 
     this.numActiveTasks = 0;
 }
-
+/** Creates and renders the Task Chart */
 TaskChart.prototype.create = function () {
     if (this.cellmonitor.view != 'tasks') {
         throw "SparkMonitor: Drawing tasks graph when view is not tasks";
@@ -120,6 +131,12 @@ TaskChart.prototype.create = function () {
     if (!this.cellmonitor.allcompleted) this.registerRefresher();
 }
 
+/**
+ * Add a data point to the Task Chart
+ * @param {Date} time - The x axis value of time
+ * @param {number} numTasks - Number of active tasks
+ * 
+ */
 TaskChart.prototype.addData = function (time, numTasks) {
     this.taskChartDataX.push((new Date(time)).getTime());
     this.taskChartDataY.push(numTasks);
@@ -131,6 +148,11 @@ TaskChart.prototype.addData = function (time, numTasks) {
     this.addExecutorData(time, this.cellmonitor.monitor.totalCores);
 }
 
+/** 
+ * Add a data point to the executors trace.
+ * @param {Date} time - The x axis value of time
+ * @param {number} numCores - Number of executor cores
+ */
 TaskChart.prototype.addExecutorData = function (time, numCores) {
     this.executorDataX.push((new Date(time)).getTime());
     this.executorDataY.push(numCores);
@@ -141,10 +163,7 @@ TaskChart.prototype.addExecutorData = function (time, numCores) {
     }
 }
 
-TaskChart.prototype.addLinetoTasks = function (time, id, title) {
-
-}
-
+/** Hides the TaskChart. */
 TaskChart.prototype.hide = function () {
     this.clearRefresher()
     try {
@@ -156,11 +175,14 @@ TaskChart.prototype.hide = function () {
     this.taskChart = null;
 }
 
+/** Registers a refresher to update the TaskChart. */
 TaskChart.prototype.registerRefresher = function () {
     var that = this;
     this.clearRefresher();
     this.taskinterval = setInterval(function () { that.refreshTaskChart(); }, 800);
 }
+
+/** Refreshed the TaskChart. */
 TaskChart.prototype.refreshTaskChart = function () {
     var that = this;
     console.log('SparkMonitor: Updating Chart');
@@ -201,6 +223,7 @@ TaskChart.prototype.refreshTaskChart = function () {
     }
 }
 
+/** Removes the TaskChart Refresher. */
 TaskChart.prototype.clearRefresher = function () {
     if (this.taskinterval) {
         clearInterval(this.taskinterval);
@@ -208,10 +231,17 @@ TaskChart.prototype.clearRefresher = function () {
     }
 }
 
+/** Called when all cell execution is completed and all jobs have completed. */
 TaskChart.prototype.onAllCompleted = function () {
     this.clearRefresher();
 }
 
+/**
+ * Add a data point to the job trace.
+ * @param {string} jobId - The JobId
+ * @param {Data} time - The time of event
+ * @param {string} event - "started" or "ended"
+ */
 TaskChart.prototype.addJobData = function (jobId, time, event) {
     this.jobDataX.push((new Date(time)).getTime());
     this.jobDataY.push(0);
@@ -235,31 +265,35 @@ TaskChart.prototype.addJobData = function (jobId, time, event) {
     }
 }
 
-
 //----------Data Handling Functions----------------
 
+/** Called when a Spark job starts. */
 TaskChart.prototype.onSparkJobStart = function (data) {
     this.addJobData(data.jobId, new Date(data.submissionTime), "started");
     this.addExecutorData(data.submissionTime, data.totalCores);
 }
 
+/** Called when a Spark job ends. */
 TaskChart.prototype.onSparkJobEnd = function (data) {
     this.addJobData(data.jobId, new Date(data.completionTime), "ended");
 }
 
+/** Called when a Spark stage is submitted. */
 TaskChart.prototype.onSparkStageSubmitted = function (data) {
 }
 
+/** Called when a Spark stage is completed. */
 TaskChart.prototype.onSparkStageCompleted = function (data) {
-
 }
 
+/** Called when a Spark task is started. */
 TaskChart.prototype.onSparkTaskStart = function (data) {
     this.addData(data.launchTime, this.numActiveTasks);
     this.numActiveTasks += 1;
     this.addData(data.launchTime, this.numActiveTasks);
 }
 
+/** Called when a Spark task is ended. */
 TaskChart.prototype.onSparkTaskEnd = function (data) {
     this.addData(data.finishTime, this.numActiveTasks);
     this.numActiveTasks -= 1;

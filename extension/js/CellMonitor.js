@@ -1,3 +1,7 @@
+/**
+ * Definitions for the CellMonitor object.
+ * @module CellMonitor
+ */
 import Jupyter from 'base/js/namespace';    // The main Jupyter object for all frontend APIs of the notebook
 import events from 'base/js/events';        // Jupyter events module to listen for notebook page events
 import requirejs from 'require'             // Used to asynchronously load other modules - Timeline and TaskChart  
@@ -24,6 +28,13 @@ requirejs(['./taskchart'], function (taskchart) {
     console.log("SparkMonitor: TaskChart module loaded", [taskchart])
 });
 
+/**
+ * Class that implements a monitoring display for a single cell.
+ * 
+ * @constructor
+ * @param {SparkMonitor} monitor - The parent singleton SparkMonitor instance.
+ * @param {CodeCell} cell - The Jupyter CodeCell instance of the cell.
+ */
 function CellMonitor(monitor, cell) {
     var that = this;
     window.cm = this;//Debugging from console
@@ -47,7 +58,7 @@ function CellMonitor(monitor, cell) {
     this.badgesmodified = false;  // Used to refresh counts only if changed.
     this.badgeInterval = null;    // The return value of setInterval
     // Values for badge counters in the title of display
-    this.numActiveJobs = 0;      
+    this.numActiveJobs = 0;
     this.numCompletedJobs = 0;
     this.numFailedJobs = 0;
 
@@ -68,6 +79,7 @@ function CellMonitor(monitor, cell) {
     if (TaskChart) this.taskchart = new TaskChart(this);
 }
 
+/** Creates and renders the display below the cell. */
 CellMonitor.prototype.createDisplay = function () {
     var that = this;
     if (!this.cell.element.find('.CellMonitor').length) {
@@ -117,6 +129,7 @@ CellMonitor.prototype.createDisplay = function () {
     else console.error("SparkMonitor: Error Display Already Exists");
 }
 
+/** Remove the display from a cell. */
 CellMonitor.prototype.removeDisplay = function () {
     this.displayVisible = false;
     if (this.badgeInterval) {
@@ -127,9 +140,14 @@ CellMonitor.prototype.removeDisplay = function () {
     this.displayElement.remove();
 }
 
-// Stopping Jobs does not work at the moment
-// This interrupts the kernel currently
-// Issue with jupyter comm messaging while kernel is busy
+/**
+ * Stop Running Jobs
+ * 
+ * Stopping Jobs does not work at the moment.  
+ * This interrupts the kernel currently.  
+ * Issue with jupyter comm messaging while kernel is busy.  
+ */
+
 CellMonitor.prototype.stopJobs = function () {
     Jupyter.notebook.kernel.interrupt(); // This does not stop the job..does not work as expected.
     this.monitor.send({
@@ -137,7 +155,11 @@ CellMonitor.prototype.stopJobs = function () {
     });
 }
 
-// Opens the Spark UI in an IFrame
+/** 
+ * Opens the Spark UI in an IFrame.
+ * 
+ * @param {string} [url=] - A relative url to open within the main domain.
+ */
 CellMonitor.prototype.openSparkUI = function (url) {
     if (!url) url = '';
     var iframe = $('\
@@ -161,7 +183,9 @@ CellMonitor.prototype.openSparkUI = function (url) {
     });
 }
 
-// Draws the view specified - jobs, timeline, tasks or hidden (display collapsed)
+/** Renders a view specified 
+ * @param {string} view - The view to render- "jobs", "timeline", "tasks" or "hidden"
+ */
 CellMonitor.prototype.showView = function (view) {
     var that = this;
     var element = this.displayElement;
@@ -200,6 +224,11 @@ CellMonitor.prototype.showView = function (view) {
     }
 }
 
+/**
+ * Hides the view specified, performing any clean up necessary.
+ * 
+ * @param {string} view - The view to hide.
+ */
 CellMonitor.prototype.hideView = function (view) {
     try {
         switch (view) {
@@ -218,8 +247,11 @@ CellMonitor.prototype.hideView = function (view) {
         console.log("SparkMonitor:Error Hiding View");
     }
 }
-
-// Updates the counters on the title
+/**
+ * Updates the counters on the title of the display.
+ * 
+ * @param {boolean} [redraw=false] - Forces a redraw regardless of whether data has changed if true.
+ */
 CellMonitor.prototype.setBadges = function (redraw = false) {
     if (this.badgesmodified || redraw) {
 
@@ -245,7 +277,7 @@ CellMonitor.prototype.setBadges = function (redraw = false) {
     }
 }
 
-
+/** Called when a cells execution is completed, as detected by the currentcell module. */
 CellMonitor.prototype.onCellExecutionCompleted = function () {
     console.log("SparkMonitor: Cell Execution Completed");
     this.cellEndTime = new Date();
@@ -257,6 +289,7 @@ CellMonitor.prototype.onCellExecutionCompleted = function () {
     if (this.displayVisible) this.displayElement.find('.stopbutton').hide(500);
 }
 
+/** Called when all jobs have ended and the cell's execution is completed. */
 CellMonitor.prototype.onAllCompleted = function () {
     this.allcompleted = true;
     if (this.badgeInterval) {
@@ -270,9 +303,9 @@ CellMonitor.prototype.onAllCompleted = function () {
     if (this.taskchart) this.taskchart.onAllCompleted();
 }
 
-
 //--------Job Table Functions----------------------
 
+/** Create and renders the job table and registers refreshers to update it.  */
 CellMonitor.prototype.createJobTable = function () {
     if (this.view != 'jobs') {
         throw "SparkMonitor: Drawing job table when view is not jobs";
@@ -301,7 +334,11 @@ CellMonitor.prototype.createJobTable = function () {
     this.displayElement.find('.jobtablecontent').empty().append(table);
     if (!this.allcompleted) this.registerJobTableRefresher();
 }
-
+/** 
+ * Creates HTML element for a single stage item in the table.
+ * 
+ * @return {jQuery} - The stage row element.
+ */
 CellMonitor.prototype.createStageItem = function () {
     var srow = $('<tr></tr>').addClass('stagerow');
     var tdstageid = $('<td></td>').addClass('tdstageid');;
@@ -317,6 +354,12 @@ CellMonitor.prototype.createStageItem = function () {
     return srow;
 }
 
+/** 
+ * Fills data in a stage row element
+ * @param {jQuery} element - The stage row element
+ * @param {Object} data - The stage item data
+ * @param {boolean} [redraw=false] - Force a redraw even if data is not modified.
+ */
 CellMonitor.prototype.updateStageItem = function (element, data, redraw = false) {
     if (data.modified || redraw) {
         data.modified = false;
@@ -350,6 +393,11 @@ CellMonitor.prototype.updateStageItem = function (element, data, redraw = false)
 
 }
 
+/** 
+ * Creates HTML element for a single job item in the table.
+ * 
+ * @return {jQuery} - The job row element, containing one row item for the job and another for the expandable stages table.
+ */
 CellMonitor.prototype.createJobItem = function () {
     var fakerow = $('<tr><td class="stagetableoffset"></td><td colspan=7 class="stagedata"></td></tr>').addClass('jobstagedatarow').hide();
     var stagetable = $("<table class='stagetable'>\
@@ -388,6 +436,12 @@ CellMonitor.prototype.createJobItem = function () {
     return row.add(fakerow);
 }
 
+/** 
+ * Fills data in a job row element.
+ * @param {jQuery} element - The job row element
+ * @param {Object} data - The job item data
+ * @param {boolean} [redraw=false] - Force a redraw even if data is not modified.
+ */
 CellMonitor.prototype.updateJobItem = function (element, data, redraw = false) {
     if (data.modified || redraw) {
         data.modified = false;
@@ -431,7 +485,7 @@ CellMonitor.prototype.updateJobItem = function (element, data, redraw = false) {
         }
     }
 }
-
+/** Updates the data in the job table */
 CellMonitor.prototype.updateJobTable = function () {
     console.log('updating table');
     var that = this;
@@ -452,27 +506,30 @@ CellMonitor.prototype.updateJobTable = function () {
     }
 }
 
+/** Registers a refresher to update the job table. */
 CellMonitor.prototype.registerJobTableRefresher = function () {
     clearInterval(this.jobtableinterval);
     var that = this;
     this.jobtableinterval = setInterval($.proxy(this.updateJobTable, this), 1000);
 }
 
+/** Clear the refreshers to update the job table. */
 CellMonitor.prototype.clearJobTableRefresher = function () {
     clearInterval(this.jobtableinterval);
 }
 
+/** Hide the job table. */
 CellMonitor.prototype.hideJobTable = function () {
     this.clearJobTableRefresher();
 }
-
+/** Called when all jobs have completed and cell execution is also completed. */
 CellMonitor.prototype.onJobTableAllCompleted = function () {
 
 }
 
-
 //----------Data Handling Functions----------------
 
+/** Called when a Spark job starts. */
 CellMonitor.prototype.onSparkJobStart = function (data) {
     var that = this;
     this.numActiveJobs += 1;
@@ -531,6 +588,7 @@ CellMonitor.prototype.onSparkJobStart = function (data) {
     if (this.taskchart) this.taskchart.onSparkJobStart(data);
 }
 
+/** Called when a Spark job ends. */
 CellMonitor.prototype.onSparkJobEnd = function (data) {
     var that = this;
     this.jobData[data.jobId]['status'] = data.status;
@@ -566,6 +624,7 @@ CellMonitor.prototype.onSparkJobEnd = function (data) {
     }
 }
 
+/** Called when a Spark stage is submitted. */
 CellMonitor.prototype.onSparkStageSubmitted = function (data) {
     var that = this;
     var name = $('<div>').text(data.name).html().split(' ')[0];//Hack for escaping HTML <, > from string.
@@ -588,6 +647,7 @@ CellMonitor.prototype.onSparkStageSubmitted = function (data) {
     if (this.taskchart) this.taskchart.onSparkStageSubmitted(data);
 }
 
+/** Called when a Spark stage is completed. */
 CellMonitor.prototype.onSparkStageCompleted = function (data) {
     var that = this;
     var name = $('<div>').text(data.name).html().split(' ')[0];//Hack for escaping HTML <, > from string.
@@ -612,6 +672,7 @@ CellMonitor.prototype.onSparkStageCompleted = function (data) {
     if (this.taskchart) this.taskchart.onSparkStageCompleted(data);
 }
 
+/** Called when a Spark task is started. */
 CellMonitor.prototype.onSparkTaskStart = function (data) {
     var that = this;
 
@@ -628,6 +689,7 @@ CellMonitor.prototype.onSparkTaskStart = function (data) {
     if (this.taskchart) this.taskchart.onSparkTaskStart(data);
 }
 
+/** Called when a Spark task is ended. */
 CellMonitor.prototype.onSparkTaskEnd = function (data) {
     var that = this;
 
@@ -655,10 +717,12 @@ CellMonitor.prototype.onSparkTaskEnd = function (data) {
     if (this.taskchart) this.taskchart.onSparkTaskEnd(data);
 }
 
+/** Called when an executor is added to spark */
 CellMonitor.prototype.onSparkExecutorAdded = function (data) {
     this.badgesmodified = true;
 }
 
+/** Called when an executor is removed from spark */
 CellMonitor.prototype.onSparkExecutorRemoved = function (data) {
     this.badgesmodified = true;
 }
