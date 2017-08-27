@@ -2,7 +2,7 @@ ___
 **[Final Report](index.md)** |
 **[Installation](install.md)** |
 **[How it Works](how.md)** |
-**[Use Cases](#common-use-cases-and-tests)** |
+**[Use Cases](usecases.md)** |
 **[Code](https://github.com/krishnan-r/sparkmonitor)** |
 **[License](https://github.com/krishnan-r/sparkmonitor/blob/master/LICENSE.md)**
 ___
@@ -21,15 +21,12 @@ This goal of this project was to make a Big Data tool like Apache Spark easier t
 - Various tests have been done with real world use cases.
 
 ## Example Use Cases
-The extension has been tested with a range of applications by running spark standalone locally as well as using Spark Clusters at CERN.
-Here is a list of test cases that have been run.
-- [A Simple Example](usecase_testing.md)
-- [Spark Training Notebooks used at CERN](usecase_sparktraining.md)
-- [A DistROOT Example](usecase_distroot.md)
+The extension has been tested with a range of Spark applications. [Here](usecases.md) is a list of use cases and features the extension has to offer.
 
-## Integration in SWAN and the CERN IT Infrastructure
+
+## Integration in SWAN and CERN IT Infrastructure
 - The extension has been successfully integrated with a test instance of [SWAN](http://swan.web.cern.ch/), a Service for Web based ANalysis at [CERN](https://home.cern/)
-- The integration is made possible through customizations to the docker container image spawned by JupyterHub
+- The integration is made possible through customization to the docker container image spawned by JupyterHub.
 - The extension is loaded to Jupyter whenever the user attaches a Spark Cluster to the notebook environment.
 - The custom docker spawner image files can be found [here](https://github.com/krishnan-r/sparkmonitorhub).
 
@@ -69,7 +66,7 @@ Here is a list of test cases that have been run.
 
 ## Useful Links
 - [SparkMonitor](https://github.com/krishnan-r/sparkmonitor) Github Repository
-- [SparkMonitorHub](https://github.com/krishnan-r/sparkmonitorhub) - An integration for SWAN - A multiuser cloud notebook service based on JupyterHub.
+- [SparkMonitorHub](https://github.com/krishnan-r/sparkmonitorhub) - An integration for [SWAN](https://swan.web.cern.ch/) - A service for web-based analysis at CERN
 - [Initial Project Proposal](https://docs.google.com/document/d/1J2zIRnEAvey8HcDyqrKZ2DeQJXLvhU5HR2WdxZ9o8Yk/edit?usp=sharing)
 - [Initial Idea Page of Organization](http://hepsoftwarefoundation.org/gsoc/proposal_ROOTspark.html)
 - [Travis Build for SparkMonitor](https://travis-ci.org/krishnan-r/sparkmonitor)

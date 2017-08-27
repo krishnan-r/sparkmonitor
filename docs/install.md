@@ -2,15 +2,17 @@ ___
 **[Final Report](index.md)** |
 **[Installation](install.md)** |
 **[How it Works](how.md)** |
-**[Use Cases](#common-use-cases-and-tests)** |
+**[Use Cases](usecases.md)** |
 **[Code](https://github.com/krishnan-r/sparkmonitor)** |
 **[License](https://github.com/krishnan-r/sparkmonitor/blob/master/LICENSE.md)**
 ___
 
-## Installation
-### Prerequisites
+# Installation
+## Prerequisites
+- PySpark on [Apache Spark](https://spark.apache.org/) version 2.1.1 or higher
+- [Jupyter Notebook](http://jupyter.org/) version 4.4.0 or higher
 
-### Quick Install 
+## Quick Install 
 ```bash 
 pip install https://github.com/krishnan-r/sparkmonitor/releases/download/v0.0.1/sparkmonitor.tar.gz #Use latest version as in github releases
 
@@ -19,7 +21,7 @@ jupyter nbextension enable sparkmonitor --py --user
 jupyter serverextension enable --py --user sparkmonitor
 ipython profile create && echo "c.InteractiveShellApp.extensions.append('sparkmonitor')" >>  $(ipython profile locate default)/ipython_kernel_config.py
 ```
-### Details
+## Detailed Instructions
 
 1. Install the python package in the latest tagged github release. The python package contains the JavaScript resources and the listener jar file.
 
@@ -33,7 +35,7 @@ pip install https://github.com/krishnan-r/sparkmonitor/releases/download/v0.0.5/
 jupyter nbextension install --py sparkmonitor --user --symlink
 jupyter nbextension enable sparkmonitor --user --py
 ```
-3. Configure the serverextension to load when the notebook server starts
+3. Configure the server extension to load when the notebook server starts
 
 ```bash
  jupyter serverextension enable --py --user sparkmonitor
@@ -48,9 +50,14 @@ ipython profile create
 echo "c.InteractiveShellApp.extensions.append('sparkmonitor.kernelextension')" >>  $(ipython profile locate default)/ipython_kernel_config.py
 ```
 ## Configuration
-- Setting the environment variable `SPARKMONITOR_UI_HOST` and `SPARKMONITOR_UI_PORT` overrides the default Spark UI hostname 127.0.0.1 and port 4040 used by the Spark UI proxy 
+By default the Spark Web UI runs on `localhost:4040`. If this is not the case, setting the environment variable `SPARKMONITOR_UI_HOST` and `SPARKMONITOR_UI_PORT` overrides the default Spark UI hostname `localhost` and port 4040 used by the Spark UI proxy.
 
 ## Build from Source
+Building the extension involves three parts:  
+1. Bundle and minify the JavaScript
+2. Compile the Scala listener into a JAR file.
+3. Package and install the python package.
+
 ```bash
 git clone https://github.com/krishnan-r/sparkmonitor
 cd sparkmonitor/extension
