@@ -29,7 +29,7 @@ It also simulates some errors in Spark Jobs to test the extension
 ### Features
 - A table of jobs and collapsible stages shows the jobs started by the current cell.
 
-![1](https://user-images.githubusercontent.com/6822941/29752519-4aa40560-8b7d-11e7-805b-7c3bd0e5cc43.png)
+![job2](https://user-images.githubusercontent.com/6822941/29753710-ff8849b6-8b94-11e7-8f9c-bdc59bf72143.gif)
 - An aggregated view of resource allocation - a graph between number of active tasks and executor cores. The green vertical lines show jobs start and end points. Looking at this graph, it is possible to determine at any instant the amount of executor resources utilized, and the amount that remained idle. A job that is stuck waiting for a previous result, would delay the result of the entire computation. The yellow areas in the graph are the executor cores that remained idle at that instant. A workload with more yellow implies that it is under utilizing cluster resources and not efficiently running in parallel.
 
 ![12](https://user-images.githubusercontent.com/6822941/29601998-d657bbae-87fb-11e7-9354-d8b5c659e8df.png)

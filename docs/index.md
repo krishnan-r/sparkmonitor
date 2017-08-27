@@ -9,26 +9,42 @@
 
 # Google Summer of Code 2017 Final Report
 # Big Data Tools for Physics Analysis
-## The SparkMonitor Extension
-![The Monitoring Display](https://user-images.githubusercontent.com/6822941/29601568-d5e42934-87f9-11e7-9780-3cd3a0d8d86b.png)
+
 ## Introduction
-This goal of this project was to make a Big Data tool like Apache Spark easier to use with an interactive interface like Jupyter. This project integrates Jupyter with Apache Spark by providing tools for monitoring and visualizing Apache Spark Jobs inside Jupyter Notebook. As a part of that, an extension has been built for Jupyter called 'SparkMonitor'
+Jupyter Notebook is an interactive computing environment that is used to create notebooks which contain code, output, plots, widgets and theory. Jupyter notebook offers a convenient platform for interactive data analysis, scientific computing and rapid prototyping of code. A powerful tool used to perform complex computation intensive tasks is Apache Spark. Spark is a framework for large scale cluster computing in Big Data contexts. This project leverages these existing big data tools for use in an interactive scientific analysis environment. Spark jobs can be called from an IPython kernel in Jupyter Notebook using the pySpark module. The results of the computation can be visualized and plotted within the notebook interface. However to know what is happening to a running job, it is required to connect separately to the Spark web UI server. This project implements an extension called SparkMonitor to Jupyter Notebook that enables the monitoring of jobs sent from a notebook application, from within the notebook itself. The extension seamlessly integrates with the cell structure of the notebook and provides real time monitoring capabilities.
 
 ## Features
-- The extension 'SparkMonitor' has been built for Jupyter Notebook to monitor Apache Spark running through pySpark.
-- The extension integrates with Jupyter seamlessly, providing real time monitoring for jobs running in clusters.
-- The extension has been integrated with a beta version of SWAN - a cloud multi user Jupyter notebook deployment based on JupyterHub running on CERN IT infrastructure.
-- Various tests have been done with real world use cases.
+- The extension integrates with the cell structure of the notebook and automatically detects jobs submitted from a notebook cell.
+
+![The Monitoring Display](https://user-images.githubusercontent.com/6822941/29601568-d5e42934-87f9-11e7-9780-3cd3a0d8d86b.png)
+
+- It displays the jobs and stages spawned from a cell, with real time progress bars, status and resource utilization.
+
+![Jobs](https://user-images.githubusercontent.com/6822941/29753710-ff8849b6-8b94-11e7-8f9c-bdc59bf72143.gif)
+
+- The extension provides an aggregated view of the number of active tasks and available executor cores in the cluster.
+
+![Tasks](https://user-images.githubusercontent.com/6822941/29752704-d9ef8b2e-8b80-11e7-8050-c82adc2c761f.png)
+
+- An event timeline displays the overall workload split into jobs, stages and tasks across executors in the cluster.
+
+![Timeline](https://user-images.githubusercontent.com/6822941/29753711-ff88c67a-8b94-11e7-87a4-5c9f746d1b5e.gif)
+
+- The extension also integrates the Spark Web UI within the notebook page by displaying it in an IFrame pop-up. 
+
+![Spark UI](https://user-images.githubusercontent.com/6822941/29601565-d5dfb76e-87f9-11e7-9fd4-87522989d2d5.png)
 
 ## Example Use Cases
-The extension has been tested with a range of Spark applications. [Here](usecases.md) is a list of use cases and features the extension has to offer.
+The extension has been tested with a range of Spark applications. [Here](usecases.md) is a list of use cases the extension has been run with.
 
 
 ## Integration in SWAN and CERN IT Infrastructure
 - The extension has been successfully integrated with a test instance of [SWAN](http://swan.web.cern.ch/), a Service for Web based ANalysis at [CERN](https://home.cern/)
-- The integration is made possible through customization to the docker container image spawned by JupyterHub.
+- SWAN allows the submission of Spark Jobs from a notebook interface to Spark clusters deployed at CERN.
+- SWAN encapsulates user sessions in Docker containers. The extension is installed by modifying the docker container image.
 - The extension is loaded to Jupyter whenever the user attaches a Spark Cluster to the notebook environment.
 - The custom docker spawner image files can be found [here](https://github.com/krishnan-r/sparkmonitorhub).
+- Using this integration, it is now possible to monitor and debug Spark Jobs running on CERN Clusters using the notebook interface.
 
 ## Documentation
 ### How it Works
