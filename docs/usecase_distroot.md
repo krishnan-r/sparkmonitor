@@ -1,11 +1,11 @@
-___
+
 **[Final Report](index.md)** |
 **[Installation](install.md)** |
 **[How it Works](how.md)** |
 **[Use Cases](usecases.md)** |
 **[Code](https://github.com/krishnan-r/sparkmonitor)** |
 **[License](https://github.com/krishnan-r/sparkmonitor/blob/master/LICENSE.md)**
-___
+
 
 # A DistROOT Example
 

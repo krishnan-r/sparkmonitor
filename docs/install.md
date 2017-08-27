@@ -1,11 +1,11 @@
-___
+
 **[Final Report](index.md)** |
 **[Installation](install.md)** |
 **[How it Works](how.md)** |
 **[Use Cases](usecases.md)** |
 **[Code](https://github.com/krishnan-r/sparkmonitor)** |
 **[License](https://github.com/krishnan-r/sparkmonitor/blob/master/LICENSE.md)**
-___
+
 
 # Installation
 ## Prerequisites
@@ -49,6 +49,7 @@ ipython profile create
 ```bash
 echo "c.InteractiveShellApp.extensions.append('sparkmonitor.kernelextension')" >>  $(ipython profile locate default)/ipython_kernel_config.py
 ```
+
 ## Configuration
 By default the Spark Web UI runs on `localhost:4040`. If this is not the case, setting the environment variable `SPARKMONITOR_UI_HOST` and `SPARKMONITOR_UI_PORT` overrides the default Spark UI hostname `localhost` and port 4040 used by the Spark UI proxy.
 
