@@ -8,6 +8,10 @@
 <tr>
 <td><a href="https://summerofcode.withgoogle.com/projects/#4603184614998016"><img src="https://user-images.githubusercontent.com/6822941/29750351-e95e7b1c-8b5b-11e7-9f6b-b25b69f7353a.png" height="100"/></td>
 <td><a href="http://hepsoftwarefoundation.org/activities/gsoc.html"><img src="https://user-images.githubusercontent.com/6822941/29750350-e956b512-8b5b-11e7-9e34-4e3a5be9d37f.png" height="100"/></td>
+
+<td><a href="https://user-images.githubusercontent.com/6822941/29782585-c788e2d6-8c3a-11e7-96bd-9568c6fb9039.png"><img src="https://user-images.githubusercontent.com/6822941/29782585-c788e2d6-8c3a-11e7-96bd-9568c6fb9039.png" height="100"/></td>
+
+
 </tr>
 </table>
 
@@ -66,3 +70,9 @@ ipython profile create && echo "c.InteractiveShellApp.extensions.append('sparkmo
 ```bash
 docker run -it -p 80:8888 krishnanr/sparkmonitor
 ```
+
+## Integration with ROOT and SWAN
+At CERN, the SparkMonitor extension would find two main use cases:
+* Distributed analysis with [ROOT](https://root.cern.ch/) and Apache Spark using the DistROOT module. [Here](https://krishnan-r.github.io/sparkmonitor/usecase_distroot.html) is an example demonstrating this use case.
+* Integration with [SWAN](https://swan.web.cern.ch/), A service for web based analysis, via a modified [container image](https://github.com/krishnan-r/sparkmonitorhub) for SWAN user sessions.
+
