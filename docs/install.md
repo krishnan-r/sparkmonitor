@@ -66,7 +66,7 @@ cd sparkmonitor/extension
 yarn install
 yarn run webpack
 #Build SparkListener Scala jar
-cd scalalistener/jupyterspark/
+cd scalalistener/
 sbt package
 ```
 ```bash
