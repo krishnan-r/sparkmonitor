@@ -23,7 +23,7 @@ before_script: ''
 script:
 - cd $TRAVIS_BUILD_DIR/extension/
 - yarn run webpack
-- cd $TRAVIS_BUILD_DIR/extension/scalalistener/jupyterspark/
+- cd $TRAVIS_BUILD_DIR/extension/scalalistener/
 - sbt package
 - cd $TRAVIS_BUILD_DIR/extension/
 - python setup.py sdist --formats=gztar,zip
