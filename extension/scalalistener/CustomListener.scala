@@ -113,7 +113,6 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
     startTime = appStarted.time
     appId = appStarted.appId.getOrElse("null")
     println("SPARKLISTENER Application Started: " + appId + " ...Start Time: " + appStarted.time)
-
     val json = ("msgtype" -> "sparkApplicationStart") ~
       ("startTime" -> startTime) ~
       ("appId" -> appId) ~
@@ -172,7 +171,6 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
         stageIds = jobStart.stageIds,
         jobGroup = jobGroup,
         status = JobExecutionStatus.RUNNING)
-
     jobGroupToJobIds.getOrElseUpdate(jobGroup.orNull, new HashSet[JobId]).add(jobStart.jobId)
     jobStart.stageInfos.foreach(x => pendingStages(x.stageId) = x)
 
@@ -180,7 +178,6 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
     for (x <- jobStart.stageInfos) {
       stageinfojson = stageinfojson ~ stageInfoToJSON(x)
     }
-
     jobData.numTasks = {
       val allStages = jobStart.stageInfos
       val missingStages = allStages.filter(_.completionTime.isEmpty)
@@ -191,14 +188,12 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
     for (stageId <- jobStart.stageIds) {
       stageIdToActiveJobIds.getOrElseUpdate(stageId, new HashSet[StageId]).add(jobStart.jobId)
     }
-
     // If there's no information for a stage, store the StageInfo received from the scheduler
     // so that we can display stage descriptions for pending stages:
     for (stageInfo <- jobStart.stageInfos) {
       stageIdToInfo.getOrElseUpdate(stageInfo.stageId, stageInfo)
       stageIdToData.getOrElseUpdate((stageInfo.stageId, stageInfo.attemptId), new StageUIData)
     }
-
     val name = jobStart.properties.getProperty("callSite.short", "null")
     println("Num Executors" + numExecutors.toInt)
     val json = ("msgtype" -> "sparkJobStart") ~
@@ -240,7 +235,6 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
         numFailedJobs += 1
         status = "FAILED"
     }
-
     for (stageId <- jobData.stageIds) {
       stageIdToActiveJobIds.get(stageId).foreach { jobsUsingStage =>
         jobsUsingStage.remove(jobEnd.jobId)
@@ -275,7 +269,6 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
       println("SPARKLISTENER: Stage completed for unknown stage " + stage.stageId)
       new StageUIData
     })
-
     var status = "UNKNOWN"
     activeStages.remove(stage.stageId)
     if (stage.failureReason.isEmpty) {
@@ -303,10 +296,8 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
         jobData.numFailedStages += 1
       }
     }
-
     val completionTime: Long = stage.completionTime.getOrElse(-1)
     val submissionTime: Long = stage.submissionTime.getOrElse(-1)
-
     val json = ("msgtype" -> "sparkStageCompleted") ~
       ("stageId" -> stage.stageId) ~
       ("stageAttemptId" -> stage.attemptId) ~
@@ -324,10 +315,8 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
     val stage = stageSubmitted.stageInfo
     activeStages(stage.stageId) = stage
     pendingStages.remove(stage.stageId)
-
     stageIdToInfo(stage.stageId) = stage
     val stageData = stageIdToData.getOrElseUpdate((stage.stageId, stage.attemptId), new StageUIData)
-
     stageData.description = Option(stageSubmitted.properties).flatMap {
       p => Option(p.getProperty("spark.job.description"))
     }
@@ -341,10 +330,8 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
       // If a stage retries again, it should be removed from completedStageIndices set
       jobData.completedStageIndices.remove(stage.stageId)
     }
-
     val activeJobsDependentOnStage = stageIdToActiveJobIds.get(stage.stageId)
     val jobIds = activeJobsDependentOnStage
-
     val submissionTime: Long = stage.submissionTime.getOrElse(-1)
     val json = ("msgtype" -> "sparkStageSubmitted") ~
       ("stageId" -> stage.stageId) ~
@@ -355,7 +342,6 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
       ("parentIds" -> stage.parentIds) ~
       ("submissionTime" -> submissionTime) ~
       ("jobIds" -> jobIds)
-
     println("SPARKLISTENER Stage Submitted: \n" + pretty(render(json)) + "\n")
     send(pretty(render(json)))
   }
@@ -376,7 +362,6 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
       jobId <- activeJobsDependentOnStage;
       jobData <- jobIdToData.get(jobId)
     ) {
-
       jobData.numActiveTasks += 1
       val jobjson = ("jobdata" ->
         ("jobId" -> jobData.jobId) ~
@@ -389,9 +374,7 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
         ("numActiveStages" -> jobData.numActiveStages) ~
         ("numSkippedStages" -> jobData.numSkippedStages) ~
         ("numFailedStages" -> jobData.numFailedStages))
-
     }
-
     val json = ("msgtype" -> "sparkTaskStart") ~
       ("launchTime" -> taskInfo.launchTime) ~
       ("taskId" -> taskInfo.taskId) ~
@@ -420,7 +403,6 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
         println("SPARKLISTENER: Task end for unknown stage " + taskEnd.stageId)
         new StageUIData
       })
-
       stageData.numActiveTasks -= 1
       errorMessage = taskEnd.reason match {
         case org.apache.spark.Success =>
@@ -453,7 +435,6 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
     var jsonMetrics: JObject = ("" -> "")
     val totalExecutionTime = info.finishTime - info.launchTime
     def toProportion(time: Long) = time.toDouble / totalExecutionTime * 100
-
     var metricsOpt = Option(taskEnd.taskMetrics)
     val shuffleReadTime = metricsOpt.map(_.shuffleReadMetrics.fetchWaitTime).getOrElse(0L)
     val shuffleReadTimeProportion = toProportion(shuffleReadTime)
@@ -520,7 +501,6 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
         ("peakExecutionMemory" -> metricsOpt.map(_.peakExecutionMemory).getOrElse(0L)) ~
         ("test" -> info.gettingResultTime)
     }
-
     val json = ("msgtype" -> "sparkTaskEnd") ~
       ("launchTime" -> info.launchTime) ~
       ("finishTime" -> info.finishTime) ~
@@ -586,7 +566,6 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
     executorCores(executorAdded.executorId) = executorAdded.executorInfo.totalCores
     totalCores += executorAdded.executorInfo.totalCores
     numExecutors += 1
-
     val json = ("msgtype" -> "sparkExecutorAdded") ~
       ("executorId" -> executorAdded.executorId) ~
       ("time" -> executorAdded.time) ~
@@ -639,7 +618,6 @@ object UIData {
     var numSkippedStages: Int = 0,
     var numFailedStages: Int = 0)
 
-  
   /**
    * Data about a stage.
    *
@@ -653,7 +631,6 @@ object UIData {
     var description: Option[String] = None
   }
   
-
   /**
    * Data about an executor.
    *
