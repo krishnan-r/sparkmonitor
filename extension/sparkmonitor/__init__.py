@@ -1,7 +1,7 @@
 """Package sparkmonitor
 
 This package contains two modules:
-    sparkmonitor.py is the Jupyter kernel extension.
+    kernelextension.py is the Jupyter kernel extension.
     serverextension.py is the Jupyter web server extension.
 """
 
