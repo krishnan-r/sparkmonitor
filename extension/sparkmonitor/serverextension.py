@@ -1,7 +1,7 @@
 """SparkMonitor Jupyter Web Server Extension
 
-This module adds a custom request handler to Jupyter web server. 
-It proxies the Spark Web UI by default running at 127.0.0.1:4040 
+This module adds a custom request handler to Jupyter web server.
+It proxies the Spark Web UI by default running at 127.0.0.1:4040
 to the endpoint notebook_base_url/sparkmonitor
 
 TODO Create unique endpoints for different kernels or spark applications.
@@ -30,17 +30,20 @@ class SparkMonitorHandler(IPythonHandler):
 
         Fetches the Spark Web UI from the configured ports
         """
-        #print("SPARKMONITOR_SERVER: Handler GET")
+        # print("SPARKMONITOR_SERVER: Handler GET")
         http = httpclient.AsyncHTTPClient()
         # Without protocol and trailing slash
         baseurl = os.environ.get("SPARKMONITOR_UI_HOST", "127.0.0.1")
         port = os.environ.get("SPARKMONITOR_UI_PORT", "4040")
         url = "http://" + baseurl + ":" + port
-        #print("SPARKMONITOR_SERVER: Request URI" + self.request.uri)
-        #print("SPARKMONITOR_SERVER: Getting from " + url)
+        # print("SPARKMONITOR_SERVER: Request URI" + self.request.uri)
+        # print("SPARKMONITOR_SERVER: Getting from " + url)
         request_path = self.request.uri[(
             self.request.uri.index(proxy_root) + len(proxy_root) + 1):]
-        #print("SPARKMONITOR_SERVER: Request_path " + request_path)
+        self.replace_path = self.request.uri[:self.request.uri.index(
+            proxy_root) + len(proxy_root)]
+        print("SPARKMONITOR_SERVER: Request_path " +
+              request_path + " \n Replace_path:" + self.replace_path)
         backendurl = url_path_join(url, request_path)
         self.debug_url = url
         self.backendurl = backendurl
@@ -53,16 +56,16 @@ class SparkMonitorHandler(IPythonHandler):
         if response.error:
             content_type = "application/json"
             content = json.dumps({"error": "SPARK_UI_NOT_RUNNING",
-                                  "url": self.debug_url, "backendurl": self.backendurl})
+                                  "url": self.debug_url, "backendurl": self.backendurl, "replace_path": self.replace_path})
             print("SPARKMONITOR_SERVER: Spark UI not running")
         else:
             content_type = response.headers["Content-Type"]
-            #print("SPARKSERVER: CONTENT TYPE: "+ content_type + "\n")
+            # print("SPARKSERVER: CONTENT TYPE: "+ content_type + "\n")
             if "text/html" in content_type:
-                content = replace(response.body)
+                content = replace(response.body, self.replace_path)
             elif "javascript" in content_type:
                 content = response.body.replace(
-                    "location.origin", "location.origin +'" + proxy_root + "' ")
+                    "location.origin", "location.origin +'" + self.replace_path + "' ")
             else:
                 # Probably binary response, send it directly.
                 content = response.body
@@ -93,7 +96,7 @@ def load_jupyter_server_extension(nb_server_app):
         "%(levelname)s:  %(asctime)s - %(name)s - %(process)d - %(processName)s - \
         %(thread)d - %(threadName)s\n %(message)s \n")
     fh.setFormatter(formatter)
-    logger.addHandler(fh)
+    logger.addHandler(fh) ## Comment this line to disable logging to a file.
 
     web_app = nb_server_app.web_app
     host_pattern = ".*$"
@@ -117,7 +120,7 @@ PROXY_ATTRIBUTES = (
 )
 
 
-def replace(content):
+def replace(content, root_url):
     """Replace all the links with our prefixed handler links,
 
      e.g.:
@@ -133,7 +136,7 @@ def replace(content):
             match = PROXY_PATH_RE.match(value)
             if match is not None:
                 value = match.groups()[0]
-            tag[attribute] = url_path_join(proxy_root, value)
+            tag[attribute] = url_path_join(root_url, value)
     return str(soup)
 
 
