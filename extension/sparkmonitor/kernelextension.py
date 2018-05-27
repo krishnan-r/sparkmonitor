@@ -19,7 +19,12 @@ except ImportError:
 try:
     from pyspark import SparkConf
 except ImportError:
-    spark_imported = False
+    try:
+        import findspark
+        findspark.init()
+        from pyspark import SparkConf
+    except Exception:
+        spark_imported = False
 
 
 class ScalaMonitor:
