@@ -19,7 +19,7 @@ pip install https://github.com/krishnan-r/sparkmonitor/releases/download/v0.0.1/
 jupyter nbextension install sparkmonitor --py --user --symlink 
 jupyter nbextension enable sparkmonitor --py --user            
 jupyter serverextension enable --py --user sparkmonitor
-ipython profile create && echo "c.InteractiveShellApp.extensions.append('sparkmonitor')" >>  $(ipython profile locate default)/ipython_kernel_config.py
+ipython profile create && echo "c.InteractiveShellApp.extensions.append('sparkmonitor.kernelextension')" >>  $(ipython profile locate default)/ipython_kernel_config.py
 ```
 ## Detailed Instructions
 

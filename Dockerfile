@@ -26,7 +26,7 @@ jupyter nbextension install sparkmonitor --py --user --symlink && \
 jupyter nbextension enable sparkmonitor --py --user && \
 jupyter serverextension enable --py --user sparkmonitor && \
 ipython profile create && \
-echo "c.InteractiveShellApp.extensions.append('sparkmonitor')" >>  $(ipython profile locate default)/ipython_kernel_config.py
+echo "c.InteractiveShellApp.extensions.append('sparkmonitor.kernelextension')" >>  $(ipython profile locate default)/ipython_kernel_config.py
 
 WORKDIR /notebooks/
 
