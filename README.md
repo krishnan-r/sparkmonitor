@@ -58,8 +58,7 @@ SparkMonitor is an extension for Jupyter Notebook that enables the live monitori
 
 ## Quick Installation
 ```bash 
-pip install https://github.com/krishnan-r/sparkmonitor/releases/download/v0.0.1/sparkmonitor.tar.gz #Use latest version as in github releases
-
+pip install sparkmonitor
 jupyter nbextension install sparkmonitor --py --user --symlink 
 jupyter nbextension enable sparkmonitor --py --user            
 jupyter serverextension enable --py --user sparkmonitor
@@ -68,7 +67,7 @@ ipython profile create && echo "c.InteractiveShellApp.extensions.append('sparkmo
 #### For more detailed instructions [click here](https://krishnan-r.github.io/sparkmonitor/install.html)
 #### To do a quick test of the extension:
 ```bash
-docker run -it -p 80:8888 krishnanr/sparkmonitor
+docker run -it -p 8888:8888 krishnanr/sparkmonitor
 ```
 
 ## Integration with ROOT and SWAN

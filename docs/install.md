@@ -14,8 +14,7 @@
 
 ## Quick Install 
 ```bash 
-pip install https://github.com/krishnan-r/sparkmonitor/releases/download/v0.0.1/sparkmonitor.tar.gz #Use latest version as in github releases
-
+pip install sparkmonitor
 jupyter nbextension install sparkmonitor --py --user --symlink 
 jupyter nbextension enable sparkmonitor --py --user            
 jupyter serverextension enable --py --user sparkmonitor
@@ -26,7 +25,7 @@ ipython profile create && echo "c.InteractiveShellApp.extensions.append('sparkmo
 1. Install the python package in the latest tagged github release. The python package contains the JavaScript resources and the listener jar file.
 
 ```bash
-pip install https://github.com/krishnan-r/sparkmonitor/releases/download/v0.0.5/sparkmonitor.tar.gz #Use latest version as in github releases
+pip install sparkmonitor
 ```
 
 2. The frontend extension is symlinked (```--symlink```) into the jupyter configuration directory by `jupyter nbextension` command. The second line configures the frontend extension to load on notebook startup.
