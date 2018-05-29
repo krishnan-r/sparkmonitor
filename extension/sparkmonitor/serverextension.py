@@ -42,8 +42,7 @@ class SparkMonitorHandler(IPythonHandler):
             self.request.uri.index(proxy_root) + len(proxy_root) + 1):]
         self.replace_path = self.request.uri[:self.request.uri.index(
             proxy_root) + len(proxy_root)]
-        print("SPARKMONITOR_SERVER: Request_path " +
-              request_path + " \n Replace_path:" + self.replace_path)
+        # print("SPARKMONITOR_SERVER: Request_path " + request_path + " \n Replace_path:" + self.replace_path)
         backendurl = url_path_join(url, request_path)
         self.debug_url = url
         self.backendurl = backendurl
@@ -64,8 +63,8 @@ class SparkMonitorHandler(IPythonHandler):
             if "text/html" in content_type:
                 content = replace(response.body, self.replace_path)
             elif "javascript" in content_type:
-                content = response.body.replace(
-                    "location.origin", "location.origin +'" + self.replace_path + "' ")
+                body="location.origin +'" + self.replace_path + "' "
+                content = response.body.replace(b"location.origin",body.encode())
             else:
                 # Probably binary response, send it directly.
                 content = response.body
