@@ -2,8 +2,14 @@
 
 from setuptools import setup, find_packages
 
+with open('VERSION') as version_file:
+    version = version_file.read().strip()
+
+
+
+
 setup(name='sparkmonitor',
-      version='0.0.1',
+      version=version,
       description='Spark Monitor Extension for Jupyter Notebook',
       author='Krishnan R',
       author_email='krishnanr1997@gmail.com',
