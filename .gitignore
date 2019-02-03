@@ -4,9 +4,9 @@
 extension/scalalistener/project/
 extension/scalalistener/target/
 *.egg-info/
-extension/dist/
-extension/build/
-extension/node_modules/
-extension/sparkmonitor/static/
+extension/sparkmonitor/dist/
+extension/sparkmonitor/build/
+extension/js/node_modules/
+extension/sparkmonitor/sparkmonitor/static/
 *.jar
 extension/docs/

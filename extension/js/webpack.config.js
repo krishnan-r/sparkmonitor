@@ -1,19 +1,29 @@
 var path = require('path');
 
 module.exports = {
+    mode: 'production',
     entry: {
-        module: './js/module.js',
-        timeline: './js/Timeline.js',
-        taskchart: './js/TaskChart.js'
+        module: './notebook/index.tsx',
     },
     output: {
-        path: path.resolve(__dirname, 'sparkmonitor/static'),
+        path: path.resolve(__dirname, '../sparkmonitor/sparkmonitor/static'),
         filename: '[name].js',
-        // library:'sparkmonitor',
         libraryTarget: 'umd'
     },
-    externals: ['jquery', 'require', 'base/js/namespace', 'base/js/events', 'notebook/js/codecell', 'moment'],
-    devtool: 'source-map',
+    externals: [
+        'jquery',
+        'require',
+        'base/js/namespace',
+        'base/js/events',
+        'notebook/js/codecell',
+        'moment'
+    ],
+    devtool: 'inline-source-map',
+
+    resolve: {
+        extensions: ['.tsx', '.ts', '.js']
+    },
+
     module: {
         rules: [
             {
@@ -22,7 +32,7 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['env'],
+                        presets: ['@babel/env'],
 
                         plugins: [
                             "add-module-exports"
@@ -30,6 +40,11 @@ module.exports = {
                     }
 
                 }
+            },
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/
             },
             {
                 test: /\.css$/,
@@ -53,31 +68,17 @@ module.exports = {
                     }
                 }
             },
-            {
-                test: /node_modules[\\\/]vis[\\\/].*\.js$/,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        cacheDirectory: true,
-                        presets: ["env"],
-                        "babelrc": false,
-                        // plugins: [
-                        //     "transform-es3-property-literals",
-                        //     "transform-es3-member-expression-literals",
-                        //     "transform-runtime"
-                        // ]
-
-                    }
-                }
-            },
             // {
-            //     test: /node_modules/,
+            //     test: /node_modules[\\\/]vis[\\\/].*\.js$/,
             //     use: {
-            //         loader: 'ify-loader',
-
-            //     },
-            //     enforce: 'post'
-            // }
+            //         loader: 'babel-loader',
+            //         options: {
+            //             cacheDirectory: true,
+            //             presets: ["env"],
+            //             "babelrc": false,
+            //         }
+            //     }
+            // },
 
         ],
     }

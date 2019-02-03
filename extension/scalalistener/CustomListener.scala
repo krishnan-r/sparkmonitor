@@ -113,12 +113,12 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
     startTime = appStarted.time
     appId = appStarted.appId.getOrElse("null")
     println("SPARKMONITOR_LISTENER: Application Started: " + appId + " ...Start Time: " + appStarted.time)
-    val json = ("msgtype" -> "sparkApplicationStart") ~
-      ("startTime" -> startTime) ~
-      ("appId" -> appId) ~
+    val json = ("msgtype" -> "AppStart") ~
+      ("start" -> startTime) ~
+      ("id" -> appId) ~
       ("appAttemptId" -> appStarted.appAttemptId.getOrElse("null")) ~
-      ("appName" -> appStarted.appName) ~
-      ("sparkUser" -> appStarted.sparkUser)
+      ("name" -> appStarted.appName) ~
+      ("userName" -> appStarted.sparkUser)
 
     send(pretty(render(json)))
   }
@@ -198,7 +198,7 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
     // println("Num Executors" + numExecutors.toInt)
     val json = ("msgtype" -> "sparkJobStart") ~
       ("jobGroup" -> jobGroup.getOrElse("null")) ~
-      ("jobId" -> jobStart.jobId) ~
+      ("id" -> jobStart.jobId) ~
       ("status" -> "RUNNING") ~
       ("submissionTime" -> Option(jobStart.time).filter(_ >= 0)) ~
       ("stageIds" -> jobStart.stageIds) ~

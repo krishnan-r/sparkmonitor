@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-with open('VERSION') as version_file:
+with open('../VERSION') as version_file:
     version = version_file.read().strip()
 
 

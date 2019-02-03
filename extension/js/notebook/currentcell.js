@@ -7,10 +7,8 @@
  * @module currentcell
  */
 
-import Jupyter from 'base/js/namespace';
 import events from 'base/js/events';
 import codecell from 'notebook/js/codecell';
-import $ from 'jquery'
 
 var CodeCell = codecell.CodeCell;
 var current_cell;

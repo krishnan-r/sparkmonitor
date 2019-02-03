@@ -13,4 +13,4 @@ libraryDependencies ++= List(
   "net.sf.py4j" % "py4j" % "0.10.4"
 )
 artifactPath in Compile in packageBin :=
-   (baseDirectory { base => base / "../sparkmonitor/listener.jar" }).value
+   (baseDirectory { base => base / "../sparkmonitor/sparkmonitor/listener.jar" }).value

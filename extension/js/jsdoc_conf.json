@@ -1,8 +1,7 @@
-//JSDoc Configuration File
 {
   "opts": {
-    "template": "./node_modules/ink-docstrap/template", // same as -t templates/default
-    "encoding": "utf8", // same as -e utf8
+    "template": "./node_modules/ink-docstrap/template",
+    "encoding": "utf8",
     "destination": "../docs/jsdoc/",
     "recursive": true
   },
