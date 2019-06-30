@@ -13,26 +13,22 @@ from tornado import httpclient
 import json
 import re
 import os
-import logging
-from traitlets.config import LoggingConfigurable
-from traitlets.traitlets import Unicode
 from bs4 import BeautifulSoup
+import asyncio
 
 proxy_root = "/sparkmonitor"
 
 
 class SparkMonitorHandler(IPythonHandler):
     """A custom tornado request handler to proxy Spark Web UI requests."""
+ 
 
-    @tornado.web.asynchronous
-    def get(self):
+    async def get(self):
         """Handles get requests to the Spark UI
 
         Fetches the Spark Web UI from the configured ports
         """
         # print("SPARKMONITOR_SERVER: Handler GET")
-        http = httpclient.AsyncHTTPClient()
-        # Without protocol and trailing slash
         baseurl = os.environ.get("SPARKMONITOR_UI_HOST", "127.0.0.1")
         port = os.environ.get("SPARKMONITOR_UI_PORT", "4040")
         url = "http://" + baseurl + ":" + port
@@ -46,9 +42,13 @@ class SparkMonitorHandler(IPythonHandler):
         backendurl = url_path_join(url, request_path)
         self.debug_url = url
         self.backendurl = backendurl
-        logger.info("GET: \n Request uri:%s \n Port: %s \n Host: %s \n request_path: %s ", self.request.uri, os.environ.get(
-            "SPARKMONITOR_UI_PORT", "4040"), os.environ.get("SPARKMONITOR_UI_HOST", "127.0.0.1"), request_path)
-        http.fetch(backendurl, self.handle_response)
+        http = httpclient.AsyncHTTPClient()
+        try:
+            response = await http.fetch(backendurl)
+        except Exception as e:
+            print("SPARKMONITOR_SERVER: Spark UI Error ",e)
+        else:
+            self.handle_response(response)
 
     def handle_response(self, response):
         """Sends the fetched page as response to the GET request"""
@@ -81,26 +81,9 @@ def load_jupyter_server_extension(nb_server_app):
         nb_server_app (NotebookWebApplication): handle to the Notebook webserver instance.
     """
     print("SPARKMONITOR_SERVER: Loading Server Extension")
-    # Configuring logging for the extension
-    # This is necessary because in some versions of jupyter, print statements are not output to console.
-
-    global logger
-    logger = logging.getLogger("sparkmonitorserver")
-    logger.setLevel(logging.DEBUG)
-    logger.propagate = False
-    # For debugging this module - Writes logs to a file
-    fh = logging.FileHandler("sparkmonitor_serverextension.log", mode="w")
-    fh.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(
-        "%(levelname)s:  %(asctime)s - %(name)s - %(process)d - %(processName)s - \
-        %(thread)d - %(threadName)s\n %(message)s \n")
-    fh.setFormatter(formatter)
-    logger.addHandler(fh) ## Comment this line to disable logging to a file.
-
     web_app = nb_server_app.web_app
     host_pattern = ".*$"
-    route_pattern = url_path_join(
-        web_app.settings["base_url"], proxy_root + ".*")
+    route_pattern = url_path_join(web_app.settings["base_url"], proxy_root + ".*")
     web_app.add_handlers(host_pattern, [(route_pattern, SparkMonitorHandler)])
 
 
