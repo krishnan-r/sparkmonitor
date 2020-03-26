@@ -2,3 +2,4 @@ pyspark
 jupyter
 spark_tools
 spark_etl
+jupyterlab

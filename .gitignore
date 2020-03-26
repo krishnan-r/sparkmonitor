@@ -12,3 +12,4 @@ extension/sparkmonitor/static/
 extension/docs/
 venv/
 .vscode/settings.json
+node_modules
