@@ -12,8 +12,8 @@ const extension = {
     activate(app, notebooks) {
         console.log('JupyterLab SparkMonitor is activated!');
 
-        var monitor = new SparkMonitor();
         notebooks.widgetAdded.connect(( sender, nbPanel ) => {
+            let monitor = new SparkMonitor(nbPanel);
             console.log('Notebook added!');
             const session = nbPanel.session;
             session.ready.then(() =>  {
@@ -21,14 +21,12 @@ const extension = {
                 let kernel = session.kernel;
                 kernel.ready.then(() => {
                     console.log("Notebook kernel ready");
-                    // Register comm
                     monitor.startComm(kernel, app);
                 })
             })
         });
 
-        window.sm = monitor;
-        // currentcell.register();
+        //window.sm = monitor;
         
     },
 };

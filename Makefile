@@ -1,11 +1,13 @@
 IPYTHON_CONFIG := /nail/home/syedj/.ipython/profile_default
 
-.PHONY: develop
-develop: 
+.PHONY: develop-notebook
+develop-notebook: 
 	venv/bin/jupyter notebook
 
+develop:
+	venv/bin/jupyter lab --watch
 .PHONY: build
-build: 
+build: venv frontend-build
 	venv/bin/pip install -I ./extension/.
 	jupyter labextension enable sparkmonitor --user           
 	jupyter serverextension enable --py --user sparkmonitor
@@ -14,6 +16,7 @@ build:
 .PHONY: frontend-build
 frontend-build:
 	npm install
+
 .PHONY: venv
 venv: requirements-dev.txt tox.ini
 	tox -e venv

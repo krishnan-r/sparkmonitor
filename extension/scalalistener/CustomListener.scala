@@ -46,8 +46,8 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
   /** Send a string message to the kernel using the open socket.*/
   def send(msg: String): Unit = {
     try {
-      //println("\nSPARKMONITOR_LISTENER: --------------Sending Message:------------------\n"+msg+
-      //	"\nSPARKMONITOR_LISTENER: -------------------------------------------------\n") // Uncomment to see all events
+      println("\nSPARKMONITOR_LISTENER: --------------Sending Message:------------------\n"+msg+
+      	"\nSPARKMONITOR_LISTENER: -------------------------------------------------\n") // Uncomment to see all events
       out.write(msg + ";EOD:")
       out.flush()
     } catch {
@@ -195,7 +195,7 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
       stageIdToData.getOrElseUpdate((stageInfo.stageId, stageInfo.attemptId), new StageUIData)
     }
     val name = jobStart.properties.getProperty("callSite.short", "null")
-    // println("Num Executors" + numExecutors.toInt)
+    println("Num Executors" + numExecutors.toInt)
     val json = ("msgtype" -> "sparkJobStart") ~
       ("jobGroup" -> jobGroup.getOrElse("null")) ~
       ("jobId" -> jobStart.jobId) ~
@@ -208,7 +208,7 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
       ("appId" -> appId) ~
       ("numExecutors" -> numExecutors) ~
       ("name" -> name)
-    // println("SPARKMONITOR_LISTENER: JobStart: \n" + pretty(render(json)) + "\n")
+    println("SPARKMONITOR_LISTENER: JobStart: \n" + pretty(render(json)) + "\n")
     send(pretty(render(json)))
   }
 
@@ -306,7 +306,7 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
       ("numTasks" -> stage.numTasks) ~
       ("status" -> status)
 
-    // println("SPARKMONITOR_LISTENER: Stage Completed: \n" + pretty(render(json)) + "\n")
+    println("SPARKMONITOR_LISTENER: Stage Completed: \n" + pretty(render(json)) + "\n")
     send(pretty(render(json)))
   }
 
@@ -342,7 +342,7 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
       ("parentIds" -> stage.parentIds) ~
       ("submissionTime" -> submissionTime) ~
       ("jobIds" -> jobIds)
-    // println("SPARKMONITOR_LISTENER Stage Submitted: \n" + pretty(render(json)) + "\n")
+    println("SPARKMONITOR_LISTENER Stage Submitted: \n" + pretty(render(json)) + "\n")
     send(pretty(render(json)))
   }
 
@@ -387,7 +387,7 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
       ("status" -> taskInfo.status) ~
       ("speculative" -> taskInfo.speculative)
 
-    //println("SPARKMONITOR_LISTENER: Task Started: \n"+ pretty(render(json)) + "\n")
+    println("SPARKMONITOR_LISTENER: Task Started: \n"+ pretty(render(json)) + "\n")
     send(pretty(render(json)))
   }
 
@@ -517,7 +517,7 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
       ("errorMessage" -> errorMessage) ~
       ("metrics" -> jsonMetrics)
 
-    // println("SPARKMONITOR_LISTENER: Task Ended: \n" + pretty(render(json)) + "\n")
+    println("SPARKMONITOR_LISTENER: Task Ended: \n" + pretty(render(json)) + "\n")
     send(pretty(render(json)))
   }
 
@@ -573,7 +573,7 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
       ("numCores" -> executorAdded.executorInfo.totalCores) ~
       ("totalCores" -> totalCores) // Sending this as browser data can be lost during reloads
 
-    // println("SPARKMONITOR_LISTENER: Executor Added: \n" + pretty(render(json)) + "\n")
+    println("SPARKMONITOR_LISTENER: Executor Added: \n" + pretty(render(json)) + "\n")
     send(pretty(render(json)))
   }
 
@@ -586,7 +586,7 @@ class JupyterSparkMonitorListener(conf: SparkConf) extends SparkListener {
       ("time" -> executorRemoved.time) ~
       ("totalCores" -> totalCores) // Sending this as browser data can be lost during reloads
 
-    // println("SPARKMONITOR_LISTENER: Executor Removed: \n" + pretty(render(json)) + "\n")
+    println("SPARKMONITOR_LISTENER: Executor Removed: \n" + pretty(render(json)) + "\n")
     send(pretty(render(json)))
   }
 }
