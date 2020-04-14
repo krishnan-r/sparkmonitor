@@ -1,0 +1,5 @@
+jupyter
+jupyterlab
+spark_tools
+spark_etl
+pre-commit

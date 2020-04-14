@@ -52,5 +52,3 @@ deploy:
     on:
       tags: true
     script: 'docker tag krishnanr/sparkmonitor krishnanr/sparkmonitor:$TRAVIS_TAG && docker push krishnanr/sparkmonitor:$TRAVIS_TAG'
-       
-    

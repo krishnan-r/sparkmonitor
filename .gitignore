@@ -8,5 +8,12 @@ extension/dist/
 extension/build/
 extension/node_modules/
 extension/sparkmonitor/static/
-*.jar
 extension/docs/
+extension/node_modules/*
+node_modules
+node_modules/*
+.vscode/settings.json
+extension/venv/*
+extension/venv
+scalalistener/*
+venv/*

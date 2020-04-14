@@ -1,0 +1,38 @@
+repos:
+-   repo: git@git.yelpcorp.com:mirrors/pre-commit/pre-commit-hooks
+    rev: v2.4.0
+    hooks:
+    -   id: check-added-large-files
+    -   id: check-byte-order-marker
+    -   id: check-docstring-first
+    -   id: check-executables-have-shebangs
+    -   id: check-merge-conflict
+    -   id: check-yaml
+    -   id: debug-statements
+    -   id: double-quote-string-fixer
+    -   id: end-of-file-fixer
+    -   id: flake8
+    -   id: fix-encoding-pragma
+    -   id: name-tests-test
+    -   id: trailing-whitespace
+-   repo: git@git.yelpcorp.com:mirrors/asottile/reorder_python_imports
+    rev: v0.3.5
+    hooks:
+    -   id: reorder-python-imports
+        args: [
+            '--add-import', 'from __future__ import absolute_import',
+            '--add-import', 'from __future__ import unicode_literals',
+        ]
+-   repo: git@git.yelpcorp.com:mirrors/asottile/pyupgrade
+    rev: v1.2.0
+    hooks:
+    -   id: pyupgrade
+-   repo: https://github.com/prettier/prettier
+    rev: 1.14.0
+    hooks:
+    -   id: prettier
+        types: ['markdown']
+-   repo: https://github.com/pre-commit/mirrors-autopep8
+    rev: v1.5
+    hooks:
+    -   id: autopep8
