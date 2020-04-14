@@ -21,10 +21,10 @@ import java.io._
  *  - All data is forwarded to a jupyter kernel using sockets configured by an environment variable.
  *  - The listener receives notifications of the spark application's events, through the overrided methods.
  *  - The received data is stored and sent as JSON to the kernel socket.
- *  - Overrides methods that correspond to events in a spark Application. 
+ *  - Overrides methods that correspond to events in a spark Application.
  *  - The argument for each overrided method contains the received data for that event. (See SparkListener docs for more information.)
  *  - For each application, job, stage, and task there is a 'start' and an 'end' event. For executors, there are 'added' and 'removed' events
- * 
+ *
  *  @constructor called by Spark internally
  *  @param conf Spark configuration object used to start the spark application.
  */
@@ -630,7 +630,7 @@ object UIData {
     var numFailedTasks: Int = _
     var description: Option[String] = None
   }
-  
+
   /**
    * Data about an executor.
    *

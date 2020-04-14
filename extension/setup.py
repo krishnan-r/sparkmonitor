@@ -1,11 +1,13 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
-from setuptools import setup, find_packages
+from setuptools import find_packages
+from setuptools import setup
 
 with open('VERSION') as version_file:
     version = version_file.read().strip()
-
-
 
 
 setup(name='sparkmonitor',
