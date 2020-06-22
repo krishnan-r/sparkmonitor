@@ -55,6 +55,28 @@ SparkMonitor is an extension for Jupyter Notebook that enables the live monitori
 </tr>
 </table>
 
+## Build from source
+npm version: 5.6.0
+yarn version: 1.22.4
+sbt version: 1.3.2
+```bash
+cd sparkmonitor/extension
+#Build Javascript
+yarn install # Only need to run the first time
+yarn run webpack
+#Build SparkListener Scala jar
+cd scalalistener/
+sbt package
+```
+
+## Deploy New Version
+```bash
+cd sparkmonitor/extension
+vi VERSION # bump version number
+python setup.py sdist
+twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
+```
+If twine upload step fails, run `rm -rf dist/*`, bump the VERSION number, and rerun steps above.
 
 ## Quick Installation
 ```bash 
