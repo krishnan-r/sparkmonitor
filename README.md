@@ -80,7 +80,7 @@ If twine upload step fails, run `rm -rf dist/*`, bump the VERSION number, and re
 
 ## Quick Installation
 ```bash 
-pip install sparkmonitor
+pip install sparkmonitor-s
 jupyter nbextension install sparkmonitor --py --user --symlink 
 jupyter nbextension enable sparkmonitor --py --user            
 jupyter serverextension enable --py --user sparkmonitor
