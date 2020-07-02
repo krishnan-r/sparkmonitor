@@ -1,7 +1,9 @@
-FROM krishnanr/docker-jupyter-spark
+FROM jupyter/pyspark-notebook
 
 ADD ./extension/ /extension/
 ADD ./notebooks/ /notebooks/
+
+USER root
 
 RUN pip install -e /extension/ && \
 jupyter nbextension install sparkmonitor --py --user --symlink && \
