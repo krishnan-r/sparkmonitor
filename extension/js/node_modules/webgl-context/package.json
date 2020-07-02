@@ -1,0 +1,52 @@
+{
+  "name": "webgl-context",
+  "version": "2.2.0",
+  "description": "gets a WebGLRenderingContext",
+  "main": "index.js",
+  "license": "MIT",
+  "author": "Matt DesLauriers <dave.des@gmail.com>",
+  "dependencies": {
+    "get-canvas-context": "^1.0.1"
+  },
+  "devDependencies": {
+    "browserify": "^8.0.2",
+    "faucet": "0.0.1",
+    "smokestack": "^3.1.0",
+    "tape": "^3.0.3"
+  },
+  "scripts": {
+    "test": "npm run test-browser && npm run test-node",
+    "test-browser": "browserify test/test.js | smokestack | faucet",
+    "test-node": "node test/test-node.js | faucet"
+  },
+  "testling": {
+    "files": "test.js",
+    "browsers": [
+      "ie/6..latest",
+      "chrome/22..latest",
+      "firefox/16..latest",
+      "safari/latest",
+      "opera/11.0..latest",
+      "iphone/6",
+      "ipad/6",
+      "android-browser/latest"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mattdesl/webgl-context.git"
+  },
+  "homepage": "https://github.com/mattdesl/webgl-context",
+  "bugs": {
+    "url": "https://github.com/mattdesl/webgl-context/issues"
+  },
+  "keywords": [
+    "webgl",
+    "glsl",
+    "context",
+    "glcontext",
+    "gl",
+    "webglrenderingcontext",
+    "webglcontext"
+  ]
+}

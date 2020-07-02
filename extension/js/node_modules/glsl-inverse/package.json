@@ -1,0 +1,40 @@
+{
+  "name": "glsl-inverse",
+  "version": "1.0.0",
+  "description": "Invert a matrix in GLSL",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "gl-matrix-invert": "^1.0.0",
+    "a-big-triangle": "^1.0.0",
+    "beefy": "^2.1.1",
+    "glsl-frobenius": "^1.0.0",
+    "glslify": "^1.6.0"
+  },
+  "scripts": {
+    "test": "beefy example/example.js --open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/stackgl/glsl-inverse.git"
+  },
+  "keywords": [
+    "matrix",
+    "inverse",
+    "glsl",
+    "glslify"
+  ],
+  "author": "Mikola Lysenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stackgl/glsl-inverse/issues"
+  },
+  "browserify": {
+    "transform": "glslify"
+  },
+  "homepage": "https://github.com/stackgl/glsl-inverse"
+}

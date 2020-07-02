@@ -1,0 +1,19 @@
+sudo: false
+language: node_js
+
+node_js:
+  - 0.12
+  - 4.2.4
+  - 5.9.0
+
+before_install:
+  - make configure
+
+script:
+  - make test
+  - make lint
+  - make coveralls
+
+branches:
+  only:
+    - master

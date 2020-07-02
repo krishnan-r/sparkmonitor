@@ -1,0 +1,35 @@
+{
+  "name": "circumradius",
+  "version": "1.0.0",
+  "description": "Computes the circum radius of a simplex",
+  "main": "crad.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "circumcenter": "^1.0.0"
+  },
+  "devDependencies": {
+    "tape": "^3.5.0"
+  },
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mikolalysenko/circumradius.git"
+  },
+  "keywords": [
+    "circumradius",
+    "simplex",
+    "circumcenter",
+    "circumsphere",
+    "circum"
+  ],
+  "author": "Mikola Lysenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mikolalysenko/circumradius/issues"
+  },
+  "homepage": "https://github.com/mikolalysenko/circumradius"
+}

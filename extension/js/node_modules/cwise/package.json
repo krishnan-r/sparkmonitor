@@ -1,0 +1,62 @@
+{
+  "name": "cwise",
+  "version": "1.0.10",
+  "description": "Component-wise operations on ndarrays",
+  "main": "cwise.js",
+  "browser": "lib/cwise-esprima.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "cwise-parser": "^1.0.0",
+    "cwise-compiler": "^1.1.1",
+    "static-module": "^1.0.0",
+    "uglify-js": "^2.6.0"
+  },
+  "devDependencies": {
+    "ndarray": "^1.0.13",
+    "browserify": "^13.0.0",
+    "tape": "^4.0.0"
+  },
+  "scripts": {
+    "test": "tape test/*.js",
+    "pretest": "rm -f node_modules/cwise && ln -s .. node_modules/cwise"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/scijs/cwise.git"
+  },
+  "keywords": [
+    "scijs",
+    "ndarray",
+    "component",
+    "scientific",
+    "computing",
+    "volume",
+    "image",
+    "array",
+    "typed",
+    "array",
+    "scalar",
+    "math",
+    "linear",
+    "algebra",
+    "signal",
+    "operation",
+    "scan",
+    "map",
+    "reduce",
+    "cache",
+    "arithmetic"
+  ],
+  "author": "Mikola Lysenko",
+  "contributors": [
+    "Jasper van de Gronde <th.v.d.gronde@hccnet.nl>"
+  ],
+  "license": "MIT",
+  "gitHead": "1dd03e72f1b0fbec4186e497b3956d87aec6fc15",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/scijs/cwise/issues"
+  }
+}

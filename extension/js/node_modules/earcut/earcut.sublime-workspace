@@ -1,0 +1,1305 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"elim",
+				"eliminateHoles"
+			],
+			[
+				"num",
+				"numTriangles"
+			],
+			[
+				"polygon",
+				"polygonArea"
+			],
+			[
+				"tri",
+				"triangleArea"
+			],
+			[
+				"tria",
+				"triangles"
+			],
+			[
+				"poly",
+				"polygonArea"
+			],
+			[
+				"pol",
+				"polygonArea"
+			],
+			[
+				"hole",
+				"holeIndices"
+			],
+			[
+				"outer",
+				"outerLen"
+			],
+			[
+				"local",
+				"locallyReflex"
+			],
+			[
+				"ring",
+				"ringArea"
+			],
+			[
+				"out",
+				"outerArea"
+			],
+			[
+				"fo",
+				"for	for (…) {…}"
+			],
+			[
+				"for",
+				"for	for (…) {…}"
+			],
+			[
+				"f",
+				"f	Anonymous Function"
+			],
+			[
+				"clo",
+				"clockwise"
+			],
+			[
+				"linke",
+				"linkedList"
+			],
+			[
+				"sign",
+				"signedArea"
+			],
+			[
+				"e",
+				"equals"
+			],
+			[
+				"equal",
+				"equals"
+			],
+			[
+				"filter",
+				"filterPoints"
+			],
+			[
+				"bri",
+				"bridgeNode"
+			],
+			[
+				"filterP",
+				"filterPoint"
+			],
+			[
+				"ver",
+				"verifyFilter"
+			],
+			[
+				"filetr",
+				"filterPoint"
+			],
+			[
+				"locall",
+				"locallyInside"
+			],
+			[
+				"loca",
+				"locallyInside"
+			],
+			[
+				"eq",
+				"equals"
+			],
+			[
+				"point",
+				"pointInTriangle2"
+			],
+			[
+				"prev",
+				"prevZ"
+			],
+			[
+				"remove",
+				"removeNode"
+			],
+			[
+				"maxT",
+				"maxTX"
+			],
+			[
+				"min",
+				"minTX"
+			],
+			[
+				"or",
+				"orient"
+			],
+			[
+				"left",
+				"leftmost"
+			],
+			[
+				"draw",
+				"drawRing"
+			],
+			[
+				"_upda",
+				"_updateTransform"
+			],
+			[
+				"_remove",
+				"_removeAllTiles"
+			],
+			[
+				"_reset",
+				"_resetAll"
+			],
+			[
+				"_update",
+				"_updateTransform"
+			],
+			[
+				"pane",
+				"panePos"
+			],
+			[
+				"fun",
+				"function"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "src/earcut.js",
+			"settings":
+			{
+				"buffer_size": 18282,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "test/fixtures/issue52.json",
+			"settings":
+			{
+				"buffer_size": 1228,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "test/test.js",
+			"settings":
+			{
+				"buffer_size": 2240,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "package.json",
+			"settings":
+			{
+				"buffer_size": 1301,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "viz/viz.js",
+			"settings":
+			{
+				"buffer_size": 32656,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourner/Library/Application Support/Sublime Text 3/Packages/Theme - Otto/Otto Yesterday.sublime-theme",
+			"settings":
+			{
+				"buffer_size": 119157,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourner/Library/Application Support/Sublime Text 3/Packages/Theme - Otto/schemes/Otto Yesterday.YAML-tmTheme",
+			"settings":
+			{
+				"buffer_size": 4204,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourner/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+			"settings":
+			{
+				"buffer_size": 1219,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourner/Library/Application Support/Sublime Text 3/Packages/Themes/Serenity.tmTheme",
+			"settings":
+			{
+				"buffer_size": 10977,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n    <key>comment</key>\n    <string>By Mourner http://agafonkin.com, based on Tomorrow by http://chriskempson.com</string>\n    <key>name</key>\n    <string>Serenity</string>\n    <key>settings</key>\n    <array>\n        <dict>\n            <key>settings</key>\n            <dict>\n                <key>background</key>\n                <string>#FFFFFF</string>\n                <key>caret</key>\n                <string>#AEAFAD</string>\n                <key>foreground</key>\n                <string>#333</string>\n                <key>invisibles</key>\n                <string>#D1D1D1</string>\n                <key>lineHighlight</key>\n                <string>#EFEFEF</string>\n                <key>selection</key>\n                <string>#D6D6D6</string>\n            </dict>\n        </dict>\n        <dict>\n            <key>name</key>\n            <string>Comment</string>\n            <key>scope</key>\n            <string>comment</string>\n            <key>settings</key>\n            <dict>\n                <key>foreground</key>\n                <string>#A3A6A1</string>\n            </dict>\n        </dict>\n        <dict>\n            <key>name</key>\n            <string>Foreground</string>\n            <key>scope</key>\n            <string>keyword.operator.class, constant.other, source.php.embedded.line</string>\n            <key>settings</key>\n            <dict>\n                <key>fontStyle</key>\n                <string></string>\n                <key>foreground</key>\n                <string>#666969</string>\n            </dict>\n        </dict>\n        <dict>\n            <key>name</key>\n            <string>Variable, String Link, Regular Expression, Tag Name</string>\n            <key>scope</key>\n            <string>variable.language, support.other.variable, string.other.link, string.regexp, entity.name.tag, entity.other.attribute-name, meta.tag, declaration.tag</string>\n            <key>settings</key>\n            <dict>\n                <key>foreground</key>\n                <string>#028097</string>\n            </dict>\n        </dict>\n        <dict>\n            <key>name</key>\n            <string>Number, Constant, Function Argument, Tag Attribute, Embedded</string>\n            <key>scope</key>\n            <string>constant.numeric, constant.language, support.constant, constant.character, punctuation.section.embedded, keyword.other.unit</string>\n            <key>settings</key>\n            <dict>\n                <key>fontStyle</key>\n                <string></string>\n                <key>foreground</key>\n                <string>#00A707</string>\n            </dict>\n        </dict>\n        <dict>\n            <key>name</key>\n            <string>Class, Support</string>\n            <key>scope</key>\n            <string>entity.name.class, entity.name.type.class, support.type, support.class</string>\n            <key>settings</key>\n            <dict>\n                <key>fontStyle</key>\n                <string></string>\n                <key>foreground</key>\n                <string>#AA8400</string>\n            </dict>\n        </dict>\n        <dict>\n            <key>name</key>\n            <string>String, Symbols, Inherited Class, Markup Heading</string>\n            <key>scope</key>\n            <string>string, constant.other.symbol, entity.other.inherited-class, markup.heading</string>\n            <key>settings</key>\n            <dict>\n                <key>fontStyle</key>\n                <string></string>\n                <key>foreground</key>\n                <string>#de314b</string>\n            </dict>\n        </dict>\n        <dict>\n            <key>name</key>\n            <string>Operator, Misc</string>\n            <key>scope</key>\n            <string>keyword.operator, constant.other.color</string>\n            <key>settings</key>\n            <dict>\n                <key>foreground</key>\n                <string>#3E999F</string>\n            </dict>\n        </dict>\n        <dict>\n            <key>name</key>\n            <string>Function, Special Method, Block Level</string>\n            <key>scope</key>\n            <string>entity.name.function, meta.function-call, support.function, keyword.other.special-method, meta.block-level</string>\n            <key>settings</key>\n            <dict>\n                <key>fontStyle</key>\n                <string></string>\n                <key>foreground</key>\n                <string>#000</string>\n            </dict>\n        </dict>\n        <dict>\n            <key>name</key>\n            <string>Keyword, Storage</string>\n            <key>scope</key>\n            <string>keyword, storage, storage.type</string>\n            <key>settings</key>\n            <dict>\n                <key>fontStyle</key>\n                <string></string>\n                <key>foreground</key>\n                <string>#028097</string>\n            </dict>\n        </dict>\n        <dict>\n            <key>name</key>\n            <string>Invalid</string>\n            <key>scope</key>\n            <string>invalid</string>\n            <key>settings</key>\n            <dict>\n                <key>background</key>\n                <string>#C82829</string>\n                <key>fontStyle</key>\n                <string></string>\n                <key>foreground</key>\n                <string>#FFFFFF</string>\n            </dict>\n        </dict>\n        <dict>\n            <key>name</key>\n            <string>Separator</string>\n            <key>scope</key>\n            <string>meta.separator</string>\n            <key>settings</key>\n            <dict>\n                <key>background</key>\n                <string>#eee</string>\n            </dict>\n        </dict>\n        <dict>\n            <key>name</key>\n            <string>Deprecated</string>\n            <key>scope</key>\n            <string>invalid.deprecated</string>\n            <key>settings</key>\n            <dict>\n                <key>background</key>\n                <string>#8959A8</string>\n                <key>fontStyle</key>\n                <string></string>\n                <key>foreground</key>\n                <string>#FFFFFF</string>\n            </dict>\n        </dict>\n        <dict>\n            <key>name</key>\n            <string>Diff foreground</string>\n            <key>scope</key>\n            <string>markup.inserted.diff, markup.deleted.diff, meta.diff.header.to-file, meta.diff.header.from-file</string>\n            <key>settings</key>\n            <dict>\n                <key>foreground</key>\n                <string>#000</string>\n            </dict>\n        </dict>\n        <dict>\n            <key>name</key>\n            <string>Diff insertion</string>\n            <key>scope</key>\n            <string>markup.inserted.diff, meta.diff.header.to-file</string>\n            <key>settings</key>\n            <dict>\n                <key>background</key>\n                <string>#dfd</string>\n            </dict>\n        </dict>\n        <dict>\n            <key>name</key>\n            <string>Diff deletion</string>\n            <key>scope</key>\n            <string>markup.deleted.diff, meta.diff.header.from-file</string>\n            <key>settings</key>\n            <dict>\n                <key>background</key>\n                <string>#fdd</string>\n            </dict>\n        </dict>\n        <dict>\n            <key>name</key>\n            <string>Diff header</string>\n            <key>scope</key>\n            <string>meta.diff.header.from-file, meta.diff.header.to-file</string>\n            <key>settings</key>\n            <dict>\n                <key>foreground</key>\n                <string>#999</string>\n                <key>background</key>\n                <string>#EAF2F5</string>\n            </dict>\n        </dict>\n        <dict>\n            <key>name</key>\n            <string>Diff range</string>\n            <key>scope</key>\n            <string>meta.diff.range</string>\n            <key>settings</key>\n            <dict>\n                <key>fontStyle</key>\n                <string>italic</string>\n                <key>foreground</key>\n                <string>#3e999f</string>\n                <key>background</key>\n                <string>#EAF2F5</string>\n            </dict>\n        </dict>\n    </array>\n    <key>uuid</key>\n    <string>82CCD69C-F1B1-4529-B39E-780F91F07604</string>\n</dict>\n</plist>\n",
+			"settings":
+			{
+				"buffer_size": 8367,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourner/Downloads/Serenity2.tmTheme",
+			"settings":
+			{
+				"buffer_size": 13027,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "test/fixtures/touching-holes.json",
+			"settings":
+			{
+				"buffer_size": 702,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 356.0,
+		"last_filter": "open",
+		"selected_items":
+		[
+			[
+				"open",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"open re",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"preview",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"brow",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"vi",
+				"View In Browser"
+			],
+			[
+				"view",
+				"View In Browser"
+			],
+			[
+				"git",
+				"Package Control: Install Package"
+			],
+			[
+				"ope",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"disabl",
+				"Package Control: Disable Package"
+			],
+			[
+				"resou",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"yaml",
+				"Set Syntax: YAML"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"choose",
+				"SublimeLinter: Choose Lint Mode"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"spa",
+				"Indentation: Convert to Spaces"
+			],
+			[
+				"java",
+				"Set Syntax: JavaScript"
+			],
+			[
+				"install ",
+				"Package Control: Install Package"
+			],
+			[
+				"packa",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 431.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = 'eb2297e1a458f27d836c04bb0cbaf282' + 'd0e7a3098092775ccb37ca9d6b2e4b7d'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/mourner/projects/earcut",
+		"/Users/mourner/projects/earcut/bench",
+		"/Users/mourner/projects/earcut/dist",
+		"/Users/mourner/projects/earcut/src",
+		"/Users/mourner/projects/earcut/test",
+		"/Users/mourner/projects/earcut/test/fixtures",
+		"/Users/mourner/projects/earcut/viz"
+	],
+	"file_history":
+	[
+		"/Users/mourner/projects/earcut/test/test.js",
+		"/Users/mourner/projects/earcut/test/fixtures/eberly-6.json",
+		"/Users/mourner/projects/earcut/test/fixtures/hole-touching-outer.json",
+		"/Users/mourner/Library/Application Support/Sublime Text 3/Packages/3024 Color Scheme/3024 Day.tmTheme",
+		"/Users/mourner/projects/earcut/package.json",
+		"/Users/mourner/projects/earcut/viz/index.html",
+		"/Users/mourner/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/Users/mourner/Library/Application Support/Sublime Text 3/Packages/Theme - Otto/Otto Yesterday.sublime-theme",
+		"/Users/mourner/Library/Application Support/Sublime Text 3/Packages/Theme - Otto/schemes/Otto Yesterday.tmTheme",
+		"/Users/mourner/projects/earcut/README.md",
+		"/Users/mourner/Library/Application Support/Sublime Text 3/Packages/Theme - Otto/schemes/Otto Yesterday.YAML-tmTheme",
+		"/Users/mourner/Library/Application Support/Sublime Text 3/Packages/User/View In Browser.sublime-settings",
+		"/Users/mourner/Library/Application Support/Sublime Text 3/Packages/JavaScript/JavaScript.sublime-syntax",
+		"/Users/mourner/projects/earcut/.npmignore",
+		"/Users/mourner/Library/Application Support/Sublime Text 3/Packages/User/SublimeLinter.sublime-settings",
+		"/Users/mourner/Library/Application Support/Sublime Text 3/Packages/User/SublimeLinter/Otto Yesterday (SL).tmTheme",
+		"/Users/mourner/Library/Application Support/Sublime Text 3/Packages/User/SublimeLinter/Serenity (SL).tmTheme",
+		"/Users/mourner/projects/earcut/bench/basic.js",
+		"/Users/mourner/projects/earcut/bench/bench.js",
+		"/Users/mourner/Library/Application Support/Sublime Text 3/Packages/Theme - El Capitan/El Capitan.sublime-theme",
+		"/Users/mourner/Library/Application Support/Sublime Text 3/Packages/Theme - El Capitan/icons/file_type_default.png",
+		"/Users/mourner/Library/Application Support/Sublime Text 3/Installed Packages/Theme - El Capitan.sublime-package",
+		"/Users/mourner/projects/earcut/viz/viz.js",
+		"/Users/mourner/projects/earcut/viz/vector-tile.js",
+		"/Users/mourner/projects/earcut/test/fixtures/reduce-testcase.js",
+		"/Users/mourner/projects/earcut/test/fixtures/hilbert.json",
+		"/Users/mourner/projects/earcut/src/earcut.js",
+		"/Users/mourner/projects/earcut/perf.log",
+		"/Users/mourner/projects/earcut/master2.log",
+		"/Users/mourner/projects/earcut/master.log",
+		"/usr/local/lib/node_modules/mapbox-cli/mapbox.sh",
+		"/Users/mourner/projects/earcut/test/fixtures/issue35.json",
+		"/Users/mourner/projects/earcut/test/fixtures/issue34.json",
+		"/Users/mourner/projects/earcut/test/fixtures/dude.json",
+		"/Users/mourner/projects/earcut/test/fixtures/empty-square.json",
+		"/Users/mourner/projects/earcut/test/fixtures/issue29.json",
+		"/Users/mourner/projects/earcut/.travis.yml",
+		"/Users/mourner/projects/earcut/.eslintrc",
+		"/Users/mourner/projects/geojson-vt/debug/debug.js",
+		"/Users/mourner/projects/geojson-vt/src/simplify.js",
+		"/Users/mourner/projects/geojson-vt/src/transform.js",
+		"/Users/mourner/projects/geojson-vt/debug/index.html",
+		"/Users/mourner/projects/geojson-vt/LICENSE",
+		"/Users/mourner/projects/geojson-vt/package.json",
+		"/Users/mourner/Library/Application Support/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
+		"/Users/mourner/projects/Leaflet/CHANGELOG.md",
+		"/usr/local/Library/Formula/node.rb",
+		"/Users/mourner/projects/Leaflet/package.json",
+		"/Users/mourner/projects/Leaflet/src/layer/tile/GridLayer.js",
+		"/Users/mourner/projects/Leaflet/Leaflet.sublime-project",
+		"/Users/mourner/projects/Leaflet/.eslintrc",
+		"/Users/mourner/projects/Leaflet/src/layer/marker/Icon.js",
+		"/Users/mourner/.inputrc",
+		"/Users/mourner/.bash_profile",
+		"/Users/mourner/.gitignore"
+	],
+	"find":
+	{
+		"height": 48.0
+	},
+	"find_in_files":
+	{
+		"height": 128.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"steiner",
+			"data",
+			"linkedList",
+			"removenode",
+			"collinear",
+			"filterpoints",
+			"filterPoints",
+			"247",
+			"238",
+			"247",
+			"24",
+			"247",
+			"238",
+			"back",
+			"hasHoles",
+			"border",
+			"238",
+			"border",
+			"tab_",
+			"tab",
+			"property",
+			"function",
+			"link url",
+			"this",
+			"itali",
+			"class",
+			"ita",
+			".string.begin",
+			" -meta.structure.dictionary.value.json",
+			"meta.function-call",
+			"call",
+			"function",
+			"metho",
+			"function",
+			"support.function",
+			"function",
+			"name",
+			"property",
+			"tag",
+			"class",
+			"brace",
+			"defini",
+			"call",
+			"meta",
+			"punctuation",
+			"Functions",
+			"constan",
+			"vari",
+			"keyword",
+			"variable",
+			"string",
+			"function",
+			"support",
+			"variable",
+			"Keyword",
+			"file-",
+			"default",
+			"variable",
+			"hex",
+			"<%= @base[\"08\"][\"hex\"] %>",
+			"<%= @base[\"0E\"][\"hex\"] %>",
+			"keyword",
+			"#<%= @base[\"04\"][\"hex\"] %>",
+			"#<%= @base[\"06\"][\"hex\"] %>",
+			"#<%= @base[\"02\"][\"hex\"] %>",
+			"#<%= @base[\"07\"][\"hex\"] %>",
+			"gutter",
+			"punctuation",
+			"string",
+			"punctuation",
+			"deco",
+			"clo",
+			"string.",
+			"string",
+			"variable.parameter",
+			"paramete",
+			"keyword",
+			"quo",
+			"quote",
+			"comment",
+			"string",
+			"comment",
+			"comments",
+			"indices.length / 3",
+			"indices",
+			"dim",
+			"holes",
+			"vertices",
+			"numDimensions",
+			"holeIndices",
+			"coords",
+			"dim",
+			"sum",
+			" / 2",
+			"signedArea",
+			"triangleArea",
+			"ringArea",
+			"holeIndices",
+			"a",
+			"b[1]",
+			"a[1]",
+			"data[i]",
+			"a[1]",
+			"a[0]",
+			"eliminateHoles",
+			"outerNode",
+			"next",
+			"prev",
+			"locallyInside",
+			"a",
+			"a.next",
+			"a.prev",
+			"locallyInside",
+			"findHoleBridge",
+			"[[",
+			"earcutLinked",
+			"splitEarcut",
+			"[[",
+			"rings",
+			"Rings",
+			"rings",
+			"i",
+			"'2'",
+			"console.log",
+			" * ratio",
+			"dim",
+			"geometry",
+			"ctx."
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			",",
+			"],[",
+			"]",
+			"[",
+			"]",
+			"["
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "src/earcut.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 18282,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "test/fixtures/issue52.json",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1228,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1228,
+								1228
+							]
+						],
+						"settings":
+						{
+							"open_with_edit": true,
+							"syntax": "Packages/JavaScript/JSON.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "test/test.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2240,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								557,
+								557
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "package.json",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1301,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								866,
+								866
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JSON.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "viz/viz.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 32656,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1681,
+								1681
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "/Users/mourner/Library/Application Support/Sublime Text 3/Packages/Theme - Otto/Otto Yesterday.sublime-theme",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 119157,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								118885,
+								118885
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JSON.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 88894.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "/Users/mourner/Library/Application Support/Sublime Text 3/Packages/Theme - Otto/schemes/Otto Yesterday.YAML-tmTheme",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4204,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2701,
+								2718
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1329.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "/Users/mourner/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1219,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								945,
+								945
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JSON.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 415.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 11,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "/Users/mourner/Library/Application Support/Sublime Text 3/Packages/Themes/Serenity.tmTheme",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10977,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5513,
+								5513
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/XML/XML.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 3444.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8367,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1126,
+								1126
+							]
+						],
+						"settings":
+						{
+							"default_dir": "/Users/mourner/projects/earcut",
+							"syntax": "Packages/XML/XML.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 406.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 10,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "/Users/mourner/Downloads/Serenity2.tmTheme",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 13027,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								258,
+								260
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/XML/XML.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "test/fixtures/touching-holes.json",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 702,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"open_with_edit": true,
+							"syntax": "Packages/JavaScript/JSON.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 24.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "earcut.sublime-project",
+	"replace":
+	{
+		"height": 44.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"viz",
+				"viz/viz.js"
+			],
+			[
+				"pre",
+				"~/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings"
+			],
+			[
+				"otto",
+				"~/Library/Application Support/Sublime Text 3/Packages/Theme - Otto/schemes/Otto Yesterday.tmTheme"
+			],
+			[
+				"rea",
+				"README.md"
+			],
+			[
+				"sere",
+				"~/Library/Application Support/Sublime Text 3/Packages/Themes/Serenity.tmTheme"
+			],
+			[
+				"in",
+				"viz/index.html"
+			],
+			[
+				"pac",
+				"package.json"
+			],
+			[
+				"pack",
+				"package.json"
+			],
+			[
+				"pa",
+				"package.json"
+			],
+			[
+				"redu",
+				"test/fixtures/reduce-testcase.js"
+			],
+			[
+				"ear",
+				"src/earcut.js"
+			],
+			[
+				"inde",
+				"viz/index.html"
+			],
+			[
+				"read",
+				"README.md"
+			],
+			[
+				"vi",
+				"viz/viz.js"
+			],
+			[
+				"bas",
+				"bench/basic.js"
+			],
+			[
+				"basi",
+				"bench/basic.js"
+			],
+			[
+				"per",
+				"perf.log"
+			],
+			[
+				"ben",
+				"bench/bench.js"
+			],
+			[
+				"tet",
+				"test/test.js"
+			],
+			[
+				"test",
+				"test/test.js"
+			],
+			[
+				"du",
+				"test/fixtures/dude.json"
+			],
+			[
+				"ind",
+				"viz/index.html"
+			],
+			[
+				"popu",
+				"src/layer/Popup.js"
+			],
+			[
+				"rend",
+				"src/layer/vector/Renderer.js"
+			],
+			[
+				"image",
+				"src/layer/ImageOverlay.js"
+			],
+			[
+				"path",
+				"src/layer/vector/Path.js"
+			],
+			[
+				"render",
+				"src/layer/vector/Renderer.js"
+			],
+			[
+				"marker",
+				"src/layer/marker/Marker.js"
+			],
+			[
+				"fl",
+				"src/map/anim/Map.FlyTo.js"
+			],
+			[
+				"grid",
+				"src/layer/tile/GridLayer.js"
+			],
+			[
+				"map",
+				"src/map/Map.js"
+			],
+			[
+				"polyli",
+				"src/layer/vector/Polyline.js"
+			],
+			[
+				"mapsp",
+				"spec/suites/map/MapSpec.js"
+			],
+			[
+				"popup",
+				"src/layer/Popup.js"
+			],
+			[
+				"crs",
+				"src/geo/crs/CRS.js"
+			],
+			[
+				"touch",
+				"src/map/handler/Map.TouchZoom.js"
+			],
+			[
+				"poly",
+				"src/layer/vector/Polyline.js"
+			],
+			[
+				"leafl",
+				"dist/leaflet.css"
+			],
+			[
+				"zoompa",
+				"debug/map/zoompan.html"
+			],
+			[
+				"map.dra",
+				"src/map/handler/Map.Drag.js"
+			],
+			[
+				"chan",
+				"CHANGELOG.md"
+			],
+			[
+				"domut",
+				"src/dom/DomUtil.js"
+			],
+			[
+				"scroll",
+				"src/map/handler/Map.ScrollWheelZoom.js"
+			],
+			[
+				"leaf",
+				"dist/leaflet.css"
+			],
+			[
+				"dom",
+				"src/dom/DomUtil.js"
+			],
+			[
+				"sv",
+				"src/layer/vector/SVG.js"
+			],
+			[
+				"re",
+				"src/layer/vector/Renderer.js"
+			],
+			[
+				"ren",
+				"src/layer/vector/Renderer.js"
+			],
+			[
+				"svg",
+				"src/layer/vector/SVG.js"
+			],
+			[
+				"even",
+				"src/core/Events.js"
+			],
+			[
+				"iamge",
+				"src/layer/ImageOverlay.js"
+			],
+			[
+				"icon",
+				"src/layer/marker/Icon.js"
+			],
+			[
+				"drag",
+				"src/map/handler/Map.Drag.js"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "rb",
+		"selected_items":
+		[
+			[
+				"rb",
+				"~/projects/rbush/rbush.sublime-project"
+			],
+			[
+				"lea",
+				"~/projects/Leaflet/Leaflet.sublime-project"
+			],
+			[
+				"ma",
+				"~/projects/mapbox-gl-js/mapbox-gl-js.sublime-project"
+			],
+			[
+				"gl",
+				"~/projects/mapbox-gl-js/mapbox-gl-js.sublime-project"
+			],
+			[
+				"le",
+				"~/projects/Leaflet/Leaflet.sublime-project"
+			],
+			[
+				"",
+				"~/projects/rbush/rbush.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 249.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

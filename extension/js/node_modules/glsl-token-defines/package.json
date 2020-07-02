@@ -1,0 +1,33 @@
+{
+  "name": "glsl-token-defines",
+  "version": "1.0.0",
+  "description": "Retrieve the values defined with preprocessor statements in a selection of GLSL tokens",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "test": "node test | tap-spec"
+  },
+  "author": {
+    "name": "Hugh Kennedy",
+    "email": "hughskennedy@gmail.com",
+    "url": "http://hughsk.io/"
+  },
+  "dependencies": {
+    "glsl-tokenizer": "^2.0.0"
+  },
+  "devDependencies": {
+    "tap-spec": "^2.2.1",
+    "tape": "^3.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/stackgl/glsl-token-defines.git"
+  },
+  "keywords": [
+    "ecosystem:stackgl"
+  ],
+  "homepage": "https://github.com/stackgl/glsl-token-defines",
+  "bugs": {
+    "url": "https://github.com/stackgl/glsl-token-defines/issues"
+  }
+}

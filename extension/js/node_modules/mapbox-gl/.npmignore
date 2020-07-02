@@ -1,0 +1,8 @@
+.mason
+_site
+bench
+coverage
+debug
+docs
+test
+.nyc_output

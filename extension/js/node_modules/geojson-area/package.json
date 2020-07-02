@@ -1,0 +1,26 @@
+{
+  "name": "geojson-area",
+  "version": "0.1.0",
+  "description": "calculate the physical area of a geojson geometry",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:mapbox/geojson-area.git"
+  },
+  "scripts": {
+    "test": "mocha -R spec"
+  },
+  "keywords": [
+    "geojson",
+    "area",
+    "geodesy"
+  ],
+  "author": "Tom MacWright",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "wgs84": "0.0.0"
+  }
+}

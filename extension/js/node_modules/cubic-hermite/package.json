@@ -1,0 +1,37 @@
+{
+  "name": "cubic-hermite",
+  "version": "1.0.0",
+  "description": "Cubic hermite interpolation",
+  "main": "hermite.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "tape": "^2.12.3"
+  },
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mikolalysenko/cubic-hermite.git"
+  },
+  "keywords": [
+    "spline",
+    "position",
+    "velocity",
+    "interpolation",
+    "point",
+    "particle",
+    "game",
+    "physics",
+    "numerical",
+    "method",
+    "math"
+  ],
+  "author": "Mikola Lysenko",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "gitHead": "d971c7ff8f94b260fc96da41c4497fa87d3a07b4"
+}

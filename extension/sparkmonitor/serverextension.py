@@ -16,8 +16,10 @@ import os
 from bs4 import BeautifulSoup
 import asyncio
 
-proxy_root = "/sparkmonitor"
+proxy_root_base = "/sparkmonitor/"
+proxy_root = "/sparkmonitor/"
 
+PORT_PARSE = re.compile(r'[0-9]{4}')
 
 class SparkMonitorHandler(IPythonHandler):
     """A custom tornado request handler to proxy Spark Web UI requests."""
@@ -28,20 +30,41 @@ class SparkMonitorHandler(IPythonHandler):
 
         Fetches the Spark Web UI from the configured ports
         """
+        # global proxy_root
+        print("SPARKMONITOR_SERVER: Handler GET 4040")
         # print("SPARKMONITOR_SERVER: Handler GET")
         baseurl = os.environ.get("SPARKMONITOR_UI_HOST", "127.0.0.1")
-        port = os.environ.get("SPARKMONITOR_UI_PORT", "4040")
+
+        # Get the URL and grab the port
+        port_match = PORT_PARSE.findall(self.request.uri)
+        port = '4040' if not port_match else port_match[0]
+
+        # proxy_root = proxy_root_base + port
+
+        proxy_root_path = proxy_root_base[:-1]
+        
         url = "http://" + baseurl + ":" + port
-        # print("SPARKMONITOR_SERVER: Request URI" + self.request.uri)
-        # print("SPARKMONITOR_SERVER: Getting from " + url)
+        print("SPARKMONITOR_SERVER: Request URI: " + self.request.uri)
+        print("SPARKMONITOR_SERVER: Getting from " + url)
+        
+
         request_path = self.request.uri[(
-            self.request.uri.index(proxy_root) + len(proxy_root) + 1):]
+            self.request.uri.index(proxy_root_path) + len(proxy_root_path)):]
+
+        # Remove the /port (ie /4040, /4041 etc) from the request path because this is the path to the static js
+        request_path = request_path.replace(f'/{port}', '')
+        
         self.replace_path = self.request.uri[:self.request.uri.index(
-            proxy_root) + len(proxy_root)]
-        # print("SPARKMONITOR_SERVER: Request_path " + request_path + " \n Replace_path:" + self.replace_path)
+            proxy_root_path) + len(proxy_root_path)] + '/' + port
+        
+        print("SPARKMONITOR_SERVER: Request_path " + request_path + " \n Replace_path:" + self.replace_path)
         backendurl = url_path_join(url, request_path)
         self.debug_url = url
         self.backendurl = backendurl
+
+        print('SPARKMONITOR_SERVER: backend_url: ' + self.backendurl)
+        print('SPARKMONITOR_SERVER: debug_url: ' + self.debug_url)
+
         http = httpclient.AsyncHTTPClient()
         try:
             response = await http.fetch(backendurl)
@@ -85,6 +108,10 @@ def load_jupyter_server_extension(nb_server_app):
     host_pattern = ".*$"
     route_pattern = url_path_join(web_app.settings["base_url"], proxy_root + ".*")
     web_app.add_handlers(host_pattern, [(route_pattern, SparkMonitorHandler)])
+    print('ready')
+    # print('SPARKMONITOR: Starting second handler ')
+    # route_pattern2 = url_path_join(web_app.settings["base_url"], proxy_root2 + ".*")
+    # web_app.add_handlers(host_pattern, [(route_pattern, SparkMonitorHandler2)])
 
 
 try:

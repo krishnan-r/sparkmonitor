@@ -1,0 +1,33 @@
+{
+  "name": "glsl-resolve",
+  "description": "A wrapper for the \"resolve\" module that targets GLSL shaders instead of JavaScript",
+  "version": "0.0.1",
+  "main": "index.js",
+  "dependencies": {
+    "resolve": "^0.6.1",
+    "xtend": "^2.1.2"
+  },
+  "devDependencies": {
+    "tape": "^2.10.2",
+    "faucet": "^0.0.1"
+  },
+  "scripts": {
+    "test": "node test | faucet"
+  },
+  "author": "Hugh Kennedy <hughskennedy@gmail.com> (http://hughsk.io/)",
+  "license": "MIT",
+  "homepage": "http://hughsk.github.io/glsl-resolve",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hughsk/glsl-resolve"
+  },
+  "bugs": {
+    "url": "https://github.com/hughsk/glsl-resolve/issues"
+  },
+  "keywords": [
+    "glsl",
+    "resolve",
+    "shader",
+    "modules"
+  ]
+}

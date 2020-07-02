@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+var fs = require("fs");
+
+var readStream = fs.createReadStream(process.argv[2] || "/dev/stdin", "utf8"),
+    writeStream = fs.createWriteStream(process.argv[3] || "/dev/stdout", "utf8");
+
+readStream.pipe(writeStream);

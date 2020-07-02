@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+var rw = require("../");
+
+var writer = rw.fileWriter(process.argv[2] || "/dev/stdout");
+
+writer.write("hello\n");
+writer.end();

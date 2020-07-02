@@ -1,0 +1,41 @@
+{
+  "name": "mouse-change",
+  "version": "1.4.0",
+  "description": "Mouse state change listener",
+  "main": "mouse-listen.js",
+  "directories": {
+    "example": "example"
+  },
+  "dependencies": {
+    "mouse-event": "^1.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mikolalysenko/mouse-change.git"
+  },
+  "keywords": [
+    "mouse",
+    "state",
+    "listen",
+    "change",
+    "button",
+    "click",
+    "hold",
+    "up",
+    "down",
+    "over",
+    "polyfill",
+    "bug",
+    "fix"
+  ],
+  "author": "Mikola Lysenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mikolalysenko/mouse-change/issues"
+  },
+  "homepage": "https://github.com/mikolalysenko/mouse-change"
+}

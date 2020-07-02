@@ -1,0 +1,48 @@
+{
+  "name": "unassert",
+  "description": "Encourages programming with assertions by providing tools to compile them away",
+  "version": "1.5.1",
+  "author": {
+    "name": "Takuto Wada",
+    "email": "takuto.wada@gmail.com",
+    "url": "https://github.com/twada"
+  },
+  "bugs": "https://github.com/unassert-js/unassert/issues",
+  "dependencies": {
+    "acorn": "^4.0.0",
+    "call-matcher": "^1.0.1",
+    "deep-equal": "^1.0.0",
+    "espurify": "^1.3.0",
+    "estraverse": "^4.1.0",
+    "esutils": "^2.0.2",
+    "object-assign": "^4.1.0"
+  },
+  "devDependencies": {
+    "escodegen": "^1.7.0",
+    "mocha": "^2.3.3"
+  },
+  "files": [
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "index.js",
+    "lib",
+    "package.json"
+  ],
+  "homepage": "https://github.com/unassert-js/unassert",
+  "keywords": [
+    "DbC",
+    "unassert",
+    "assert",
+    "assertion"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unassert-js/unassert.git"
+  },
+  "scripts": {
+    "test": "mocha"
+  }
+}

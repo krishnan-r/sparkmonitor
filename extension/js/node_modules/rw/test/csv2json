@@ -1,0 +1,26 @@
+#!/usr/bin/env node
+
+var os = require("os"),
+    rw = require("../");
+
+var reader = rw.fileReader(process.argv[2] || "/dev/stdin"),
+    writer = rw.fileWriter(process.argv[3] || "/dev/stdout"),
+    parser = rw.dsvParser();
+
+reader.fill(function flow(error) {
+  if (error) throw error;
+  var data = reader.read(),
+      row;
+
+  if (data) parser.push(data);
+
+  while ((row = parser.pop(reader.ended)) != null) {
+    if (!writer.write(JSON.stringify(row) + os.EOL)) {
+      return writer.drain(flow);
+    }
+  }
+
+  if (reader.ended) return writer.end();
+
+  reader.fill(flow);
+});

@@ -1,0 +1,38 @@
+{
+  "name": "gl-matrix-invert",
+  "version": "1.0.0",
+  "description": "Inverts a matrix in gl-matrix format of any dimension",
+  "main": "invert.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "gl-mat2": "^1.0.0",
+    "gl-mat3": "^1.0.0",
+    "gl-mat4": "^1.0.0"
+  },
+  "devDependencies": {
+    "tape": "^3.0.0"
+  },
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mikolalysenko/gl-matrix-invert.git"
+  },
+  "keywords": [
+    "gl-matrix",
+    "invert",
+    "inversion",
+    "inverse",
+    "linear",
+    "algebra"
+  ],
+  "author": "Mikola Lysenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mikolalysenko/gl-matrix-invert/issues"
+  },
+  "homepage": "https://github.com/mikolalysenko/gl-matrix-invert"
+}

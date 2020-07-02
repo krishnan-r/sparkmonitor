@@ -1,0 +1,29 @@
+{
+  "name": "propagating-hammerjs",
+  "version": "1.4.6",
+  "description": "Extend hammer.js with event propagation",
+  "main": "propagating.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/josdejong/propagating-hammerjs.git"
+  },
+  "keywords": [
+    "hammerjs",
+    "touch",
+    "gestures",
+    "event",
+    "propagation"
+  ],
+  "author": "Jos de Jong",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/josdejong/propagating-hammerjs/issues"
+  },
+  "homepage": "https://github.com/josdejong/propagating-hammerjs",
+  "dependencies": {
+    "hammerjs": "^2.0.6"
+  }
+}

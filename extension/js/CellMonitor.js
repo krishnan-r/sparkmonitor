@@ -94,7 +94,10 @@ CellMonitor.prototype.createDisplay = function () {
         if (this.cellcompleted) element.find('.stopbutton').hide();
         element.find('.closebutton').click(function () { that.removeDisplay(); });
 
-        element.find('.sparkuitabbutton').click(function () { that.openSparkUI(''); });
+        element.find('.sparkuitabbutton').click(function () { 
+            var port = prompt("Which Spark port?", "4040");
+            that.openSparkUI(port + '/'); 
+        });
         element.find('.titlecollapse').click(function () {
             if (that.view != "hidden") {
                 that.lastview = that.view;

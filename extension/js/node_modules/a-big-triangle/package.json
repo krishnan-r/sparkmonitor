@@ -1,0 +1,37 @@
+{
+  "name": "a-big-triangle",
+  "version": "1.0.3",
+  "description": "Draws a big triangle",
+  "main": "triangle.js",
+  "directories": {
+    "example": "example"
+  },
+  "dependencies": {
+    "gl-vao": "^1.2.0",
+    "gl-buffer": "^2.1.1",
+    "weak-map": "^1.0.5"
+  },
+  "devDependencies": {
+    "gl-now": "~0.0.4",
+    "gl-shader": "~0.0.6"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mikolalysenko/a-big-triangle.git"
+  },
+  "keywords": [
+    "triangle",
+    "webgl",
+    "draw"
+  ],
+  "author": "Mikola Lysenko",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "gitHead": "1b45763e3004bc480c72848ba7d079c9fe65d2a1",
+  "bugs": {
+    "url": "https://github.com/mikolalysenko/a-big-triangle/issues"
+  }
+}

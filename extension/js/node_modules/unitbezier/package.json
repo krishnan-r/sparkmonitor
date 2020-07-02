@@ -1,0 +1,28 @@
+{
+  "name": "unitbezier",
+  "version": "0.0.0",
+  "description": "unit bezier curve interpolation",
+  "main": "index.js",
+  "scripts": {
+    "test": "tap test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:mapbox/unitbezier.git"
+  },
+  "keywords": [
+    "unit",
+    "bezier",
+    "interpolation",
+    "webkit"
+  ],
+  "author": "",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/mapbox/unitbezier/issues"
+  },
+  "homepage": "https://github.com/mapbox/unitbezier",
+  "devDependencies": {
+    "tap": "~0.4.8"
+  }
+}

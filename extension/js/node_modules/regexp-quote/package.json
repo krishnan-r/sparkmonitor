@@ -1,0 +1,23 @@
+{
+  "author": "Daniel Brockman <@dbrock>",
+  "name": "regexp-quote",
+  "description": "RegExp.quote = require('regexp-quote')",
+  "version": "0.0.0",
+
+  "homepage": "https://github.com/dbrock/node-regexp-quote",
+  "repository": {
+    "url": "git://github.com/dbrock/node-regexp-quote.git"
+  },
+
+  "main": "regexp-quote.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+
+  "dependencies": {},
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}

@@ -63,9 +63,9 @@ SparkMonitor.prototype.getCellMonitor = function (cell_id) {
  */
 SparkMonitor.prototype.startCellMonitor = function (cell) {
 	var that = this;
-	if (this.cellmonitors[cell.cell_id] != null) {
-		this.cellmonitors[cell.cell_id].removeDisplay();
-	}
+	// if (this.cellmonitors[cell.cell_id] != null) {
+	// 	this.cellmonitors[cell.cell_id].removeDisplay();
+	// }
 	events.one('started' + cell.cell_id + 'currentcell', function () {
 		var c = cell;
 		that.cellExecutedAgain(c);
@@ -169,18 +169,24 @@ SparkMonitor.prototype.startComm = function () {
 	if (this.comm) {
 		this.comm.close()
 	}
+	setTimeout(function(){console.log("sleepo beepo 4")},2000)
 	console.log('SparkMonitor: Starting Comm with kernel.')
 	var that = this;
-	if (Jupyter.notebook.kernel) {
-		this.comm = Jupyter.notebook.kernel.comm_manager.new_comm('SparkMonitor',
-			{ 'msgtype': 'openfromfrontend' });
-		// Register a message handler
-		this.comm.on_msg($.proxy(that.on_comm_msg, that));
-		this.comm.on_close($.proxy(that.on_comm_close, that));
-	}
-	else {
-		console.log("SparkMonitor: No communication established, kernel null");
-	}
+	var refreshInterval = setInterval(function(){ 
+		if (Jupyter.notebook.kernel) {
+			console.log("Looking for notebook kernel", Jupyter.notebook.kernel)
+			this.comm = Jupyter.notebook.kernel.comm_manager.new_comm('SparkMonitor',
+				{ 'msgtype': 'openfromfrontend' });
+			// Register a message handler
+			this.comm.on_msg($.proxy(that.on_comm_msg, that));
+			this.comm.on_close($.proxy(that.on_comm_close, that));
+			console.log("Found communication")
+			clearInterval(refreshInterval)
+		}
+		else {
+			console.log("SparkMonitor: No communication established, kernel null");
+		} 
+	}, 200);	
 }
 
 /**

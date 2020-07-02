@@ -1,0 +1,61 @@
+{
+  "name": "sort-object",
+  "description": "Sort the keys in an object.",
+  "version": "0.3.2",
+  "homepage": "https://github.com/helpers/sort-object",
+  "author": {
+    "name": "Brian Woodward",
+    "url": "https://github.com/doowb"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/helpers/sort-object.git"
+  },
+  "bugs": {
+    "url": "https://github.com/helpers/sort-object/issues"
+  },
+  "maintainers": [
+    {
+      "name": "Jon Schlinkert",
+      "url": "https://github.com/helpers"
+    }
+  ],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/helpers/sort-object/blob/master/LICENSE-MIT"
+    }
+  ],
+  "keywords": [
+    "arr",
+    "array",
+    "function",
+    "js",
+    "key",
+    "keys",
+    "obj",
+    "object",
+    "order",
+    "re",
+    "re-order",
+    "sort",
+    "util",
+    "utils"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha -R spec"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "^4.0.4",
+    "verb": "^0.2.15"
+  },
+  "dependencies": {
+    "sort-asc": "^0.1.0",
+    "sort-desc": "^0.1.1"
+  }
+}

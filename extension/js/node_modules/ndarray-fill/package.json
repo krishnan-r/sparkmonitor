@@ -1,0 +1,40 @@
+{
+  "name": "ndarray-fill",
+  "version": "1.0.2",
+  "description": "Fills an ndarray with function",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "cwise": "^1.0.10"
+  },
+  "devDependencies": {
+    "browserify": "^14.1.0",
+    "tape": "^2.12.3",
+    "zeros": "~0.0.0"
+  },
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mikolalysenko/ndarray-fill.git"
+  },
+  "keywords": [
+    "ndarray",
+    "fill",
+    "eval",
+    "map"
+  ],
+  "author": "Mikola Lysenko",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "gitHead": "8831bd16c9e816764d66abbfb7054f27c40940d5",
+  "bugs": {
+    "url": "https://github.com/mikolalysenko/ndarray-fill/issues"
+  },
+  "browserify": {
+    "transform": ["cwise"]
+  }
+}

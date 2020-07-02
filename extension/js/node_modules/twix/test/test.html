@@ -1,0 +1,24 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <script src="../node_modules/mocha/mocha.js"></script>
+    <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+  </head>
+
+  <body>
+    <div id="mocha"></div>
+
+    <script>mocha.setup('bdd')</script>
+
+    <script src="../node_modules/moment/moment.js"></script>
+    <script src="../node_modules/moment/min/locales.js"></script>
+
+    <script src="../dist/twix.min.js"></script>
+    <script src="twix.spec.js"></script>
+
+    <script>
+      mocha.run();
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,41 @@
+{
+  "name": "glsl-token-descope",
+  "version": "1.0.2",
+  "description": "\"Descope\" an array of GLSL tokens such that they can be safely inlined alongside within another shader without causing any global variable conflicts.",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "test": "node test/index.js | tap-spec",
+    "eyeball": "node test/eyeball.js"
+  },
+  "author": {
+    "name": "Hugh Kennedy",
+    "email": "hughskennedy@gmail.com",
+    "url": "http://hughsk.io/"
+  },
+  "dependencies": {
+    "glsl-token-assignments": "^2.0.0",
+    "glsl-token-depth": "^1.1.0",
+    "glsl-token-properties": "^1.0.0",
+    "glsl-token-scope": "^1.1.0"
+  },
+  "devDependencies": {
+    "6to5": "^2.5.0",
+    "chalk": "^0.5.1",
+    "glsl-token-string": "^1.0.0",
+    "glsl-tokenizer": "^2.0.0",
+    "tap-spec": "^2.1.2",
+    "tape": "^3.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/stackgl/glsl-token-descope.git"
+  },
+  "keywords": [
+    "ecosystem:stackgl"
+  ],
+  "homepage": "https://github.com/stackgl/glsl-token-descope",
+  "bugs": {
+    "url": "https://github.com/stackgl/glsl-token-descope/issues"
+  }
+}

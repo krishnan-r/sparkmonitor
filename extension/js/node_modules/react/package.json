@@ -1,0 +1,66 @@
+{
+  "_from": "react@0.0.0-4a1072194",
+  "_id": "react@0.0.0-4a1072194",
+  "_inBundle": false,
+  "_integrity": "sha512-ZUj2lkUDLjwJaGu4WD0dYSvsfIyhQt2l/AJDlg4ij+rCDU3fSFKgHWanNovViUoaWHAxgrpft3KGFfvWPZH5LA==",
+  "_location": "/react",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "react@0.0.0-4a1072194",
+    "name": "react",
+    "escapedName": "react",
+    "rawSpec": "0.0.0-4a1072194",
+    "saveSpec": null,
+    "fetchSpec": "0.0.0-4a1072194"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/react/-/react-0.0.0-4a1072194.tgz",
+  "_shasum": "eca0e35d0d40fd15770de2e46073aeb654723443",
+  "_spec": "react@0.0.0-4a1072194",
+  "_where": "/Users/acdlite/Code/react/build/node_modules",
+  "browserify": {
+    "transform": [
+      "loose-envify"
+    ]
+  },
+  "bugs": {
+    "url": "https://github.com/facebook/react/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "loose-envify": "^1.1.0",
+    "object-assign": "^4.1.1",
+    "prop-types": "^15.6.2",
+    "scheduler": "^0.12.0"
+  },
+  "deprecated": false,
+  "description": "React is a JavaScript library for building user interfaces.",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "build-info.json",
+    "index.js",
+    "cjs/",
+    "umd/"
+  ],
+  "homepage": "https://reactjs.org/",
+  "keywords": [
+    "react"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "name": "react",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/facebook/react.git"
+  },
+  "version": "16.7.0"
+}

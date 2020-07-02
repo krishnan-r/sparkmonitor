@@ -1,0 +1,39 @@
+{
+  "name": "reduce-simplicial-complex",
+  "version": "1.0.0",
+  "description": "Cancels oppositely oriented cells in a simplicial complex",
+  "main": "reduce.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "cell-orientation": "^1.0.1",
+    "compare-cell": "^1.0.0",
+    "compare-oriented-cell": "^1.0.1"
+  },
+  "devDependencies": {
+    "tape": "^4.0.0",
+    "oriented-simplicial-complex-compare": "^1.0.0"
+  },
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mikolalysenko/reduce-simplicial-complex.git"
+  },
+  "keywords": [
+    "topology",
+    "simplicial",
+    "complex",
+    "orientation",
+    "reduce",
+    "cells"
+  ],
+  "author": "Mikola Lysenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mikolalysenko/reduce-simplicial-complex/issues"
+  },
+  "homepage": "https://github.com/mikolalysenko/reduce-simplicial-complex"
+}

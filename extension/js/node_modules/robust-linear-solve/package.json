@@ -1,0 +1,40 @@
+{
+  "name": "robust-linear-solve",
+  "version": "1.0.0",
+  "description": "Exactly solve a low dimensional linear system",
+  "main": "linsolve.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "robust-determinant": "^1.1.0"
+  },
+  "devDependencies": {
+    "robust-compare": "^1.0.0",
+    "robust-compress": "^1.0.0",
+    "robust-scale": "^1.0.2",
+    "robust-sum": "^1.0.0",
+    "validate-robust-sequence": "^1.0.0",
+    "tape": "^2.12.3"
+  },
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mikolalysenko/robust-linear-solve.git"
+  },
+  "keywords": [
+    "linear",
+    "solve",
+    "robust",
+    "exact",
+    "arithmetic"
+  ],
+  "author": "Mikola Lysenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mikolalysenko/robust-linear-solve/issues"
+  },
+  "homepage": "https://github.com/mikolalysenko/robust-linear-solve"
+}

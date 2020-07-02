@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+
+var rw = require("../");
+
+var reader = rw.fileReader(process.argv[2] || "/dev/stdin"),
+    writer = rw.fileWriter("/dev/stdout"),
+    pipe = rw.pipe();
+
+pass(reader, pipe);
+pass(pipe, writer);
+
+function pass(reader, writer, callback) {
+  reader.fill(function flow(error) {
+    if (error) return void callback(error);
+    var data = reader.read();
+    if (data && !writer.write(data)) return writer.drain(flow);
+    if (reader.ended) return writer.end(callback);
+    reader.fill(flow);
+  });
+}

@@ -1,0 +1,23 @@
+/**
+ * plotly.js #566 case
+ */
+
+const setup = require('./')
+
+let N = 1e3
+
+let positions = Array(N*2).fill(0).map((v, i) => (Math.random() * 10 - 5) )
+let sizes = Array(N).fill(0).map(v => 10)
+let colors = Array(N*4).fill(0).map((v, i) => !((i + 1) % 4) ? .7 : Math.random())
+let glyphs = Array(N).fill('●')
+let borderWidths = Array(N).fill(.5)
+let borderColors = Array(N*4).fill(0).map((v, i) => !((i+1) % 4) ? .7 : 1)
+
+setup({
+  positions,
+  sizes,
+  colors,
+  glyphs,
+  borderColors,
+  borderWidths
+})

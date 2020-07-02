@@ -1,0 +1,43 @@
+{
+  "name": "topojson-client",
+  "version": "2.1.0",
+  "description": "Manipulate TopoJSON and convert it to GeoJSON.",
+  "keywords": [
+    "topojson",
+    "topology",
+    "geojson"
+  ],
+  "homepage": "https://github.com/topojson/topojson-client",
+  "license": "BSD-3-Clause",
+  "author": {
+    "name": "Mike Bostock",
+    "url": "https://bost.ocks.org/mike"
+  },
+  "main": "dist/topojson-client.js",
+  "module": "index",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/topojson/topojson-client.git"
+  },
+  "bin": {
+    "topo2geo": "bin/topo2geo",
+    "topomerge": "bin/topomerge",
+    "topoquantize": "bin/topoquantize"
+  },
+  "scripts": {
+    "pretest": "rm -rf dist && mkdir dist && rollup --banner \"$(preamble)\" -f umd -n topojson -o dist/topojson-client.js -- index.js",
+    "test": "tape 'test/**/*-test.js' && eslint index.js src",
+    "prepublish": "npm run test && uglifyjs --preamble \"$(preamble)\" -cm -o dist/topojson-client.min.js -- dist/topojson-client.js",
+    "postpublish": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'`; git push && git push --tags && cp -v README.md LICENSE.md dist/topojson-client.js dist/topojson-client.min.js ../topojson-bower && cd ../topojson-bower && mv topojson-client.js topojson.js && mv topojson-client.min.js topojson.min.js && git add README.md LICENSE.md topojson.js topojson.min.js && git commit -m \"Release $VERSION.\" && git tag -am \"Release $VERSION.\" v${VERSION} && git push && git push --tags && cd - && cp dist/topojson-client.js ../d3.github.com/topojson.v2.js && cp dist/topojson-client.min.js ../d3.github.com/topojson.v2.min.js && cd ../d3.github.com && git add topojson.v2.js topojson.v2.min.js && git commit -m \"topojson ${VERSION}\" && git push && cd - && zip -j dist/topojson-client.zip -- LICENSE.md README.md dist/topojson-client.js dist/topojson-client.min.js"
+  },
+  "dependencies": {
+    "commander": "2"
+  },
+  "devDependencies": {
+    "eslint": "3",
+    "package-preamble": "0.0",
+    "rollup": "0.36",
+    "tape": "4",
+    "uglify-js": "2"
+  }
+}

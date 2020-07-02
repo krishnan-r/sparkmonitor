@@ -1,0 +1,48 @@
+/**
+ * Test multiple points
+ */
+
+const setup = require('./')
+
+
+//5e6 is allocation maximum
+// var POINT_COUNT = 3e6
+var POINT_COUNT = 1e6
+
+var positions = new Float32Array(2 * POINT_COUNT)
+for(var i=0; i<2*POINT_COUNT; ++i) {
+  positions[i] = Math.random() * 10 - 5
+}
+
+var glyphs = new Array(POINT_COUNT)
+var MARKERS = [ '●', '#', '✝', '+' ]
+for(var i=0; i<POINT_COUNT; ++i) {
+  glyphs[i] = MARKERS[(Math.random() * MARKERS.length)|0]
+}
+
+var colors = new Array(4 * POINT_COUNT)
+var borderColors = new Array(4 * POINT_COUNT)
+for(var i=0; i<4*POINT_COUNT; ++i) {
+  colors[i] = Math.random()
+  // if (!((i+1)%4)) colors[i] = 1;
+  borderColors[i] = +((i % 4) === 3)
+}
+
+
+var sizes = new Float32Array(POINT_COUNT)
+var borderWidths = new Float32Array(POINT_COUNT)
+for(var i=0; i<POINT_COUNT; ++i) {
+  borderWidths[i] = .5
+  sizes[i] = 10 + Math.random() * 10
+}
+
+
+setup({
+  positions:  positions,
+  sizes:      sizes,
+  colors:     colors,
+  glyphs:     glyphs,
+  borderWidths: borderWidths,
+  borderColors: borderColors
+})
+

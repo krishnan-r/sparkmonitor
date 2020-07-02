@@ -1,0 +1,19 @@
+{
+  "extends": "mourner",
+  "rules": {
+    "array-bracket-spacing": "off",
+    "block-scoped-var": "error",
+    "consistent-return": "off",
+    "global-require": "off",
+    "key-spacing": "off",
+    "no-eq-null": "off",
+    "no-new": "off",
+    "no-warning-comments": "error",
+    "object-curly-spacing": "off",
+    "quotes": "off",
+    "space-before-function-paren": "off",
+  },
+  "env": {
+    "es6": true
+  }
+}

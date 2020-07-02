@@ -1,0 +1,42 @@
+{
+  "name": "glsl-token-inject-block",
+  "version": "1.1.0",
+  "description": "safely inject a block of tokens into a shader",
+  "main": "index.js",
+  "license": "MIT",
+  "author": {
+    "name": "Matt DesLauriers",
+    "email": "dave.des@gmail.com",
+    "url": "https://github.com/mattdesl"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "faucet": "0.0.1",
+    "glsl-token-string": "^1.0.1",
+    "glsl-tokenizer": "^2.0.2",
+    "tape": "^4.0.0"
+  },
+  "scripts": {
+    "test": "node test.js | faucet"
+  },
+  "keywords": [
+    "glsl",
+    "glslify",
+    "stackgl",
+    "token",
+    "tokenize",
+    "tokenizer",
+    "start",
+    "varying",
+    "define",
+    "inject"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Jam3/glsl-token-inject-block.git"
+  },
+  "homepage": "https://github.com/Jam3/glsl-token-inject-block",
+  "bugs": {
+    "url": "https://github.com/Jam3/glsl-token-inject-block/issues"
+  }
+}

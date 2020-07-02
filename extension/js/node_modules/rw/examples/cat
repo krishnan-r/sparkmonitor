@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+
+// An implementation of the venerable cat utility [1], which concatenates one or
+// more input files to stdout. Each input file is processed sequentially.
+//
+// When the writer is full (as when writer.write returns false), the writer is
+// drained before subsequent data is read. When the reader ends (as when
+// reader.ended is true), the writer is drained before the next input file is
+// read, flushing the output in case an error occurs on the next file.
+//
+// [1] https://en.wikipedia.org/wiki/Cat_(Unix)
+
+var rw = require("../");
+
+var writer = rw.fileWriter("/dev/stdout");
+
+var inputs = process.argv.slice(2);
+if (inputs.length) inputs.reverse();
+else inputs.push("/dev/stdin");
+
+(function cat() {
+  var input = inputs.pop();
+  if (!input) return writer.end();
+  var reader = rw.fileReader(input);
+
+  reader.fill(function flow(error) {
+    if (error) throw error;
+    var data = reader.read();
+    if (data && !writer.write(data)) return writer.drain(flow);
+    if (reader.ended) return writer.drain(cat);
+    reader.fill(flow);
+  });
+})();

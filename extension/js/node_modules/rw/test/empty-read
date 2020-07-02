@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+
+var rw = require("../");
+
+var reader = rw.fileReader(__filename).bufferLength(10);
+
+reader.fill(function(error) {
+  if (error) throw error;
+  reader.fill(function() {});
+  try {
+    reader.fill(function() {});
+    throw new Error("parallel empty fills should not be allowed");
+  } catch (expected) {}
+});

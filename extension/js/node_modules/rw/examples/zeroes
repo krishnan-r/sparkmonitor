@@ -1,0 +1,27 @@
+#!/usr/bin/env node
+
+// A “pathological inflating” transform as described in Node’s stream.Transform
+// implementation, where every byte of input is interpreted as an integer
+// between 0 and 255, and results in that many bytes of output.
+//
+// [1] https://github.com/joyent/node/blob/v0.10.29/lib/_stream_transform.js#L52-L63
+
+var rw = require("../");
+
+var writer = rw.fileWriter("/dev/stdout"),
+    reader = rw.fileReader(process.argv[2] || "/dev/stdin"),
+    zero = "0".charCodeAt(0);
+
+reader.fill(function flow(error) {
+  if (error) throw error;
+  var input;
+
+  while ((input = reader.read(1)) != null) {
+    var output = new Buffer(input[0]);
+    output.fill(zero);
+    if (!writer.write(output)) return writer.drain(flow);
+  }
+
+  if (reader.ended) return writer.end();
+  reader.fill(flow);
+});

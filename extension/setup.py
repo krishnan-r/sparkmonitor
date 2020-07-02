@@ -8,7 +8,7 @@ with open('VERSION') as version_file:
 
 
 
-setup(name='sparkmonitor',
+setup(name='sparkmonitor-s',
       version=version,
       description='Spark Monitor Extension for Jupyter Notebook',
       author='Krishnan R',

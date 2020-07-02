@@ -1,0 +1,44 @@
+{
+  "name": "mouse-event",
+  "version": "1.0.5",
+  "description": "Cross browser mouse event property access",
+  "main": "mouse.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mikolalysenko/mouse-event.git"
+  },
+  "keywords": [
+    "mouse",
+    "event",
+    "buttons",
+    "which",
+    "button",
+    "element",
+    "target",
+    "srcelement",
+    "polyfill",
+    "fix",
+    "portable",
+    "firefox",
+    "chrome",
+    "mousevent",
+    "click",
+    "left",
+    "right",
+    "middle",
+    "fix",
+    "bug"
+  ],
+  "author": "Mikola Lysenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mikolalysenko/mouse-event/issues"
+  },
+  "homepage": "https://github.com/mikolalysenko/mouse-event"
+}

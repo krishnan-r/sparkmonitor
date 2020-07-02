@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+
+var rw = require("../");
+
+rw.writeFileSync("/dev/stdout", rw.readFileSync(process.argv[2] || "/dev/stdin", "utf8"), "utf8");

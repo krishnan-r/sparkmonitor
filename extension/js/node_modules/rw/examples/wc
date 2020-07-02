@@ -1,0 +1,26 @@
+#!/usr/bin/env node
+
+// A minimal implementation of wc -c [1], which counts the number of bytes in an
+// input stream. (This is a toy example: fs.stat [2] would be much, much faster
+// for normal files, though this approach is still useful for streaming inputs
+// like stdin.)
+//
+// Since `flow` is only called after the reader is filled, reader.read is
+// guaranteed to return non-null when the reader has not yet ended. And since
+// reader.read is called with no length argument, it is guaranteed to return
+// null when the reader has ended.
+//
+// [1] https://en.wikipedia.org/wiki/Wc_(Unix)
+// [2] http://nodejs.org/api/fs.html#fs_fs_stat_path_callback
+
+var rw = require("../");
+
+var reader = rw.fileReader(process.argv[2] || "/dev/stdin"),
+    count = 0;
+
+reader.fill(function flow(error) {
+  if (error) throw error;
+  if (reader.ended) return console.log(count);
+  count += reader.read().length;
+  reader.fill(flow);
+});

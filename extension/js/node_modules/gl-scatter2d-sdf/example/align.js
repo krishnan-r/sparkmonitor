@@ -1,0 +1,22 @@
+/**
+ * Check that symbols are vertically centered
+ */
+
+const setup = require('./')
+
+let positions = [0,5, 5,5, 10,5, 15,5, 20,5, 25,5, 30,5, 35,5]
+let sizes = [150,150,150,150,150,150,150,150]
+let colors = Array(8*4).fill(0).map((v, i) => !((i + 1) % 4) ? .7 : 0)
+let glyphs = '●○■□◆◇+❌'.split('')
+let borderWidths = Array(8).fill(.5)
+let borderColors = Array(8*4).fill(0).map((v, i) => !((i+1) % 4) ? .7 : 1)
+
+
+setup({
+  positions,
+  sizes,
+  colors,
+  glyphs,
+  borderColors,
+  borderWidths
+})
