@@ -169,7 +169,7 @@ SparkMonitor.prototype.startComm = function () {
 	if (this.comm) {
 		this.comm.close()
 	}
-	setTimeout(function(){console.log("sleepo beepo 4")},2000)
+	setTimeout(function(){console.log("waiting")},2000)
 	console.log('SparkMonitor: Starting Comm with kernel.')
 	var that = this;
 	var refreshInterval = setInterval(function(){ 

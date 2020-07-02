@@ -30,8 +30,6 @@ class SparkMonitorHandler(IPythonHandler):
 
         Fetches the Spark Web UI from the configured ports
         """
-        # global proxy_root
-        print("SPARKMONITOR_SERVER: Handler GET 4040")
         # print("SPARKMONITOR_SERVER: Handler GET")
         baseurl = os.environ.get("SPARKMONITOR_UI_HOST", "127.0.0.1")
 
@@ -39,13 +37,11 @@ class SparkMonitorHandler(IPythonHandler):
         port_match = PORT_PARSE.findall(self.request.uri)
         port = '4040' if not port_match else port_match[0]
 
-        # proxy_root = proxy_root_base + port
-
         proxy_root_path = proxy_root_base[:-1]
         
         url = "http://" + baseurl + ":" + port
-        print("SPARKMONITOR_SERVER: Request URI: " + self.request.uri)
-        print("SPARKMONITOR_SERVER: Getting from " + url)
+        # print("SPARKMONITOR_SERVER: Request URI: " + self.request.uri)
+        # print("SPARKMONITOR_SERVER: Getting from " + url)
         
 
         request_path = self.request.uri[(
@@ -108,10 +104,6 @@ def load_jupyter_server_extension(nb_server_app):
     host_pattern = ".*$"
     route_pattern = url_path_join(web_app.settings["base_url"], proxy_root + ".*")
     web_app.add_handlers(host_pattern, [(route_pattern, SparkMonitorHandler)])
-    print('ready')
-    # print('SPARKMONITOR: Starting second handler ')
-    # route_pattern2 = url_path_join(web_app.settings["base_url"], proxy_root2 + ".*")
-    # web_app.add_handlers(host_pattern, [(route_pattern, SparkMonitorHandler2)])
 
 
 try:
