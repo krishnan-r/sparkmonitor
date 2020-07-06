@@ -173,7 +173,7 @@ CellMonitor.prototype.openSparkUI = function (url) {
     iframe.find('.sparkuiframe').width('100%');
     iframe.find('.sparkuiframe').height('100%');
     iframe.dialog({
-        title: "Spark UI 127.0.0.1:4040",
+        title: "Spark UI",
         width: 1000,
         height: 500,
         autoResize: false,
