@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/krishnan-r/sparkmonitor.svg?branch=master)](https://travis-ci.org/krishnan-r/sparkmonitor)
 # Spark Monitor - An extension for Jupyter Notebook
 
+### Note: This project is now maintained at https://github.com/swan-cern/jupyter-extensions
 
 ## [Google Summer of Code - Final Report](https://krishnan-r.github.io/sparkmonitor/) 
 
